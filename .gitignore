@@ -1,0 +1,26 @@
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+
+# VSCode
+.vscode/
+
+# Environment variables
+.env
+
+# Media files
+media/
+
+# Tailwind build cache
+node_modules/
+
+# Collected static files
+staticfiles/

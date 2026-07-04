@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Home Page
+{% endblock %}
+
+{% block content %}
+
+<!-- Navbar -->
+<nav class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <div class="flex justify-between items-center h-16">
+
+            <div>
+                <a href="#" class="text-2xl font-bold text-blue-600">
+                    EduPs
+                </a>
+            </div>
+
+            <div class="flex items-center gap-6">
+
+                <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">
+                    Home
+                </a>
+
+                <a href="{% url 'accounts:register' %}"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Register
+                </a>
+
+                <!-- <a href="{% url 'accounts:login_page'%}"
+                    class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition">
+                    Login
+                </a> -->
+
+            </div>
+
+        </div>
+
+    </div>
+</nav>
+
+
+<!-- Hero -->
+<section class="bg-gradient-to-r from-blue-700 to-blue-500 text-white py-20">
+
+    <div class="max-w-7xl mx-auto px-6 text-center">
+
+        <h1 class="text-5xl font-bold mb-5">
+            Welcome to EduPs
+        </h1>
+
+        <p class="text-xl mb-8">
+            A Smart E-Procurement Platform for Educational Institutions
+        </p>
+
+        <a href="#tenders"
+            class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100">
+            View Open Tenders
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- Tenders -->
+
+<section id="tenders" class="py-16">
+
+    <div class="max-w-7xl mx-auto px-6">
+
+        <h2 class="text-3xl font-bold mb-10 text-center">
+
+            Recently Open Tenders
+
+        </h2>
+
+        <div class="grid md:grid-cols-3 gap-8">
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+
+                <h3 class="text-xl font-semibold">
+                    Computer Lab Equipment
+                </h3>
+
+                <p class="text-gray-600 mt-3">
+                    Procurement of computers and accessories.
+                </p>
+
+                <p class="mt-4 text-sm text-gray-500">
+                    Closing Date: 15 Aug 2026
+                </p>
+
+                <button
+                    class="mt-5 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+
+                    View Details
+
+                </button>
+
+            </div>
+
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+
+                <h3 class="text-xl font-semibold">
+                    Library Books Supply
+                </h3>
+
+                <p class="text-gray-600 mt-3">
+                    Tender for supplying academic books.
+                </p>
+
+                <p class="mt-4 text-sm text-gray-500">
+                    Closing Date: 18 Aug 2026
+                </p>
+
+                <button
+                    class="mt-5 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+
+                    View Details
+
+                </button>
+
+            </div>
+
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+
+                <h3 class="text-xl font-semibold">
+                    Campus Internet Services
+                </h3>
+
+                <p class="text-gray-600 mt-3">
+                    High-speed internet service procurement.
+                </p>
+
+                <p class="mt-4 text-sm text-gray-500">
+                    Closing Date: 22 Aug 2026
+                </p>
+
+                <button
+                    class="mt-5 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+
+                    View Details
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- Testimonials -->
+
+<section class="py-16 bg-gray-50">
+
+    <div class="max-w-6xl mx-auto px-6">
+
+        <h2 class="text-3xl font-bold text-center mb-10">
+
+            Testimonials
+
+        </h2>
+
+        <div class="grid md:grid-cols-3 gap-8">
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+
+                <p class="italic">
+
+                    "EduPs has simplified our procurement process."
+
+                </p>
+
+                <h4 class="mt-4 font-semibold">
+
+                    Kathmandu College
+
+                </h4>
+
+            </div>
+
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+
+                <p class="italic">
+
+                    "Transparent, secure and efficient platform."
+
+                </p>
+
+                <h4 class="mt-4 font-semibold">
+
+                    ABC University
+
+                </h4>
+
+            </div>
+
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+
+                <p class="italic">
+
+                    "Very easy to manage tenders online."
+
+                </p>
+
+                <h4 class="mt-4 font-semibold">
+
+                    XYZ Institute
+
+                </h4>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- Footer -->
+
+<footer class="bg-gray-900 text-white py-6">
+
+    <div class="max-w-7xl mx-auto px-6 text-center">
+
+        <p>
+
+            © 2026 EduPs. All Rights Reserved.
+
+        </p>
+
+    </div>
+
+</footer>
+
+{% endblock %}
+```
