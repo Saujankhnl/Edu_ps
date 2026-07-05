@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Verify OTP
+{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-100 py-12 px-4 transition-all duration-500">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl relative overflow-hidden border border-gray-100/50">
+        
+        <!-- Top Accent Bar -->
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-blue-600 shadow-sm"></div>
+
+        <!-- Heading Zone -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-bounce-slow">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">
+                Verify OTP
+            </h1>
+            <p class="text-sm text-gray-500 mt-2">
+                We sent a 6-digit verification code to your registered communication channel.
+            </p>
+        </div>
+
+        <!-- The OTP Verification Form -->
+        <form id="otp-form" method="POST" novalidate class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Hidden real input that Django collects -->
+            <input type="hidden" id="real-otp" name="otp" required>
+
+            <!-- Six Individual Digit Slots -->
+            <div class="flex justify-between items-center gap-2" id="otp-input-container">
+                <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-box w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all" required>
+                <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-box w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all" required>
+                <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-box w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all" required>
+                <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-box w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all" required>
+                <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-box w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all" required>
+                <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-box w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all" required>
+            </div>
+            
+            <p id="error-message" class="text-xs text-red-500 text-center font-medium hidden">Please fill out all 6 digits correctly.</p>
+
+            <!-- Submit Button Trigger -->
+            <button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2">
+                <span id="btn-text">Verify Code</span>
+                <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </form>
+
+        <!-- Dynamic Timer & Resend Zone -->
+        <div class="text-center mt-8 border-t border-gray-100 pt-6">
+            <p class="text-sm text-gray-500" id="timer-text">
+                Resend code available in <span id="countdown" class="font-bold text-gray-700">02:00</span>
+            </p>
+            <button id="resend-btn" class="text-sm text-blue-600 font-semibold hover:text-blue-700 transition duration-150 hidden focus:outline-none">
+                Resend Verification Code
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- Premium CSS Micro-interactions -->
+<style>
+    @keyframes slowBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+    .animate-bounce-slow {
+        animation: slowBounce 3s ease-in-out infinite;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+    .animate-shake {
+        animation: shake 0.35s ease-in-out;
+    }
+
+    .otp-box-invalid {
+        border-color: #ef4444 !important;
+        background-color: #fef2f2;
+    }
+</style>
+
+<!-- Advanced Form Flow JavaScript Engine -->
+<script>
+    const otpBoxes = document.querySelectorAll('.otp-box');
+    const realOtpInput = document.getElementById('real-otp');
+    const otpForm = document.getElementById('otp-form');
+    const errorMsg = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const spinner = document.getElementById('spinner');
+    
+    // Focus on the first slot automatically when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+        if(otpBoxes[0]) otpBoxes[0].focus();
+        startCountdown(120); // 2 minute default timer
+    });
+
+    // Handle individual box sequence interactions (Typing, Backspacing, Pasting)
+    otpBoxes.forEach((box, idx) => {
+        // Enforce numbers only and handle next-box jumps
+        box.addEventListener('input', (e) => {
+            const val = e.target.value;
+            // Clear invalid chars
+            if (/[^0-9]/g.test(val)) {
+                e.target.value = '';
+                return;
+            }
+
+            if (val && idx < otpBoxes.length - 1) {
+                otpBoxes[idx + 1].focus();
+            }
+            updateRealOtpValue();
+        });
+
+        // Handle structural backspacing key controls
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace') {
+                if (!box.value && idx > 0) {
+                    otpBoxes[idx - 1].value = '';
+                    otpBoxes[idx - 1].focus();
+                } else {
+                    box.value = '';
+                }
+                updateRealOtpValue();
+            }
+        });
+
+        // Let users paste a copied 6-digit text block smoothly
+        box.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text').trim();
+            if (/^\d{6}$/.test(pastedData)) {
+                otpBoxes.forEach((inputBox, currentIdx) => {
+                    inputBox.value = pastedData[currentIdx];
+                });
+                otpBoxes[otpBoxes.length - 1].focus();
+                updateRealOtpValue();
+            }
+        });
+    });
+
+    function updateRealOtpValue() {
+        let compiledToken = "";
+        otpBoxes.forEach(box => compiledToken += box.value);
+        realOtpInput.value = compiledToken;
+        
+        // Hide visual error blocks if user edits inputs
+        if(compiledToken.length === 6) {
+            errorMsg.classList.add('hidden');
+            otpBoxes.forEach(b => b.classList.remove('otp-box-invalid'));
+        }
+    }
+
+    // Intercept form processing for validation checks
+    otpForm.addEventListener('submit', function(e) {
+        if (realOtpInput.value.length !== 6) {
+            e.preventDefault();
+            errorMsg.classList.remove('hidden');
+            otpBoxes.forEach(b => b.classList.add('otp-box-invalid'));
+            
+            // Subtle card shake trigger on bad validation
+            const card = this.closest('div');
+            card.classList.add('animate-shake');
+            setTimeout(() => card.classList.remove('animate-shake'), 400);
+            return;
+        }
+
+        // Processing Loading State Shift
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        btnText.textContent = "Verifying Token...";
+        spinner.classList.remove('hidden');
+    });
+
+    // Countdown Timer UI Infrastructure
+    function startCountdown(durationSeconds) {
+        const timerText = document.getElementById('timer-text');
+        const resendBtn = document.getElementById('resend-btn');
+        const countdownSpan = document.getElementById('countdown');
+        
+        let remaining = durationSeconds;
+        
+        const trackingLoop = setInterval(() => {
+            let minutes = Math.floor(remaining / 60);
+            let seconds = remaining % 60;
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            countdownSpan.textContent = `${minutes}:${seconds}`;
+
+            if (--remaining < 0) {
+                clearInterval(trackingLoop);
+                timerText.classList.add('hidden');
+                resendBtn.classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    // Optional event handle logic for the Resend button click
+    document.getElementById('resend-btn').addEventListener('click', function() {
+        // You can integrate your custom AJAX code path here if needed.
+        // For standard setup, hide button, reset state, show counter again:
+        this.classList.add('hidden');
+        document.getElementById('timer-text').classList.remove('hidden');
+        startCountdown(120); 
+    });
+</script>
+{% endblock %}

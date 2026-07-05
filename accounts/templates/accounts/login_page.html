@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl">
+        
+        <!-- Logo & Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold tracking-tight text-blue-600 drop-shadow-sm">
+                EduPs
+            </h1>
+            <p class="text-gray-500 mt-2">
+                Sign in to your account
+            </p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" method="POST" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Username Input -->
+            <div>
+                <label for="username" class="block mb-2 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Username
+                </label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter username"
+                    required
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+            </div>
+
+            <!-- Password Input with Toggle -->
+            <div>
+                <label for="password" class="block mb-2 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Password
+                </label>
+                <div class="relative">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        required
+                        class="w-full border border-gray-300 rounded-xl pl-4 pr-12 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                    
+                    <!-- Toggle Password Visibility Button -->
+                    <button 
+                        type="button" 
+                        id="togglePassword" 
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition duration-150 focus:outline-none"
+                        aria-label="Toggle password visibility">
+                        <!-- Eye Icon -->
+                        <svg id="eyeIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password Links -->
+            <div class="flex justify-between items-center pt-1">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                    <input
+                        type="checkbox"
+                        name="remember_me"
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition duration-150 cursor-pointer">
+                    <span class="text-sm text-gray-600 group-hover:text-gray-800 transition duration-150">
+                        Remember Me
+                    </span>
+                </label>
+
+                <a href="{% url 'accounts:forget_password' %}"
+                   class="text-sm font-medium text-blue-600 hover:text-blue-700 transition duration-150">
+                    Forgot Password?
+                </a>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+                type="submit"
+                id="submitBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
+                <span id="btnText">Login</span>
+                
+                <!-- Loading Spinner (hidden by default) -->
+                <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="text-center mt-8 border-t border-gray-100 pt-6">
+            <p class="text-sm text-gray-600">
+                Don't have an account?
+                <a href="{% url 'accounts:register' %}" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-150 ml-1">
+                    Register
+                </a>
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Client-side Logic -->
+<script>
+    const passwordInput = document.getElementById('password');
+    const togglePasswordBtn = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+
+    // JS Feature 1: Password Visibility Toggle
+    togglePasswordBtn.addEventListener('click', function() {
+        const isPassword = passwordInput.getAttribute('type') === 'password';
+        passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+        
+        // Dynamic Eye Icon Change (Slash/No-Slash)
+        if (isPassword) {
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+            `;
+        } else {
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            `;
+        }
+    });
+
+    // JS Feature 2: Prevent Double Submission & Add Processing State
+    loginForm.addEventListener('submit', function(e) {
+        if (submitBtn.disabled) {
+            e.preventDefault();
+            return;
+        }
+
+        // Trigger processing styles
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        btnText.textContent = "Signing In...";
+        spinner.classList.remove('hidden');
+    });
+</script>
+{% endblock %}

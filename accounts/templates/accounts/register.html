@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
+        
+        <!-- Subtle Decorative Accent Header Lines -->
+        <div id="accent-bar" class="absolute top-0 left-0 right-0 h-1.5 bg-blue-600 transition-colors duration-300"></div>
+
+        <!-- Heading Zone -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold tracking-tight text-blue-600 drop-shadow-sm">
+                EduPs
+            </h1>
+            <p id="register-subtitle" class="text-gray-500 mt-2 font-medium">
+                Choose Account Type
+            </p>
+        </div>
+
+        <!-- Dynamic Back Button (hidden during role selection) -->
+        <button 
+            type="button" 
+            id="back-btn" 
+            class="hidden items-center text-sm font-semibold text-gray-500 hover:text-gray-800 transition mb-6 focus:outline-none">
+            &larr; Change Account Type
+        </button>
+
+        <!-- Premium Account Selection Cards -->
+        <div id="choice-box" class="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
+            <!-- Institution Card -->
+            <button
+                type="button"
+                id="institution-btn"
+                class="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm hover:border-blue-500 hover:shadow-md transition-all duration-200 group text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition duration-200">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <span class="block text-lg font-bold text-gray-800 group-hover:text-blue-600 transition">Institution</span>
+                <span class="block text-xs text-gray-400 mt-1">Schools, Colleges, Universities</span>
+            </button>
+
+            <!-- Company Card -->
+            <button
+                type="button"
+                id="company-btn"
+                class="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm hover:border-green-500 hover:shadow-md transition-all duration-200 group text-center focus:outline-none focus:ring-2 focus:ring-green-500">
+                <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-4 group-hover:bg-green-100 transition duration-200">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <span class="block text-lg font-bold text-gray-800 group-hover:text-green-600 transition">Company</span>
+                <span class="block text-xs text-gray-400 mt-1">Businesses & Private Agencies</span>
+            </button>
+        </div>
+
+
+        <!-- Institution Registration Form -->
+        <form
+            id="institution-form"
+            method="POST"
+            class="hidden space-y-4 opacity-0 transform translate-y-4 transition-all duration-300">
+            {% csrf_token %}
+            <input type="hidden" name="user_type" value="institution">
+
+            <h2 class="text-2xl font-bold text-center text-blue-600 mb-2">Institution Registration</h2>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Institution Name</label>
+                <input type="text" name="institution_name" placeholder="e.g., EduPs Academy" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Institution Email</label>
+                <input type="email" name="email" placeholder="admin@institution.com" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Phone Number</label>
+                <input type="tel" name="phone_number" placeholder="Enter phone number" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</label>
+                <textarea name="address" rows="3" placeholder="Full legal location address" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Admin Username</label>
+                <input type="text" name="username" placeholder="Choose admin username" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Password</label>
+                <div class="relative">
+                    <input type="password" name="password" placeholder="Create robust password" required class="password-input w-full border border-gray-300 rounded-xl pl-4 pr-12 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <button type="button" class="toggle-password absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 focus:outline-none">
+                        <svg class="h-5 w-5 eye-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
+                <span class="btn-text">Register Institution</span>
+                <svg class="spinner animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </form>
+
+
+        <!-- Company Registration Form -->
+        <form
+            id="company-form"
+            method="POST"
+            class="hidden space-y-4 opacity-0 transform translate-y-4 transition-all duration-300">
+            {% csrf_token %}
+            <input type="hidden" name="user_type" value="company">
+
+            <h2 class="text-2xl font-bold text-center text-green-600 mb-2">Company Registration</h2>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Company Name</label>
+                <input type="text" name="company_name" placeholder="e.g., EduPs Logistics Ltd" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Company Email</label>
+                <input type="email" name="email" placeholder="contact@company.com" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Phone Number</label>
+                <input type="tel" name="phone_number" placeholder="Enter phone number" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</label>
+                <textarea name="address" rows="3" placeholder="Corporate office address" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Corporate Username</label>
+                <input type="text" name="username" placeholder="Choose company username" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+            </div>
+
+            <div>
+                <label class="block mb-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Password</label>
+                <div class="relative">
+                    <input type="password" name="password" placeholder="Create robust password" required class="password-input w-full border border-gray-300 rounded-xl pl-4 pr-12 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                    <button type="button" class="toggle-password absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-green-600 focus:outline-none">
+                        <svg class="h-5 w-5 eye-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
+                <span class="btn-text">Register Company</span>
+                <svg class="spinner animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </form>
+
+
+        <!-- Secondary Action Footer Links -->
+        <div class="text-center mt-8 border-t border-gray-100 pt-6">
+            <p class="text-sm text-gray-600">
+                Already have an account?
+                <a href="{% url 'accounts:login_page' %}" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-150 ml-1">
+                    Login
+                </a>
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Custom Form Animations (Injection via CSS block if needed, or embedded) -->
+<style>
+    @keyframes fadeInTranslate {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-form-active {
+        display: block !important;
+        animation: fadeInTranslate 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+
+<!-- Enhanced Viewport Logic Scripts -->
+<script>
+    const institutionBtn = document.getElementById("institution-btn");
+    const companyBtn = document.getElementById("company-btn");
+    const backBtn = document.getElementById("back-btn");
+    const choiceBox = document.getElementById("choice-box");
+    const institutionForm = document.getElementById("institution-form");
+    const companyForm = document.getElementById("company-form");
+    const subtitle = document.getElementById("register-subtitle");
+    const accentBar = document.getElementById("accent-bar");
+
+    // Helper: Show Form Sequence
+    function displayForm(targetForm, type) {
+        choiceBox.classList.add("hidden");
+        backBtn.classList.remove("hidden");
+        backBtn.classList.add("flex");
+        
+        // Form specific themes
+        if (type === 'institution') {
+            accentBar.className = "absolute top-0 left-0 right-0 h-1.5 bg-blue-600 transition-all duration-300";
+            subtitle.textContent = "Fill details to construct institution panel";
+            institutionForm.classList.add("animate-form-active");
+        } else {
+            accentBar.className = "absolute top-0 left-0 right-0 h-1.5 bg-green-600 transition-all duration-300";
+            subtitle.textContent = "Fill details to construct company profile";
+            companyForm.classList.add("animate-form-active");
+        }
+    }
+
+    // Helper: Reset view sequence back to core cards
+    function resetView() {
+        // Clear active animations & class strings
+        institutionForm.classList.remove("animate-form-active");
+        companyForm.classList.remove("animate-form-active");
+        institutionForm.classList.add("hidden");
+        companyForm.classList.add("hidden");
+        backBtn.classList.remove("flex");
+        backBtn.classList.add("hidden");
+
+        // Revert card dashboard layout
+        choiceBox.classList.remove("hidden");
+        accentBar.className = "absolute top-0 left-0 right-0 h-1.5 bg-blue-600";
+        subtitle.textContent = "Choose Account Type";
+    }
+
+    // Event listeners for routing selection
+    institutionBtn.addEventListener("click", () => displayForm(institutionForm, 'institution'));
+    companyBtn.addEventListener("click", () => displayForm(companyForm, 'company'));
+    backBtn.addEventListener("click", resetView);
+
+    // Password Eye Toggles for both scopes
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.closest('.relative');
+            const passwordField = container.querySelector('.password-input');
+            const eyeIcon = this.querySelector('.eye-icon');
+            
+            const isPassword = passwordField.getAttribute('type') === 'password';
+            passwordField.setAttribute('type', isPassword ? 'text' : 'password');
+            
+            if (isPassword) {
+                eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />`;
+            } else {
+                eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+            }
+        });
+    });
+
+    // Uniform Form Submission Anti-Spam Loading Guard
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const currentButton = this.querySelector('.submit-btn');
+            if (currentButton.disabled) {
+                e.preventDefault();
+                return;
+            }
+            currentButton.disabled = true;
+            currentButton.classList.add('opacity-75', 'cursor-not-allowed');
+            this.querySelector('.btn-text').textContent = "Processing Registration...";
+            this.querySelector('.spinner').classList.remove('hidden');
+        });
+    });
+</script>
+{% endblock %}
