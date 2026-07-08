@@ -1,14 +1,41 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from django.db import transaction, IntegrityError
 from django.contrib import messages
-from .models import Institution, Company
 import random
+from institution.models import Institution, InstitutionUser
+from company.models import Company
+
 # Create your views here.
+
+
 def homepage(request):
     return render(request,"accounts/home.html")
 
 def login_page(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"Welcome back, {user.username}!")
+
+            if hasattr(user, 'institution_profile'):
+                return redirect("institution:dashboard")
+            elif hasattr(user, 'company'):
+                return redirect("company:dashboard")
+            else:
+                
+                return redirect("accounts:home")
+
+        else:
+            messages.error(request, "Invalid username or password.")
+            return redirect("accounts:login_page")
+
     return render(request,"accounts/login_page.html")
 
 
@@ -17,6 +44,7 @@ def register(request):
 
     if request.method == "POST":
         user_type = request.POST.get("user_type")
+        
         email = request.POST.get("email")
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -29,11 +57,18 @@ def register(request):
             try:
                 with transaction.atomic():
                     user = User.objects.create_user(username=username, email=email, password=password)
-                    Institution.objects.create(
-                        user=user,
+                    
+                    
+                    institution = Institution.objects.create(
+                        user=user, 
                         institution_name=institution_name,
                         phone_number=phone_number,
                         address=address,
+                        email=email,
+                    )
+                    
+                    InstitutionUser.objects.create(
+                        user=user, institution=institution, role='admin'
                     )
                 messages.success(request, "Institution account created successfully! Please log in.")
                 return redirect("accounts:login_page")
@@ -53,6 +88,7 @@ def register(request):
                         company_name=company_name,
                         phone_number=phone_number,
                         address=address,
+                        email=email,
                     )
                 messages.success(request, "Company account created successfully! Please log in.")
                 return redirect("accounts:login_page")

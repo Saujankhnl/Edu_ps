@@ -1,9 +1,337 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}
-Dashboard
-{% endblock %}
+{% block title %}Institution Dashboard{% endblock %}
 
 {% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-indigo-50/30 flex text-gray-800 antialiased dynamic-fade-in">
+    
+    <aside class="w-64 bg-white border-r border-gray-200/80 flex flex-col justify-between hidden md:flex shrink-0 shadow-sm z-10">
+        <div class="p-6">
+            <div class="flex items-center space-x-2 mb-8">
+                <span class="text-xl font-bold text-blue-600 tracking-tight font-serif">EduPs Tenders</span>
+            </div>
 
+            <nav class="space-y-7">
+                <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">Main Menu</span>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-semibold text-blue-600 bg-blue-50/60 shadow-xs transition-all">
+                                <svg class="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/>
+                                </svg>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                                Institution Profile
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                {% if role == 'admin' or not role %}
+                <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">Administration</span>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="{% url 'institution:manage_users' %}" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                Manage Users
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Tender Reports
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">Tender Approval</span>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                Pending Approval
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Approved Tenders
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Rejected Tenders
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <div class="flex items-center space-x-3 overflow-hidden">
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-blue-100 shrink-0">
+                    {{ request.user.username|slice:":1"|upper|default:"M" }}
+                </div>
+                <div class="overflow-hidden">
+                    <span class="block text-sm font-bold text-gray-900 truncate">{{ request.user.get_full_name|default:"MMC" }}</span>
+                    <span class="block text-xs font-medium text-gray-400 capitalize truncate">Institution {{ role|default:"Admin" }}</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto flex flex-col">
+        
+        <header class="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/80 px-4 sm:px-8 flex items-center justify-end space-x-6 shrink-0 z-10">
+            <button class="relative p-2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors group" aria-label="Notifications">
+                <svg class="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.027 6.027 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                <span class="absolute top-1.5 right-2 w-2.5 h-2.5 bg-blue-600 rounded-full ring-2 ring-white"></span>
+            </button>
+
+            <div class="w-9 h-9 rounded-full bg-cyan-600 flex items-center justify-center text-white font-semibold text-sm shadow-inner cursor-pointer hover:opacity-90 transition-opacity">
+                {{ request.user.username|slice:":1"|upper|default:"M" }}
+            </div>
+        </header>
+
+        <div class="p-4 sm:p-6 lg:p-8 flex-1">
+            <div class="max-w-7xl mx-auto space-y-8">
+                
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between p-6 bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm transition-all duration-300 hover:shadow-md">
+                    <div>
+                        <div class="flex items-center space-x-2.5">
+                            <span class="h-3 w-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-400 animate-pulse"></span>
+                            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Workspace Dashboard</h1>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Welcome back, <span class="font-semibold text-gray-800">{{ request.user.get_full_name|default:"MMC Workspace" }}</span>! Base application metrics are operational.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </span>
+                            <input id="table-search" type="text" placeholder="Filter ledger rows..." class="w-full sm:w-56 text-sm rounded-xl pl-9 pr-4 py-2 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all bg-gray-50/50 focus:bg-white placeholder-gray-400">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {% for key, value in stats.items %}
+                    <div class="bg-white p-6 border border-gray-200/60 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500/0 group-hover:bg-indigo-600 transition-all duration-300"></div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ key }}</h3>
+                        <div class="flex items-baseline justify-between mt-2">
+                            <p class="text-3xl font-extrabold tracking-tight text-gray-900 count-up-animation">{{ value }}</p>
+                            <span class="p-2 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="bg-white p-6 border border-gray-200/60 rounded-2xl shadow-sm space-y-2">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Scopes</h3>
+                        <p class="text-3xl font-extrabold text-gray-900">12</p>
+                    </div>
+                    <div class="bg-white p-6 border border-gray-200/60 rounded-2xl shadow-sm space-y-2">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pending Approvals</h3>
+                        <p class="text-3xl font-extrabold text-gray-900">4</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+                    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold tracking-tight text-gray-900">Recent Tenders Ledger</h2>
+                            <p class="text-xs text-gray-400 mt-0.5">Real-time status indexes matching repository database scopes.</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-1 bg-white p-1 border border-gray-200 rounded-xl shadow-inner text-xs font-medium">
+                            <button data-filter="all" class="filter-tab px-3 py-1.5 rounded-lg bg-indigo-600 text-white shadow-sm transition-all">All</button>
+                            <button data-filter="active" class="filter-tab px-3 py-1.5 rounded-lg text-gray-500 hover:text-gray-900 transition-all">Active / Approved</button>
+                            <button data-filter="pending" class="filter-tab px-3 py-1.5 rounded-lg text-gray-500 hover:text-gray-900 transition-all">Pending</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="min-w-full divide-y divide-gray-100 text-sm">
+                            <thead class="bg-gray-50/50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3.5 text-left font-semibold text-gray-500 tracking-tight">Scope & Identification</th>
+                                    <th scope="col" class="px-6 py-3.5 text-left font-semibold text-gray-500 tracking-tight">Verification Status</th>
+                                    <th scope="col" class="px-6 py-3.5 text-left font-semibold text-gray-500 tracking-tight">Database Index Stamp</th>
+                                    <th scope="col" class="relative px-6 py-3.5 text-right font-medium text-gray-400">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tender-rows" class="bg-white divide-y divide-gray-100">
+                                {% for tender in tenders|slice:":5" %}
+                                <tr class="tender-row hover:bg-gray-50/60 transition-colors duration-150" data-status="{{ tender.get_status_display|lower }}">
+                                    <td class="px-6 py-4 font-semibold text-gray-900 search-target whitespace-nowrap">{{ tender.title }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ring-inset {{ tender.get_status_badge_class|default:'bg-gray-50 text-gray-600 ring-gray-500/10' }} badge-target">
+                                            {{ tender.get_status_display|default:"Active" }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500 whitespace-nowrap">{{ tender.updated_at|date:"Y-m-d H:i"|default:"Just now" }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right font-medium">
+                                        <a href="#" class="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50/50 hover:bg-indigo-100/70 px-3 py-1 rounded-lg transition-all duration-150">
+                                            View
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr id="no-search-results">
+                                    <td colspan="4" class="px-6 py-10 text-center text-sm text-gray-400 font-medium">
+                                        No records match your localized filter criteria.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                
+                                <tr id="js-filter-fallback" class="hidden">
+                                    <td colspan="4" class="px-6 py-10 text-center text-sm text-gray-400 font-medium">
+                                        No records match your localized filter criteria.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+    .dynamic-fade-in {
+        animation: pageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes pageFadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .active-tab-state {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    .tender-row {
+        transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .tender-row:hover {
+        transform: scale(1.002);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableSearch = document.getElementById('table-search');
+        const tenderRows = document.querySelectorAll('.tender-row');
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const jsFallbackRow = document.getElementById('js-filter-fallback');
+
+        let currentActiveFilter = 'all';
+        let currentSearchQuery = '';
+
+        function evaluateLedgerRows() {
+            let matchesFoundCount = 0;
+
+            tenderRows.forEach(row => {
+                const titleText = row.querySelector('.search-target').textContent.toLowerCase();
+                const badgeText = row.querySelector('.badge-target').textContent.toLowerCase();
+                const rowStatus = row.getAttribute('data-status') || '';
+
+                let matchesFilter = false;
+                if (currentActiveFilter === 'all') {
+                    matchesFilter = true;
+                } else if (currentActiveFilter === 'active') {
+                    matchesFilter = badgeText.includes('active') || rowStatus.includes('active') || badgeText.includes('approved');
+                } else if (currentActiveFilter === 'pending') {
+                    matchesFilter = badgeText.includes('pending') || rowStatus.includes('pending') || badgeText.includes('draft');
+                }
+
+                const matchesSearch = titleText.includes(currentSearchQuery) || badgeText.includes(currentSearchQuery);
+
+                if (matchesFilter && matchesSearch) {
+                    row.classList.remove('hidden');
+                    matchesFoundCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if (tenderRows.length > 0 && jsFallbackRow) {
+                if (matchesFoundCount === 0) {
+                    jsFallbackRow.classList.remove('hidden');
+                } else {
+                    jsFallbackRow.classList.add('hidden');
+                }
+            }
+        }
+
+        if (tableSearch) {
+            tableSearch.addEventListener('input', (e) => {
+                currentSearchQuery = e.target.value.toLowerCase().trim();
+                evaluateLedgerRows();
+            });
+        }
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.className = 'filter-tab px-3 py-1.5 rounded-lg text-gray-500 hover:text-gray-900 transition-all');
+                tab.className = 'filter-tab px-3 py-1.5 rounded-lg active-tab-state transition-all';
+                
+                currentActiveFilter = tab.getAttribute('data-filter');
+                evaluateLedgerRows();
+            });
+        });
+        
+        evaluateLedgerRows();
+    });
+</script>
 {% endblock %}
