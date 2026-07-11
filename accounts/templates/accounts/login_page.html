@@ -66,17 +66,7 @@ Login
             </div>
 
             <!-- Remember Me & Forgot Password Links -->
-            <div class="flex justify-between items-center pt-1">
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input
-                        type="checkbox"
-                        name="remember_me"
-                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition duration-150 cursor-pointer">
-                    <span class="text-sm text-gray-600 group-hover:text-gray-800 transition duration-150">
-                        Remember Me
-                    </span>
-                </label>
-
+            <div class="flex justify-end items-center pt-1">
                 <a href="{% url 'accounts:forget_password' %}"
                    class="text-sm font-medium text-blue-600 hover:text-blue-700 transition duration-150">
                     Forgot Password?
