@@ -1,19 +1,28 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.db import transaction, IntegrityError
 from django.contrib import messages
 import random
-from institution.models import Institution, InstitutionUser
+from institution.models import Institution, InstitutionUser, Tender
 from company.models import Company
 
 # Create your views here.
 
 
 def homepage(request):
-    return render(request,"accounts/home.html")
+    published_tenders = Tender.objects.filter(status='published').order_by('-updated_at')
+    context = {'tenders': published_tenders}
+    return render(request,"accounts/home.html", context)
 
 def login_page(request):
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'institution_profile'):
+            return redirect("institution:dashboard")
+        elif hasattr(request.user, 'company'):
+            return redirect("company:dashboard")
+        return redirect("accounts:home")
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -23,6 +32,8 @@ def login_page(request):
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
+
+            request.session.set_expiry(None)
 
             if hasattr(user, 'institution_profile'):
                 return redirect("institution:dashboard")
@@ -38,10 +49,20 @@ def login_page(request):
 
     return render(request,"accounts/login_page.html")
 
+def logout_view(request):
+    logout(request)
+    messages.info(request, "You have been successfully logged out.")
+    return redirect("accounts:home")
+
 
 def register(request):
 
-
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'institution_profile'):
+            return redirect("institution:dashboard")
+        elif hasattr(request.user, 'company'):
+            return redirect("company:dashboard")
+        return redirect("accounts:home")
     if request.method == "POST":
         user_type = request.POST.get("user_type")
         
