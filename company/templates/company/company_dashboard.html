@@ -1,20 +1,305 @@
-{% extends 'base.html' %}
-
-{% block title %}
-Company Dashboard
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-100">
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    <h1 class="text-3xl font-bold text-green-600">Welcome to the Company Dashboard!</h1>
-                    <p class="mt-4 text-gray-700">This is your portal for viewing and bidding on open tenders.</p>
+<style>
+    /* Sidebar styling & transitions */
+    .sidebar {
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    /* Smooth hover animations for cards */
+    .stat-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    }
+
+    /* Status badge colors */
+    .badge-accepted {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .badge-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .badge-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .badge-default {
+        background-color: #e5e7eb;
+        color: #1f2937;
+    }
+</style>
+
+<div class="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+    
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:static md:h-screen">
+        <div>
+            <div class="h-16 flex items-center justify-between px-6 bg-slate-950">
+                <span class="text-lg font-bold text-white tracking-wider flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    ADMIN PANEL
+                </span>
+                <button id="closeSidebarBtn" class="md:hidden text-gray-400 hover:text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="mt-6 px-4 space-y-1.5">
+                <a href="{% url 'company:dashboard' %}" class="flex items-center px-4 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+
+                <a href="#" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Browse Tenders
+                </a>
+
+                <a href="#" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    My Bids
+                </a>
+
+                <a href="{% url 'company:company_profile' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Profile
+                </a>
+                
+                <a href="{% url 'company:analytics_reports' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics & Reports
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 bg-slate-950">
+            <a href="{% url 'accounts:logout' %}" class="flex items-center justify-center w-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition duration-150">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <div id="sidebarBackdrop" class="fixed inset-0 z-30 bg-black bg-opacity-50 hidden md:hidden"></div>
+
+    <main class="flex-1 flex flex-col min-w-0">
+        
+        <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20">
+            <div class="flex items-center">
+                <button id="openSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-800 focus:outline-none mr-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="hidden sm:block">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Welcome Back</span>
+                    <h2 class="text-sm font-bold text-gray-800">Administrator Panel</h2>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'accounts:home' %}" class="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-xl text-xs transition duration-150">
+                    Home Portal
+                </a>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 space-y-8 flex-1">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                    <h1 class="text-2xl font-black text-gray-900 tracking-tight">System Metrics</h1>
+                    <p class="text-xs text-gray-500 mt-0.5">Overview of active profiles, operations and bid structures.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Published</h3>
+                            <p class="text-4xl font-black text-blue-600 mt-2" id="val-published">{{ stats.total_published_tenders }}</p>
+                        </div>
+                        <div class="mt-4 text-xs text-gray-400">Total tender items listed</div>
+                    </div>
+                    
+                    <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Bids</h3>
+                            <p class="text-4xl font-black text-emerald-600 mt-2" id="val-submitted">{{ stats.total_submitted_bids }}</p>
+                        </div>
+                        <div class="mt-4 text-xs text-gray-400">Overall submitted offers</div>
+                    </div>
+                    
+                    <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Bids</h3>
+                            <p class="text-4xl font-black text-amber-500 mt-2" id="val-active">{{ stats.active_bids }}</p>
+                        </div>
+                        <div class="mt-4 text-xs text-gray-400">Open active tenders</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col items-center justify-center shadow-sm">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 self-start">Tender Analytics</h3>
+                    <div class="w-full h-40 flex items-center justify-center">
+                        <canvas id="statsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-gray-900">Recent Activities</h2>
+                    <span class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full">Live Connection</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="py-3.5 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Tender Title</th>
+                                <th scope="col" class="py-3.5 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Bid Amount</th>
+                                <th scope="col" class="py-3.5 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Submitted On</th>
+                                <th scope="col" class="py-3.5 px-6 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 bg-white">
+                            {% for bid in recent_activities %}
+                            <tr class="hover:bg-gray-50/70 transition duration-150">
+                                <td class="py-4 px-6 whitespace-nowrap">
+                                    <a href="{% url 'company:bid_detail' bid.id %}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                                        {{ bid.tender.title }}
+                                    </a>
+                                </td>
+                                <td class="py-4 px-6 whitespace-nowrap text-sm font-bold text-gray-900">
+                                    ${{ bid.bid_amount|floatformat:2 }}
+                                </td>
+                                <td class="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
+                                    {{ bid.submitted_at|date:"Y-m-d H:i" }}
+                                </td>
+                                <td class="py-4 px-6 whitespace-nowrap text-center">
+                                    <span class="status-badge px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full" data-status="{{ bid.get_status_display|lower }}">
+                                        {{ bid.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="py-12 px-6 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                    </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No activities found</h3>
+                                    <p class="mt-1 text-xs text-gray-400">There are no recently submitted bids to track.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // 1. Mobile Sidebar Toggle Operations
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        openBtn.addEventListener('click', toggleSidebar);
+        closeBtn.addEventListener('click', toggleSidebar);
+        backdrop.addEventListener('click', toggleSidebar);
+
+        // 2. Dynamic Status Badge Styling
+        const badges = document.querySelectorAll('.status-badge');
+        badges.forEach(badge => {
+            const status = badge.getAttribute('data-status').trim();
+            if (status.includes('accept') || status.includes('approved') || status.includes('success')) {
+                badge.classList.add('badge-accepted');
+            } else if (status.includes('pend') || status.includes('review') || status.includes('active')) {
+                badge.classList.add('badge-pending');
+            } else if (status.includes('reject') || status.includes('fail') || status.includes('decline')) {
+                badge.classList.add('badge-rejected');
+            } else {
+                badge.classList.add('badge-default');
+            }
+        });
+
+        // 3. Setup Dashboard Analytics Doughnut Chart
+        const published = parseInt(document.getElementById('val-published').textContent) || 0;
+        const submitted = parseInt(document.getElementById('val-submitted').textContent) || 0;
+        const active = parseInt(document.getElementById('val-active').textContent) || 0;
+
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Published', 'Submitted', 'Active'],
+                datasets: [{
+                    data: [published, submitted, active],
+                    backgroundColor: [
+                        'rgba(37, 99, 235, 0.95)',   // Blue
+                        'rgba(16, 185, 129, 0.95)',  // Emerald
+                        'rgba(245, 158, 11, 0.95)'   // Amber
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 8,
+                            padding: 10,
+                            font: {
+                                size: 10,
+                                family: 'ui-sans-serif, system-ui, sans-serif',
+                                weight: '500'
+                            }
+                        }
+                    }
+                },
+                cutout: '72%'
+            }
+        });
+    });
+</script>
 {% endblock %}
