@@ -17,18 +17,19 @@
     }
 </style>
 
-<div class="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+<div class="h-screen w-screen overflow-hidden bg-gray-50 flex flex-col md:flex-row">
     
-    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:static md:h-screen">
+    <!-- Sidebar Panel Container -->
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:relative md:h-full flex-shrink-0 shadow-xl md:shadow-none">
         <div>
-            <div class="h-16 flex items-center justify-between px-6 bg-slate-950">
+            <div class="h-16 flex items-center justify-between px-6 bg-slate-950 border-b border-slate-800/50">
                 <span class="text-lg font-bold text-white tracking-wider flex items-center">
                     <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
                     ADMIN PANEL
                 </span>
-                <button id="closeSidebarBtn" class="md:hidden text-gray-400 hover:text-white focus:outline-none">
+                <button id="closeSidebarBtn" class="md:hidden text-gray-400 hover:text-white focus:outline-none p-1 rounded-lg hover:bg-slate-800">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -42,7 +43,6 @@
                     </svg>
                     Dashboard
                 </a>
-
 
                 <a href="{% url 'tenders:my_bids' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
                     <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -68,9 +68,9 @@
             </nav>
         </div>
 
-        <div class="p-4 bg-slate-950">
+        <div class="p-4 bg-slate-950 border-t border-slate-800/50">
             <a href="{% url 'accounts:logout' %}" class="flex items-center justify-center w-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition duration-150">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                 </svg>
                 Sign Out
@@ -78,13 +78,16 @@
         </div>
     </aside>
 
-    <div id="sidebarBackdrop" class="fixed inset-0 z-30 bg-black bg-opacity-50 hidden md:hidden"></div>
+    <!-- Backdrop overlay for mobile viewport panels -->
+    <div id="sidebarBackdrop" class="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm hidden md:hidden transition-opacity duration-300"></div>
 
-    <main class="flex-1 flex flex-col min-w-0">
+    <!-- Main Workspace Application Content View Window -->
+    <main class="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
         
-        <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20">
+        <!-- Sticky Navigation Controls Header -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 flex-shrink-0">
             <div class="flex items-center">
-                <button id="openSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-800 focus:outline-none mr-4">
+                <button id="openSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-800 focus:outline-none mr-4 p-1 rounded-lg hover:bg-gray-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
@@ -100,7 +103,8 @@
             </div>
         </header>
 
-        <div class="p-4 md:p-8 space-y-8 flex-1">
+        <!-- Inner Content Scroll Container Area -->
+        <div class="p-4 md:p-8 space-y-8 max-w-6xl w-full mx-auto">
             
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
@@ -110,25 +114,25 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Bids Submitted</h3>
                     <p class="text-3xl font-black text-slate-800 mt-2" id="val-total">{{ total_bids }}</p>
                     <p class="text-xs text-gray-400 mt-1">Global applied bid count</p>
                 </div>
 
-                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Successful Bids</h3>
                     <p class="text-3xl font-black text-emerald-600 mt-2" id="val-success">{{ successful_bids }}</p>
                     <p class="text-xs text-emerald-500 mt-1">✔ Tender contract awarded</p>
                 </div>
 
-                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pending Evaluation</h3>
                     <p class="text-3xl font-black text-amber-500 mt-2" id="val-pending">{{ pending_bids }}</p>
                     <p class="text-xs text-amber-500 mt-1">⏳ Awaiting reviewer responses</p>
                 </div>
 
-                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="stat-card bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Failed Offers</h3>
                     <p class="text-3xl font-black text-rose-600 mt-2" id="val-failure">{{ total_failed_offers }}</p>
                     <p class="text-xs text-rose-400 mt-1">✖ Rejected or expired bids</p>
@@ -137,7 +141,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between items-center">
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between items-center">
                     <div class="self-start mb-4">
                         <h3 class="text-sm font-bold text-gray-800">Bid Success & Failure Distribution</h3>
                         <p class="text-xs text-gray-400">Visualization of success proportions.</p>
@@ -147,7 +151,7 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between">
                     <div class="mb-4">
                         <h3 class="text-sm font-bold text-gray-800">Bidding Velocity & Conversion</h3>
                         <p class="text-xs text-gray-400">Monthly breakdown of historical bids compared against wins.</p>
@@ -159,8 +163,8 @@
 
             </div>
 
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                <div class="p-6 border-b border-gray-100">
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                <div class="p-6 border-b border-gray-200">
                     <h2 class="text-lg font-bold text-gray-900">Historical Performance Breakdown</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Categorized breakdown of all tenders applied and respective outcomes.</p>
                 </div>
@@ -179,7 +183,7 @@
                                 <td class="py-4 px-6 font-semibold text-gray-800 flex items-center">
                                     <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span> Successful (Accepted)
                                 </td>
-                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-success-vol">{{ successful_bids }}</td> {# Already correct #}
+                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-success-vol">{{ successful_bids }}</td>
                                 <td class="py-4 px-6 text-center text-emerald-600 font-bold" id="tbl-success-pct"></td>
                                 <td class="py-4 px-6 text-gray-500 text-xs">High progression. Keep offering bids in similar budgetary scope.</td>
                             </tr>
@@ -187,7 +191,7 @@
                                 <td class="py-4 px-6 font-semibold text-gray-800 flex items-center">
                                     <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span> Pending Review
                                 </td>
-                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-pending-vol">{{ pending_bids }}</td> {# Already correct #}
+                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-pending-vol">{{ pending_bids }}</td>
                                 <td class="py-4 px-6 text-center text-amber-500 font-bold" id="tbl-pending-pct"></td>
                                 <td class="py-4 px-6 text-gray-500 text-xs">Stabilized pipeline. Outstanding decisions pending evaluation from evaluators.</td>
                             </tr>
@@ -195,7 +199,7 @@
                                 <td class="py-4 px-6 font-semibold text-gray-800 flex items-center">
                                     <span class="w-3 h-3 rounded-full bg-rose-500 mr-2"></span> Failures (Rejected)
                                 </td>
-                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-fail-vol">{{ total_failed_offers }}</td> {# Updated to use total_failed_offers #}
+                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-fail-vol">{{ total_failed_offers }}</td>
                                 <td class="py-4 px-6 text-center text-rose-500 font-bold" id="tbl-fail-pct"></td>
                                 <td class="py-4 px-6 text-gray-500 text-xs">Normal rate. Ensure minimum criteria requirements are carefully evaluated before application.</td>
                             </tr>
@@ -218,117 +222,126 @@
         const backdrop = document.getElementById('sidebarBackdrop');
 
         function toggleSidebar() {
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('-translate-x-full');
+                backdrop.classList.toggle('hidden');
+            }
         }
 
-        openBtn.addEventListener('click', toggleSidebar);
-        closeBtn.addEventListener('click', toggleSidebar);
-        backdrop.addEventListener('click', toggleSidebar);
+        if (openBtn) openBtn.addEventListener('click', toggleSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+        if (backdrop) backdrop.addEventListener('click', toggleSidebar);
 
-        // 2. Fetch Data dynamically from DOM elements (fallbacks provided)
-                const successVal = parseInt(document.getElementById('val-success').textContent) || 0; // Successful Bids (from Django context)
-                const pendingVal = parseInt(document.getElementById('val-pending').textContent) || 0; // Pending Evaluation (from Django context)
-                const failureVal = parseInt(document.getElementById('val-failure').textContent) || 0; // Total Failed Offers (from Django context)
+        // 2. Fetch Data dynamically from DOM elements
+        const successVal = parseInt(document.getElementById('val-success').textContent) || 0;
+        const pendingVal = parseInt(document.getElementById('val-pending').textContent) || 0;
+        const failureVal = parseInt(document.getElementById('val-failure').textContent) || 0;
         const totalVal = successVal + pendingVal + failureVal;
 
-        // Update Total & Tables dynamically
-                // The total_bids is already passed from Django context, so no need to recalculate here
-                document.getElementById('val-total').textContent = totalVal; // Update total bids for the card (this was already correct)
-                // document.getElementById('tbl-success-vol').textContent = successVal; // Already set by Django
-                // document.getElementById('tbl-pending-vol').textContent = pendingVal; // Already set by Django
-                // document.getElementById('tbl-fail-vol').textContent = failureVal; // Already set by Django
+        // Update Total dynamically
+        const totalElement = document.getElementById('val-total');
+        if (totalElement) totalElement.textContent = totalVal;
 
         // Dynamic Percentage Math
-        document.getElementById('tbl-success-pct').textContent = totalVal > 0 ? ((successVal / totalVal) * 100).toFixed(1) + '%' : '0%';
-        document.getElementById('tbl-pending-pct').textContent = totalVal > 0 ? ((pendingVal / totalVal) * 100).toFixed(1) + '%' : '0%';
-        document.getElementById('tbl-fail-pct').textContent = totalVal > 0 ? ((failureVal / totalVal) * 100).toFixed(1) + '%' : '0%';
+        const successPct = document.getElementById('tbl-success-pct');
+        const pendingPct = document.getElementById('tbl-pending-pct');
+        const failPct = document.getElementById('tbl-fail-pct');
 
-        // 3. PIE/DOUGHNUT CHART - Bid Outcomes
-        const pieCtx = document.getElementById('bidPieChart').getContext('2d');
-                if (pieCtx) new Chart(pieCtx, {
-            type: 'pie', // Standard clean Pie chart requested (doughnut structure is highly readable)
-            data: {
-                labels: ['Successful', 'Pending', 'Failed'], // Updated labels for clarity
-                datasets: [{
-                    data: [successVal, pendingVal, failureVal],
-                    backgroundColor: [
-                        'rgba(16, 185, 129, 0.9)',  // Success Green
-                        'rgba(245, 158, 11, 0.9)',  // Pending Amber
-                        'rgba(244, 63, 94, 0.9)'    // Failure Rose
-                    ],
-                    borderColor: '#ffffff',
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 15,
-                            font: {
-                                size: 11,
-                                family: 'ui-sans-serif, system-ui, sans-serif',
-                                weight: '500'
+        if (successPct) successPct.textContent = totalVal > 0 ? ((successVal / totalVal) * 100).toFixed(1) + '%' : '0%';
+        if (pendingPct) pendingPct.textContent = totalVal > 0 ? ((pendingVal / totalVal) * 100).toFixed(1) + '%' : '0%';
+        if (failPct) failPct.textContent = totalVal > 0 ? ((failureVal / totalVal) * 100).toFixed(1) + '%' : '0%';
+
+        // 3. PIE CHART - Bid Outcomes
+        const pieChartEl = document.getElementById('bidPieChart');
+        if (pieChartEl) {
+            const pieCtx = pieChartEl.getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Successful', 'Pending', 'Failed'],
+                    datasets: [{
+                        data: [successVal, pendingVal, failureVal],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.9)',  // Success Green
+                            'rgba(245, 158, 11, 0.9)',  // Pending Amber
+                            'rgba(244, 63, 94, 0.9)'    // Failure Rose
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15,
+                                font: {
+                                    size: 11,
+                                    family: 'ui-sans-serif, system-ui, sans-serif',
+                                    weight: '500'
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // 4. HISTORICAL TREND - Monthly Conversion Analytics
-        const barCtx = document.getElementById('monthlyTrendChart').getContext('2d');
-                if (barCtx) new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    {
-                        label: 'Bids Submitted',
-                        data: [4, 6, 8, 5, 9, totalVal],
-                        backgroundColor: 'rgba(59, 130, 246, 0.8)', // Primary blue
-                        borderRadius: 6
-                    },
-                    {
-                        label: 'Bids Won (Success)',
-                        data: [1, 3, 4, 2, 4, successVal],
-                        backgroundColor: 'rgba(16, 185, 129, 0.8)', // Primary emerald green
-                        borderRadius: 6
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(243, 244, 246, 1)'
+        const trendChartEl = document.getElementById('monthlyTrendChart');
+        if (trendChartEl) {
+            const barCtx = trendChartEl.getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Bids Submitted',
+                            data: [4, 6, 8, 5, 9, totalVal],
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)', // Primary blue
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Bids Won (Success)',
+                            data: [1, 3, 4, 2, 4, successVal],
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)', // Primary emerald green
+                            borderRadius: 6
                         }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
+                    ]
                 },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 15
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(243, 244, 246, 1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     });
 </script>
 {% endblock %}
