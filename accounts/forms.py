@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from institution.models import Institution
 from company.models import Company
+from django.contrib.auth.forms import SetPasswordForm as DjangoSetPasswordForm
 
 class InstitutionRegistrationForm(forms.ModelForm):
     """Form for registering a new Institution and its admin user."""
@@ -62,3 +63,29 @@ class CompanyRegistrationForm(forms.ModelForm):
         if cleaned_data.get("password") != cleaned_data.get("confirm_password"):
             self.add_error('confirm_password', "Passwords do not match.")
         return cleaned_data
+
+# New forms for password reset functionality
+class EmailForm(forms.Form):
+    """Form for collecting the user's email address for password reset."""
+    email = forms.EmailField(
+        label="Email Address",
+        widget=forms.EmailInput(attrs={'placeholder': 'Enter your email address', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'})
+    )
+
+class OTPForm(forms.Form):
+    """Form for collecting the One-Time Password (OTP)."""
+    otp = forms.CharField(
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter 6-digit OTP', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}),
+        label="One-Time Password"
+    )
+
+class SetPasswordForm(DjangoSetPasswordForm):
+    """Customized SetPasswordForm for consistent styling."""
+    new_password1 = forms.CharField(
+        label="New password", widget=forms.PasswordInput(attrs={'placeholder': 'Enter new password', 'class': 'password-input w-full border border-gray-300 rounded-xl pl-4 pr-12 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}), strip=False,
+    )
+    new_password2 = forms.CharField(
+        label="Confirm new password", widget=forms.PasswordInput(attrs={'placeholder': 'Confirm new password', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}), strip=False,
+    )

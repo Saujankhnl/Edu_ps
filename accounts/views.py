@@ -1,10 +1,11 @@
+import random
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db import transaction
-from .forms import InstitutionRegistrationForm, CompanyRegistrationForm
+from .forms import InstitutionRegistrationForm, CompanyRegistrationForm, EmailForm, OTPForm, SetPasswordForm
 from company.models import Company
 from institution.models import Institution, InstitutionUser
 from tenders.models import Tender
@@ -93,14 +94,104 @@ def logout_view(request):
     messages.info(request, "You have successfully logged out.")
     return redirect('accounts:home')
 
+
 def forget_password(request):
-    # Placeholder view
-    return render(request, 'accounts/forget_password.html')
+    """
+    Handles the request for initiating password reset.
+    Collects user's email, generates an OTP, stores it in the session,
+    and prints it to the terminal.
+    """
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                # Generate a random 6-digit OTP
+                otp = str(random.randint(100000, 999999))
+                
+                # Store OTP, user's email, and user ID in the session
+                request.session['reset_email'] = email
+                request.session['otp'] = otp
+                request.session['reset_user_id'] = user.id # Store user ID for later use
+
+                # Print OTP to terminal as requested
+                print("--------------------------------")
+                print(f"--- Password Reset OTP for {email}: {otp} ---")
+                print("--------------------------------")
+                messages.success(request, "An OTP has been sent to your email (check terminal for now).")
+                return redirect('accounts:verify_otp')
+            except User.DoesNotExist:
+                messages.error(request, "No user found with that email address.")
+        else:
+            messages.error(request, "Please enter a valid email address.")
+    else:
+        form = EmailForm()
+    return render(request, 'accounts/forget_password.html', {'form': form})
 
 def verify_otp(request):
-    # Placeholder view
-    return render(request, 'accounts/verify_otp.html')
+    """
+    Verifies the OTP entered by the user.
+    If correct, allows the user to proceed to password reset.
+    """
+    # Ensure an OTP process has been initiated
+    if 'reset_email' not in request.session or 'otp' not in request.session or 'reset_user_id' not in request.session:
+        messages.error(request, "Please initiate the password reset process first.")
+        return redirect('accounts:forget_password')
+
+    if request.method == 'POST':
+        form = OTPForm(request.POST)
+        if form.is_valid():
+            entered_otp = form.cleaned_data['otp']
+            stored_otp = request.session.get('otp')
+
+            if entered_otp == stored_otp:
+                # OTP is correct, clear OTP from session and proceed to reset password
+                del request.session['otp']
+                messages.success(request, "OTP verified successfully. You can now reset your password.")
+                return redirect('accounts:reset_password')
+            else:
+                messages.error(request, "Wrong OTP. Please try again.")
+        else:
+            messages.error(request, "Please enter a valid 6-digit OTP.")
+    else:
+        form = OTPForm()
+    
+    context = {
+        'form': form,
+        'email': request.session.get('reset_email') # Display the email to the user
+    }
+    return render(request, 'accounts/verify_otp.html', context)
 
 def reset_password(request):
-    # Placeholder view
-    return render(request, 'accounts/reset_password.html')
+    """
+    Allows the user to set a new password after successful OTP verification.
+    """
+    # Ensure OTP has been verified and user ID is in session
+    if 'reset_user_id' not in request.session:
+        messages.error(request, "Please verify OTP before resetting your password.")
+        return redirect('accounts:forget_password')
+
+    # Retrieve the user object using the ID stored in the session
+    user = User.objects.get(pk=request.session['reset_user_id'])
+
+    if request.method == 'POST':
+        form = SetPasswordForm(user=user, data=request.POST)
+        if form.is_valid():
+            form.save() # This handles setting the new password and hashing it
+            
+            # Clear all session data related to password reset
+            del request.session['reset_user_id']
+            if 'reset_email' in request.session:
+                del request.session['reset_email']
+
+            messages.success(request, "Your password has been reset successfully. Please log in with your new password.")
+            return redirect('accounts:login_page')
+        else:
+            # Form is invalid, errors will be displayed by the template
+            # No need for an explicit messages.error here, as form.errors will handle it.
+            pass
+    else:
+        form = SetPasswordForm(user=user)
+    
+    return render(request, 'accounts/reset_password.html', {'form': form})
