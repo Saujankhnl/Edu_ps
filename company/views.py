@@ -4,10 +4,10 @@ from django.contrib import messages
 from django.db.models import Count, Q
 from django.contrib.auth import update_session_auth_hash
 from django.db import IntegrityError
-
-from .models import Company, Bid
-from institution.models import Tender
-from .forms import CompanyProfileForm, PasswordChangeForm, BidSubmissionForm
+ 
+from .models import Company
+from tenders.models import Tender, Bid
+from .forms import CompanyProfileForm, PasswordChangeForm
 
 def company_login_required(view_func):
     """Decorator to ensure user is a logged-in company user."""
@@ -25,12 +25,14 @@ def dashboard(request):
     
     # Stats
     total_published_tenders = Tender.objects.filter(status='published').count()
-    my_bids = Bid.objects.filter(company=company)
+    my_bids = Bid.objects.filter(company=company) # All bids by this company
     
     stats = {
         'total_published_tenders': total_published_tenders,
         'total_submitted_bids': my_bids.count(),
         'active_bids': my_bids.filter(status__in=['submitted', 'under_review', 'shortlisted']).count(),
+        'successful_bids': my_bids.filter(status='accepted').count(), # New stat for successful bids
+        'total_failed_offers': my_bids.filter(status='rejected').count(), # Only rejected bids count as failed
     }
 
     # Recent activities (e.g., recent bids)
@@ -80,7 +82,7 @@ def change_password(request):
 @company_login_required
 def list_published_tenders(request):
     search_query = request.GET.get('q', '')
-    tenders = Tender.objects.filter(status='published').order_by('-published_at')
+    tenders = Tender.objects.filter(status='published').order_by('-updated_at')
 
     if search_query:
         tenders = tenders.filter(
@@ -96,75 +98,20 @@ def list_published_tenders(request):
     return render(request, 'company/list_tenders.html', context)
 
 @company_login_required
-def tender_detail(request, tender_id):
-    tender = get_object_or_404(Tender, pk=tender_id, status='published')
-    company = get_object_or_404(Company, user=request.user)
-    
-    existing_bid = Bid.objects.filter(tender=tender, company=company).first()
-    
-    context = {
-        'tender': tender,
-        'existing_bid': existing_bid,
-    }
-    return render(request, 'company/tender_detail.html', context)
-
-@company_login_required
-def submit_bid(request, tender_id):
-    tender = get_object_or_404(Tender, pk=tender_id, status='published')
-    company = get_object_or_404(Company, user=request.user)
-
-    if Bid.objects.filter(tender=tender, company=company).exists():
-        messages.error(request, "You have already submitted a bid for this tender.")
-        return redirect('company:tender_detail', tender_id=tender.id)
-
-    if request.method == 'POST':
-        form = BidSubmissionForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                bid = form.save(commit=False)
-                bid.tender = tender
-                bid.company = company
-                bid.save()
-                messages.success(request, "Your bid has been submitted successfully.")
-                return redirect('company:my_bids')
-            except IntegrityError:
-                messages.error(request, "An error occurred. It's possible you've already bid on this tender.")
-                return redirect('company:tender_detail', tender_id=tender.id)
-    else:
-        form = BidSubmissionForm()
-
-    context = {
-        'form': form,
-        'tender': tender,
-    }
-    return render(request, 'company/submit_bid.html', context)
-
-@company_login_required
-def my_bids(request):
-    company = get_object_or_404(Company, user=request.user)
-    bids = Bid.objects.filter(company=company).select_related('tender').order_by('-submitted_at')
-    
-    status_filter = request.GET.get('status', '')
-    if status_filter:
-        bids = bids.filter(status=status_filter)
-
-    context = {
-        'bids': bids,
-        'status_choices': Bid.STATUS_CHOICES,
-        'status_filter': status_filter,
-    }
-    return render(request, 'company/my_bids.html', context)
-
-@company_login_required
-def bid_detail(request, bid_id):
-    company = get_object_or_404(Company, user=request.user)
-    bid = get_object_or_404(Bid, pk=bid_id, company=company)
-    context = {
-        'bid': bid
-    }
-    return render(request, 'company/bid_detail.html', context)
-
-@company_login_required
 def analytics_reports(request):
     """Placeholder view for analytics and reports."""
-    return render(request, 'company/analytics_reports.html')
+    company = get_object_or_404(Company, user=request.user)
+    my_bids = Bid.objects.filter(company=company)
+
+    total_bids = my_bids.count() # Total bids submitted
+    successful_bids = my_bids.filter(status='accepted').count() # Bids accepted by institution
+    pending_bids = my_bids.filter(status__in=['submitted', 'under_review', 'shortlisted']).count() # Bids awaiting decision
+    total_failed_offers = my_bids.filter(status='rejected').count() # Only rejected bids count as failed
+
+    context = {
+        'total_bids': total_bids,
+        'successful_bids': successful_bids,
+        'pending_bids': pending_bids,
+        'total_failed_offers': total_failed_offers,
+    }
+    return render(request, 'company/analytics_reports.html', context)

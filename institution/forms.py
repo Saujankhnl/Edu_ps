@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Institution, InstitutionUser, Tender
+from .models import Institution, InstitutionUser
 from django.contrib.auth.forms import PasswordChangeForm as AuthPasswordChangeForm
 
 class InstitutionUserCreationForm(forms.ModelForm):
@@ -62,17 +62,6 @@ class InstitutionProfileForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
             'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}),
             'profile_picture': forms.ClearableFileInput(attrs={'class': 'form-input'}),
-        }
-
-class TenderForm(forms.ModelForm):
-    """Form for creating and editing a tender."""
-    class Meta:
-        model = Tender
-        fields = ['title', 'description', 'deadline']
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-input'}),
-            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 5}),
-            'deadline': forms.DateTimeInput(attrs={'class': 'form-input', 'type': 'datetime-local'}),
         }
 
 class UserProfileForm(forms.ModelForm):

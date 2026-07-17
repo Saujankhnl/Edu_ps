@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% block title %}My Submitted Bids{% endblock %}
+
+{% block content %}
+<style>
+    /* Sidebar positioning & transitions */
+    .sidebar {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Custom Status Color Badges based on content */
+    .badge-pending {
+        background-color: #fef3c7; /* amber-100 */
+        color: #d97706; /* amber-600 */
+    }
+    .badge-under_review {
+        background-color: #dbeafe; /* blue-100 */
+        color: #2563eb; /* blue-600 */
+    }
+    .badge-accepted, .badge-won, .badge-approved {
+        background-color: #d1fae5; /* emerald-100 */
+        color: #059669; /* emerald-600 */
+    }
+    .badge-rejected, .badge-lost, .badge-declined {
+        background-color: #fee2e2; /* red-100 */
+        color: #dc2626; /* red-600 */
+    }
+</style>
+
+<div class="h-screen w-screen overflow-hidden bg-gray-50 flex">
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:relative md:h-full flex-shrink-0 shadow-xl md:shadow-none">
+        <div>
+            <div class="h-16 flex items-center justify-between px-6 bg-slate-950 border-b border-slate-800/50">
+                <span class="text-sm font-black text-white tracking-wider flex items-center">
+                    <svg class="w-5 h-5 mr-2.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    ADMIN PANEL
+                </span>
+                <button id="closeSidebarBtn" class="md:hidden text-gray-400 hover:text-white focus:outline-none p-1 rounded-lg hover:bg-slate-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="mt-6 px-4 space-y-1.5">
+                <a href="{% url 'company:dashboard' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+
+
+                <a href="{% url 'tenders:my_bids' %}" class="flex items-center px-4 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    My Bids
+                </a>
+
+                <a href="{% url 'company:company_profile' %}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Profile
+                </a>
+                
+                <a href="{% url 'company:analytics_reports' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics & Reports
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 bg-slate-950 border-t border-slate-800/50">
+            <a href="{% url 'accounts:home' %}" class="flex items-center justify-center w-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition duration-150">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Backdrop overlay for mobile screens -->
+    <div id="sidebarBackdrop" class="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm hidden md:hidden transition-opacity duration-300"></div>
+
+    <!-- Main Dynamic Window Area -->
+    <main class="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
+        
+        <!-- Header Controls -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 flex-shrink-0">
+            <div class="flex items-center">
+                <button id="openSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-800 focus:outline-none mr-3 p-1 rounded-lg hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div>
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Proposal Pipelines</h2>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'company:dashboard' %}" class="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-xl text-xs transition duration-150">
+                    &larr; Back to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <!-- Dynamic Context Content Wrapper -->
+        <div class="p-4 md:p-8 max-w-6xl mx-auto w-full space-y-6">
+            
+            <div>
+                <h1 class="text-2xl font-black text-gray-900 tracking-tight">My Submitted Bids</h1>
+                <p class="text-xs text-gray-500 mt-0.5">Track the status of all tenders you have applied for.</p>
+            </div>
+
+            <!-- Bid List Table Container -->
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-4">Tender Title</th>
+                                <th scope="col" class="px-6 py-4">Institution</th>
+                                <th scope="col" class="px-6 py-4">Bid Amount</th>
+                                <th scope="col" class="px-6 py-4">Submitted On</th>
+                                <th scope="col" class="px-6 py-4">Status</th>
+                                <th scope="col" class="px-6 py-4 text-right"><span class="sr-only">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for bid in bids %}
+                            <tr class="bg-white hover:bg-gray-50/80 transition duration-100">
+                                <th scope="row" class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">
+                                    <a href="{% url 'tenders:tender_detail' bid.tender.id %}" class="hover:underline text-blue-600 hover:text-blue-800">{{ bid.tender.title }}</a>
+                                </th>
+                                <td class="px-6 py-4 text-gray-600">{{ bid.tender.institution.institution_name }}</td>
+                                <td class="px-6 py-4 font-mono font-bold text-gray-900">${{ bid.bid_amount|floatformat:2 }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ bid.submitted_at|date:"d M Y" }}</td>
+                                <td class="px-6 py-4">
+                                    <!-- The dynamic status code assigns custom tailwind color variables from computed styles -->
+                                    <span class="status-badge px-2.5 py-1 text-xs font-bold rounded-full transition-all duration-150" data-status="{{ bid.status|lower }}">
+                                        {{ bid.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{% url 'tenders:bid_detail' bid.id %}" class="inline-flex items-center text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 py-1.5 px-3 rounded-lg transition duration-150">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-16 text-center text-gray-500">
+                                    <div class="max-w-xs mx-auto space-y-2">
+                                        <svg class="w-10 h-10 text-gray-300 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <h3 class="font-bold text-gray-800 text-sm">No Active Submissions Found</h3>
+                                        <p class="text-xs text-gray-400">You haven't submitted formal bid offerings to any open contract placements yet.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // 1. Mobile Responsive Sidebar Drawer Engine Controls
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        if(openBtn) openBtn.addEventListener('click', toggleSidebar);
+        if(closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+        if(backdrop) backdrop.addEventListener('click', toggleSidebar);
+
+        // 2. Dynamic Class Context Parsing Injector for Status Badges
+        const statusBadges = document.querySelectorAll('.status-badge');
+        statusBadges.forEach(badge => {
+            const rawStatusString = badge.getAttribute('data-status') || '';
+            // Sanitize potential spaces or special character variables
+            const standardizedStatus = rawStatusString.trim().replace(/\s+/g, '_');
+            
+            // Check matching target properties inside style sheet configurations
+            if (standardizedStatus.includes('pending')) {
+                badge.classList.add('badge-pending');
+            } else if (standardizedStatus.includes('review')) {
+                badge.classList.add('badge-under_review');
+            } else if (standardizedStatus.includes('accept') || standardizedStatus.includes('won') || standardizedStatus.includes('approv')) {
+                badge.classList.add('badge-accepted');
+            } else if (standardizedStatus.includes('reject') || standardizedStatus.includes('lost') || standardizedStatus.includes('declin')) {
+                badge.classList.add('badge-rejected');
+            } else {
+                // Default secure system fallback styling logic
+                badge.classList.add('bg-gray-100', 'text-gray-700');
+            }
+        });
+    });
+</script>
+{% endblock %}

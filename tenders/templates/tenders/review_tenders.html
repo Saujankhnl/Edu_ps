@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Tenders for Final Approval{% endblock %}
+ 
+{% block content %}
+<div class="p-4 md:p-8 w-full space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight">Tenders for Final Approval</h1>
+            <p class="text-xs text-gray-500 mt-0.5">These tenders have been reviewed and are awaiting your final approval to be published.</p>
+        </div>
+    </div>
+
+    <!-- Tender List Table -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Tender Title</th>
+                    <th scope="col" class="px-6 py-3">Status</th>
+                    <th scope="col" class="px-6 py-3">Created By</th>
+                    <th scope="col" class="px-6 py-3">Last Updated</th>
+                    <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tender in tenders %}
+                <tr class="bg-white border-b hover:bg-gray-50">
+                    <th scope="row" class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">
+                        {{ tender.title }}
+                    </th>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {{ tender.get_status_badge_class }}">
+                            {{ tender.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">{{ tender.created_by.user.get_full_name|default:tender.created_by.user.username }}</td>
+                    <td class="px-6 py-4">{{ tender.updated_at|date:"d M Y, P" }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'tenders:tender_detail' tender.id %}" class="font-medium text-blue-600 hover:underline">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                        <h3 class="font-semibold text-lg">No Tenders Awaiting Approval</h3>
+                        <p class="text-xs">There are currently no tenders that have been forwarded for final approval.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

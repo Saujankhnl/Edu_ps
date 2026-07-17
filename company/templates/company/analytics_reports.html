@@ -36,37 +36,31 @@
             </div>
 
             <nav class="mt-6 px-4 space-y-1.5">
-                <a href="{% url 'company:dashboard' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <a href="{% url 'company:dashboard' %}" class="flex items-center px-4 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path>
                     </svg>
                     Dashboard
                 </a>
 
-                <a href="#" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Manage Tenders
-                </a>
 
-                <a href="#" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                <a href="{% url 'tenders:my_bids' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
                     <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    Bid Submissions
+                    My Bids
                 </a>
 
-                <a href="{% url 'company:company_profile' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                <a href="{% url 'company:company_profile' %}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
                     <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    Edit Profile
+                    Profile
                 </a>
                 
-                <a href="#" class="flex items-center px-4 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <a href="{% url 'company:analytics_reports' %}" class="flex items-center px-4 py-3 text-sm font-medium hover:bg-slate-800 hover:text-white rounded-xl transition duration-150">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
                     Analytics & Reports
@@ -117,26 +111,26 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Applied</h3>
-                    <p class="text-3xl font-black text-slate-800 mt-2" id="val-total">{{ stats.total_submitted_bids|default:"12" }}</p>
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Bids Submitted</h3>
+                    <p class="text-3xl font-black text-slate-800 mt-2" id="val-total">{{ total_bids }}</p>
                     <p class="text-xs text-gray-400 mt-1">Global applied bid count</p>
                 </div>
 
                 <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Successful Bids</h3>
-                    <p class="text-3xl font-black text-emerald-600 mt-2" id="val-success">{{ stats.success_bids|default:"5" }}</p>
+                    <p class="text-3xl font-black text-emerald-600 mt-2" id="val-success">{{ successful_bids }}</p>
                     <p class="text-xs text-emerald-500 mt-1">✔ Tender contract awarded</p>
                 </div>
 
                 <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pending Evaluation</h3>
-                    <p class="text-3xl font-black text-amber-500 mt-2" id="val-pending">{{ stats.active_bids|default:"4" }}</p>
+                    <p class="text-3xl font-black text-amber-500 mt-2" id="val-pending">{{ pending_bids }}</p>
                     <p class="text-xs text-amber-500 mt-1">⏳ Awaiting reviewer responses</p>
                 </div>
 
                 <div class="stat-card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Failed Offers</h3>
-                    <p class="text-3xl font-black text-rose-600 mt-2" id="val-failure">{{ stats.failed_bids|default:"3" }}</p>
+                    <p class="text-3xl font-black text-rose-600 mt-2" id="val-failure">{{ total_failed_offers }}</p>
                     <p class="text-xs text-rose-400 mt-1">✖ Rejected or expired bids</p>
                 </div>
             </div>
@@ -183,26 +177,26 @@
                         <tbody class="divide-y divide-gray-100 text-sm">
                             <tr class="hover:bg-gray-50/50">
                                 <td class="py-4 px-6 font-semibold text-gray-800 flex items-center">
-                                    <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span> Success (Accepted)
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span> Successful (Accepted)
                                 </td>
-                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-success-vol">5</td>
-                                <td class="py-4 px-6 text-center text-emerald-600 font-bold" id="tbl-success-pct">41.6%</td>
+                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-success-vol">{{ successful_bids }}</td> {# Already correct #}
+                                <td class="py-4 px-6 text-center text-emerald-600 font-bold" id="tbl-success-pct"></td>
                                 <td class="py-4 px-6 text-gray-500 text-xs">High progression. Keep offering bids in similar budgetary scope.</td>
                             </tr>
                             <tr class="hover:bg-gray-50/50">
                                 <td class="py-4 px-6 font-semibold text-gray-800 flex items-center">
                                     <span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span> Pending Review
                                 </td>
-                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-pending-vol">4</td>
-                                <td class="py-4 px-6 text-center text-amber-500 font-bold" id="tbl-pending-pct">33.3%</td>
+                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-pending-vol">{{ pending_bids }}</td> {# Already correct #}
+                                <td class="py-4 px-6 text-center text-amber-500 font-bold" id="tbl-pending-pct"></td>
                                 <td class="py-4 px-6 text-gray-500 text-xs">Stabilized pipeline. Outstanding decisions pending evaluation from evaluators.</td>
                             </tr>
                             <tr class="hover:bg-gray-50/50">
                                 <td class="py-4 px-6 font-semibold text-gray-800 flex items-center">
                                     <span class="w-3 h-3 rounded-full bg-rose-500 mr-2"></span> Failures (Rejected)
                                 </td>
-                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-fail-vol">3</td>
-                                <td class="py-4 px-6 text-center text-rose-500 font-bold" id="tbl-fail-pct">25.0%</td>
+                                <td class="py-4 px-6 text-center text-gray-900 font-bold" id="tbl-fail-vol">{{ total_failed_offers }}</td> {# Updated to use total_failed_offers #}
+                                <td class="py-4 px-6 text-center text-rose-500 font-bold" id="tbl-fail-pct"></td>
                                 <td class="py-4 px-6 text-gray-500 text-xs">Normal rate. Ensure minimum criteria requirements are carefully evaluated before application.</td>
                             </tr>
                         </tbody>
@@ -233,16 +227,17 @@
         backdrop.addEventListener('click', toggleSidebar);
 
         // 2. Fetch Data dynamically from DOM elements (fallbacks provided)
-        const successVal = parseInt(document.getElementById('val-success').textContent) || 5;
-        const pendingVal = parseInt(document.getElementById('val-pending').textContent) || 4;
-        const failureVal = parseInt(document.getElementById('val-failure').textContent) || 3;
+                const successVal = parseInt(document.getElementById('val-success').textContent) || 0; // Successful Bids (from Django context)
+                const pendingVal = parseInt(document.getElementById('val-pending').textContent) || 0; // Pending Evaluation (from Django context)
+                const failureVal = parseInt(document.getElementById('val-failure').textContent) || 0; // Total Failed Offers (from Django context)
         const totalVal = successVal + pendingVal + failureVal;
 
         // Update Total & Tables dynamically
-        document.getElementById('val-total').textContent = totalVal;
-        document.getElementById('tbl-success-vol').textContent = successVal;
-        document.getElementById('tbl-pending-vol').textContent = pendingVal;
-        document.getElementById('tbl-fail-vol').textContent = failureVal;
+                // The total_bids is already passed from Django context, so no need to recalculate here
+                document.getElementById('val-total').textContent = totalVal; // Update total bids for the card (this was already correct)
+                // document.getElementById('tbl-success-vol').textContent = successVal; // Already set by Django
+                // document.getElementById('tbl-pending-vol').textContent = pendingVal; // Already set by Django
+                // document.getElementById('tbl-fail-vol').textContent = failureVal; // Already set by Django
 
         // Dynamic Percentage Math
         document.getElementById('tbl-success-pct').textContent = totalVal > 0 ? ((successVal / totalVal) * 100).toFixed(1) + '%' : '0%';
@@ -251,10 +246,10 @@
 
         // 3. PIE/DOUGHNUT CHART - Bid Outcomes
         const pieCtx = document.getElementById('bidPieChart').getContext('2d');
-        new Chart(pieCtx, {
+                if (pieCtx) new Chart(pieCtx, {
             type: 'pie', // Standard clean Pie chart requested (doughnut structure is highly readable)
             data: {
-                labels: ['Success', 'Pending', 'Failure'],
+                labels: ['Successful', 'Pending', 'Failed'], // Updated labels for clarity
                 datasets: [{
                     data: [successVal, pendingVal, failureVal],
                     backgroundColor: [
@@ -288,7 +283,7 @@
 
         // 4. HISTORICAL TREND - Monthly Conversion Analytics
         const barCtx = document.getElementById('monthlyTrendChart').getContext('2d');
-        new Chart(barCtx, {
+                if (barCtx) new Chart(barCtx, {
             type: 'bar',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],

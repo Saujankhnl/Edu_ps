@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bid Details: {{ bid.company.company_name }} for {{ bid.tender.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-indigo-50/30 py-12 px-4 sm:px-6 lg:px-8 text-gray-800 antialiased dynamic-fade-in">
+    <div class="max-w-3xl mx-auto space-y-6">
+
+        <!-- Back Navigation Link -->
+        <div class="flex items-center justify-between pb-2">
+            <a href="{% url 'tenders:tender_detail' bid.tender.id %}" class="inline-flex items-center text-xs font-bold text-gray-500 hover:text-indigo-600 transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Tender Details
+            </a>
+        </div>
+
+        <!-- Main Bid Details Dossier Card -->
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden transition-all duration-300">
+            
+            <!-- Header Section -->
+            <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Proposal Submission File</span>
+                        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Bid Dossier</h1>
+                        <p class="text-xs text-gray-500">
+                            Submitted for Tender: 
+                            <a href="{% url 'tenders:tender_detail' bid.tender.id %}" class="font-bold text-indigo-600 hover:underline">
+                                {{ bid.tender.title }}
+                            </a>
+                        </p>
+                    </div>
+                    <div class="shrink-0">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ring-1 ring-inset bg-blue-50 text-blue-800 ring-blue-600/20">
+                            {{ bid.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-3 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    Managing Institution: {{ bid.tender.institution.institution_name }}
+                </p>
+            </div>
+
+            <!-- Meta Information Grid -->
+            <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-100">
+                <div class="space-y-4">
+                    <div class="flex items-center text-gray-600">
+                        <div class="p-2 bg-gray-50 rounded-lg mr-3">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div class="text-xs">
+                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Company Name</p>
+                            <p class="text-sm font-bold text-gray-900 mt-0.5">{{ bid.company.company_name }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center text-gray-600">
+                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg mr-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="text-xs">
+                            <p class="text-emerald-600 font-bold uppercase tracking-wider">Submitted Bid Valuation</p>
+                            <p class="text-lg font-black text-emerald-700 mt-0.5">${{ bid.bid_amount|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-center text-gray-600">
+                        <div class="p-2 bg-gray-50 rounded-lg mr-3">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="text-xs">
+                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Submission Date</p>
+                            <p class="text-sm font-bold text-gray-900 mt-0.5">{{ bid.submitted_at|date:"M d, Y \a\t H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center text-gray-600">
+                        <div class="p-2 bg-gray-50 rounded-lg mr-3">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div class="text-xs">
+                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Proposal Document</p>
+                            {% if bid.proposal_document %}
+                                <a href="{{ bid.proposal_document.url }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 underline mt-0.5">
+                                    Download Proposal File
+                                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            {% else %}
+                                <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cover Letter Section -->
+            {% if bid.cover_letter %}
+                <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/30">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                        <svg class="w-4.5 h-4.5 mr-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                        Cover Letter & Supporting Remarks
+                    </h3>
+                    <div class="bg-white border border-gray-200/60 rounded-xl p-4 shadow-xs">
+                        <p class="text-xs leading-relaxed text-gray-600 whitespace-pre-wrap">{{ bid.cover_letter }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Interactive Action Panel -->
+            <div class="p-6 md:p-8 bg-gray-50/50 flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Cancel/Back -->
+                <a href="{% url 'tenders:tender_detail' bid.tender.id %}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 shadow-xs transition-all">
+                    Back to Tender Detail
+                </a>
+
+                <!-- Admin Dynamic Actions -->
+                {% if request.user.is_authenticated and request.user.institution_profile and request.user.institution_profile.role == 'admin' and bid.tender.institution == request.user.institution_profile.institution %}
+                    <div class="w-full sm:w-auto flex flex-wrap items-center justify-end gap-3">
+                        
+                        <!-- Toggle Decline Overlay -->
+                        <div class="relative w-full sm:w-auto">
+                            <button type="button" id="toggle-decline-btn" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-red-700 bg-red-50 border border-red-200/40 hover:bg-red-100 shadow-xs transition-all">
+                                Reject Proposal...
+                            </button>
+
+                            <form id="decline-action-form" action="{% url 'tenders:update_bid_status' bid.id %}" method="post" class="hidden mt-3 sm:absolute sm:right-0 sm:bottom-14 sm:z-20 p-4 bg-white border border-gray-200 rounded-xl shadow-lg w-80 space-y-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject_bid">
+                                <label class="block text-xs font-bold text-gray-700">Rejection Reason</label>
+                                <textarea name="remarks" placeholder="Provide reason for rejecting this bid..." class="w-full text-xs rounded-lg p-2.5 border border-gray-200 focus:ring-2 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition" required></textarea>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" id="cancel-decline-btn" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-gray-500 hover:bg-gray-50">Cancel</button>
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-red-600 hover:bg-red-700">Confirm Reject</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Toggle Accept Overlay -->
+                        <div class="relative w-full sm:w-auto">
+                            <button type="button" id="toggle-accept-btn" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-all">
+                                Accept Proposal...
+                            </button>
+
+                            <form id="accept-action-form" action="{% url 'tenders:update_bid_status' bid.id %}" method="post" class="hidden mt-3 sm:absolute sm:right-0 sm:bottom-14 sm:z-20 p-4 bg-white border border-gray-200 rounded-xl shadow-lg w-80 space-y-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="accept_bid">
+                                <label class="block text-xs font-bold text-gray-700">Acceptance Notes</label>
+                                <textarea name="remarks" placeholder="Add acceptance terms or guidelines..." class="w-full text-xs rounded-lg p-2.5 border border-gray-200 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:outline-none transition" required></textarea>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" id="cancel-accept-btn" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-gray-500 hover:bg-gray-50">Cancel</button>
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700">Confirm Accept</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Entrance animation */
+    .dynamic-fade-in {
+        animation: pageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes pageFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Input animation slides */
+    #accept-action-form, #decline-action-form {
+        animation: slideUpIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideUpIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Elements for Reject Dropdown Overlay
+        const toggleDeclineBtn = document.getElementById('toggle-decline-btn');
+        const declineForm = document.getElementById('decline-action-form');
+        const cancelDeclineBtn = document.getElementById('cancel-decline-btn');
+
+        // Elements for Accept Dropdown Overlay
+        const toggleAcceptBtn = document.getElementById('toggle-accept-btn');
+        const acceptForm = document.getElementById('accept-action-form');
+        const cancelAcceptBtn = document.getElementById('cancel-accept-btn');
+
+        if (toggleDeclineBtn && declineForm) {
+            toggleDeclineBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                declineForm.classList.toggle('hidden');
+                if (acceptForm) acceptForm.classList.add('hidden');
+            });
+        }
+
+        if (cancelDeclineBtn && declineForm) {
+            cancelDeclineBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                declineForm.classList.add('hidden');
+            });
+        }
+
+        if (toggleAcceptBtn && acceptForm) {
+            toggleAcceptBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                acceptForm.classList.toggle('hidden');
+                if (declineForm) declineForm.classList.add('hidden');
+            });
+        }
+
+        if (cancelAcceptBtn && acceptForm) {
+            cancelAcceptBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                acceptForm.classList.add('hidden');
+            });
+        }
+
+        // Close drop-down overlays upon external document interaction
+        document.addEventListener('click', (e) => {
+            if (declineForm && !declineForm.contains(e.target) && e.target !== toggleDeclineBtn) {
+                declineForm.classList.add('hidden');
+            }
+            if (acceptForm && !acceptForm.contains(e.target) && e.target !== toggleAcceptBtn) {
+                acceptForm.classList.add('hidden');
+            }
+        });
+
+        // Block multiple forms submissions
+        const actionForms = document.querySelectorAll('#decline-action-form, #accept-action-form');
+        actionForms.forEach(form => {
+            form.addEventListener('submit', () => {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.setAttribute('disabled', 'true');
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <svg class="animate-spin h-3.5 w-3.5 text-current" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    `;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

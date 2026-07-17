@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Tender{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-gray-50 via-gray-100 to-indigo-50/30 min-h-screen text-gray-800 antialiased dynamic-fade-in">
+    <div class="p-4 md:p-8 max-w-4xl mx-auto w-full space-y-6">
+
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Create New Tender</h1>
+            <p class="text-sm text-gray-500 mt-1">Fill out the operational details below to create a new tender deployment draft.</p>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden p-6 md:p-8 transition-all duration-300 hover:shadow-md">
+            
+            <form method="post" id="tender-creation-form" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start space-x-2.5" role="alert">
+                        <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div class="text-sm">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 gap-y-6">
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.title.label }}</label>
+                        <input type="text" name="title" id="{{ form.title.id_for_label }}" required
+                               class="form-input w-full text-sm rounded-xl px-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all bg-gray-50/50 focus:bg-white"
+                               placeholder="e.g., Annual IT Infrastructure Procurement Procurement 2026"
+                               value="{{ form.title.value|default:'' }}">
+                        <span class="error-msg text-xs text-red-600 mt-1 hidden">A descriptive tender title is required.</span>
+                        {% if form.title.errors %}
+                            <span class="text-xs text-red-600 mt-1 block">{{ form.title.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.description.label }}</label>
+                        <textarea name="description" id="{{ form.description.id_for_label }}" required rows="5"
+                                  class="form-input w-full text-sm rounded-xl px-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all bg-gray-50/50 focus:bg-white resize-y"
+                                  placeholder="Provide comprehensive specifications, execution conditions, and scope of work details...">{{ form.description.value|default:'' }}</textarea>
+                        <span class="error-msg text-xs text-red-600 mt-1 hidden">Please supply detailed specifications for this tender draft.</span>
+                        {% if form.description.errors %}
+                            <span class="text-xs text-red-600 mt-1 block">{{ form.description.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="{{ form.budget.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.budget.label }}</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 text-sm">$</span>
+                                <input type="number" name="budget" id="{{ form.budget.id_for_label }}"
+                                       class="form-input w-full text-sm rounded-xl pl-8 pr-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all bg-gray-50/50 focus:bg-white"
+                                       placeholder="e.g., 50000.00" value="{{ form.budget.value|default:'' }}" step="0.01" min="0">
+                            </div>
+                            {% if form.budget.errors %}
+                                <span class="text-xs text-red-600 mt-1 block">{{ form.budget.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group max-w-xs">
+                        <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.deadline.label }}</label>
+                        <input type="datetime-local" name="deadline" id="{{ form.deadline.id_for_label }}" required
+                               class="form-input w-full text-sm rounded-xl px-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all bg-gray-50/50 focus:bg-white"
+                               value="{{ form.deadline.value|default:'' }}">
+                        <span class="error-msg text-xs text-red-600 mt-1 hidden">Please assign a valid upcoming closing deadline deadline.</span>
+                        {% if form.deadline.errors %}
+                            <span class="text-xs text-red-600 mt-1 block">{{ form.deadline.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <a href="{% url 'tenders:list_tenders' %}" 
+                       class="px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-200 hover:border-gray-300 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all shadow-xs">
+                        Cancel
+                    </a>
+                    <button type="submit" name="action" value="send_for_review"
+                            class="inline-flex justify-center py-2.5 px-5 border border-transparent shadow-sm text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all">
+                        Save and Send for Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dynamic-fade-in {
+        animation: formPageFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes formPageFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    /* Dynamic field input interaction states */
+    .field-invalid {
+        border-color: #ef4444 !important;
+        background-color: #fef2f2 !important;
+    }
+    .field-invalid:focus {
+        --tw-ring-color: rgba(239, 68, 68, 0.1) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tenderForm = document.getElementById('tender-creation-form');
+        const deadlineInput = document.getElementById("{{ form.deadline.id_for_label }}");
+
+        // Set minimum allowed date/time restriction dynamically to current moment
+        if (deadlineInput) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            deadlineInput.min = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Field Validation Pipeline Logic
+        function validateField(input) {
+            if (!input) return true;
+            const group = input.closest('.form-group');
+            const errorElement = group?.querySelector('.error-msg');
+            let isValid = true;
+
+            // Check if required field is empty
+            if (input.hasAttribute('required') && !input.value.trim()) {
+                isValid = false;
+            } 
+            // Custom timeline criteria check for deadlines
+            else if (input.type === 'datetime-local' && input.value) {
+                const targetedDeadline = new Date(input.value);
+                const baselineNow = new Date();
+                if (targetedDeadline <= baselineNow) {
+                    isValid = false;
+                    if (errorElement) errorElement.textContent = "The closing deadline must be scheduled in the future.";
+                }
+            }
+
+            if (!isValid) {
+                input.classList.add('field-invalid');
+                if (errorElement) errorElement.classList.remove('hidden');
+            } else {
+                input.classList.remove('field-invalid');
+                if (errorElement) errorElement.classList.add('hidden');
+            }
+            return isValid;
+        }
+
+        // Attach dynamic validation listeners
+        tenderForm?.querySelectorAll('input, textarea').forEach(field => {
+            field.addEventListener('blur', () => validateField(field));
+            field.addEventListener('input', () => {
+                if (field.classList.contains('field-invalid')) {
+                    validateField(field);
+                }
+            });
+        });
+
+        // intercept global submit actions to confirm requirements pass completely
+        tenderForm?.addEventListener('submit', (e) => {
+            let isFormValid = true;
+            tenderForm.querySelectorAll('input[required], textarea[required], input[type="datetime-local"]').forEach(field => {
+                const isFieldValid = validateField(field);
+                if (!isFieldValid) {
+                    isFormValid = false;
+                }
+            });
+
+            if (!isFormValid) {
+                e.preventDefault();
+                // Reposition viewport visibility focus toward the initial failing requirement block
+                const structuralFailingBlock = tenderForm.querySelector('.field-invalid');
+                if (structuralFailingBlock) structuralFailingBlock.focus();
+            }
+        });
+    });
+</script>
+{% endblock %}

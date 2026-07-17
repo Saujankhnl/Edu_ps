@@ -70,9 +70,13 @@ Home Page
             A Smart E-Procurement Platform for Educational Institutions
         </p>
 
-        <a href="#tenders"
+        <a {% if request.user.is_authenticated and request.user.company %}
+            href="{% url 'company:list_published_tenders' %}"
+            {% else %}
+            href="#tenders"
+            {% endif %}
             class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100">
-            View Open Tenders
+            {% if request.user.is_authenticated and request.user.company %}Browse Tenders{% else %}View Open Tenders{% endif %}
         </a>
 
     </div>
@@ -108,8 +112,17 @@ Home Page
                         <p class="text-sm text-gray-500">
                             Closing Date: {{ tender.deadline|date:"d M Y" }}
                         </p>
-                        <a href="#" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-semibold">
-                            View Details
+                        <a {% if request.user.is_authenticated and request.user.company %}
+                            href="{% url 'tenders:submit_bid' tender.id %}"
+                            {% else %}
+                            href="{% url 'tenders:tender_detail' tender.id %}"
+                            {% endif %}
+                            class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-semibold">
+                            {% if request.user.is_authenticated and request.user.company %}
+                                Place Bid
+                            {% else %}
+                                View Details
+                            {% endif %}
                         </a>
                     </div>
                 </div>

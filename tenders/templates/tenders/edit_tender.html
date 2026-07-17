@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Tender - {{ tender.title }}{% endblock %}
+
+{% block content %}
+<div class="p-4 md:p-8 max-w-2xl mx-auto w-full space-y-6">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Edit Tender</h1>
+        <p class="text-xs text-gray-500 mt-0.5">Update the details for your tender: "{{ tender.title }}"</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-6">
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.title.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.description.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="{{ form.budget.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.budget.label }}</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 text-sm">$</span>
+                            {{ form.budget }}
+                        </div>
+                        {% if form.budget.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.budget.errors.0 }}</span>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.deadline.label }}</label>
+                        {{ form.deadline }}
+                        {% if form.deadline.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.deadline.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                <a href="{% url 'tenders:tender_detail' tender.id %}" class="btn-secondary">Cancel</a>
+                <button type="submit" name="action" value="save_draft" class="btn-primary">Save Changes</button>
+                <button type="submit" name="action" value="send_for_review"
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Save and Send for Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    // Add CSS classes to form fields rendered by Django
+    document.querySelectorAll('input, textarea, select').forEach(field => {
+        field.classList.add('form-input', 'w-full', 'text-sm', 'rounded-xl', 'px-4', 'py-2.5', 'border', 'border-gray-200', 'focus:outline-none', 'focus:ring-2', 'focus:ring-indigo-500/20', 'focus:border-indigo-600', 'transition-all', 'bg-gray-50/50', 'focus:bg-white');
+    });
+</script>
+{% endblock %}
