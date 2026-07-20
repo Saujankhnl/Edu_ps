@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.db import transaction
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.http import Http404
@@ -11,7 +12,9 @@ from institution.models import InstitutionUser
 from institution.decorators import role_required
 from .models import Tender, Bid
 from .forms import TenderForm
-
+from company.views import company_login_required
+from .forms import BidSubmissionForm
+from institution.models import InstitutionUser
 
 @login_required
 @role_required(allowed_roles=['creator'])
@@ -19,7 +22,7 @@ def create_tender(request):
     """Allows Creators to create a new tender, saved as a draft."""
     institution_user = get_object_or_404(InstitutionUser, user=request.user)
     if request.method == 'POST':
-        form = TenderForm(request.POST)
+        form = TenderForm(request.POST, request.FILES)
         if form.is_valid():
             tender = form.save(commit=False)
             tender.institution = institution_user.institution
@@ -118,7 +121,11 @@ def list_tenders(request):
 
     # Apply status filter
     status_filter = request.GET.get('status', '')
-    if status_filter:
+    # If no status filter is applied, show all relevant tenders including completed ones.
+    # If a filter is applied, use it.
+    if not status_filter:
+        queryset = queryset.exclude(status__in=['draft', 'archived'])
+    elif status_filter:
         queryset = queryset.filter(status=status_filter)
 
     # Apply 'reviewed by me' filter for reviewers
@@ -279,9 +286,7 @@ def list_archived_tenders(request):
 
 
 # --- Bidding Views ---
-from company.views import company_login_required
-from .forms import BidSubmissionForm
-from institution.models import InstitutionUser # Ensure InstitutionUser is imported
+ # Ensure InstitutionUser is imported
 
 @company_login_required
 def submit_bid(request, tender_id):
@@ -300,6 +305,11 @@ def submit_bid(request, tender_id):
         return redirect('tenders:bid_detail', bid_id=existing_bid.id)
 
     if request.method == 'POST':
+        # Server-side validation for the terms agreement checkbox
+        if 'terms_agreement' not in request.POST:
+            messages.error(request, "You must agree to the Terms & Conditions to place a bid.")
+            return redirect('tenders:submit_bid', tender_id=tender.id)
+
         form = BidSubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             bid = form.save(commit=False)
@@ -389,20 +399,41 @@ def update_bid_status(request, bid_id):
     remarks = request.POST.get('remarks', '').strip()
 
     if action == 'accept_bid':
-        bid.status = 'accepted'
-        messages.success(request, f"Bid from {bid.company.company_name} for '{bid.tender.title}' has been accepted.")
-        # Log activity for the tender
-        bid.tender.log_activity(institution_user, f"Bid Accepted: {bid.company.company_name}", remarks=remarks)
+        tender = bid.tender
+        # Use a transaction to ensure atomicity
+        with transaction.atomic():
+            # 1. Accept the current bid
+            bid.status = 'accepted'
+            bid.save()
+    
+            # 2. Reject all other bids for this tender
+            other_bids = tender.bids.exclude(pk=bid.id).filter(status__in=['submitted', 'under_review', 'shortlisted'])
+            other_bids.update(status='rejected')
+    
+            # 3. Update the tender status to 'completed'
+            tender.status = 'completed'
+            tender.save()
+            tender.log_activity(institution_user, f"Bid from {bid.company.company_name} accepted. Tender completed.", remarks=remarks)
+        messages.success(request, f"Bid from {bid.company.company_name} has been accepted and the tender is now marked as completed.")
+    
     elif action == 'reject_bid':
         if not remarks:
             messages.error(request, "Remarks are mandatory when rejecting a bid.")
             return redirect('tenders:bid_detail', bid_id=bid.id)
         bid.status = 'rejected'
-        messages.error(request, f"Bid from {bid.company.company_name} for '{bid.tender.title}' has been rejected.")
+        bid.save()
+        messages.info(request, f"The bid from {bid.company.company_name} has been rejected.")
         # Log activity for the tender
         bid.tender.log_activity(institution_user, f"Bid Rejected: {bid.company.company_name}", remarks=remarks)
     else:
         messages.error(request, "Invalid action for bid status update.")
-
-    bid.save()
+        return redirect('tenders:bid_detail', bid_id=bid.id)
+    
     return redirect('tenders:bid_detail', bid_id=bid.id)
+
+@login_required
+def tender_report(request):
+    """Displays tender reports with filters and export options."""
+    # This view will contain logic for filtering and generating report data.
+    # Access control should be implemented based on user role.
+    return render(request, 'tenders/tender_report.html')

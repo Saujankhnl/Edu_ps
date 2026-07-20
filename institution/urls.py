@@ -16,4 +16,6 @@ urlpatterns = [
     path('user-profile/', views.user_profile, name='user_profile'),
     path('user-profile/edit/', views.edit_user_profile, name='edit_user_profile'),
     path('user-profile/change-password/', views.change_password, name='change_password'),
+    # Reporting URLs
+    path('reports/institution/', views.institution_report, name='institution_report'),
 ]

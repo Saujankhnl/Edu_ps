@@ -8,15 +8,28 @@ from django.db import transaction
 from .forms import InstitutionRegistrationForm, CompanyRegistrationForm, EmailForm, OTPForm, SetPasswordForm
 from company.models import Company
 from institution.models import Institution, InstitutionUser
+from django.db.models import Q
 from tenders.models import Tender
 
 def home(request): # Renamed from homepage
     """Displays the main landing page with a list of recent tenders."""
-    # Fetch recently published tenders to display on the homepage
-    recent_tenders = Tender.objects.filter(status='published').order_by('-updated_at')[:6]
-    
+    search_query = request.GET.get('q', '')
+
+    # Fetch all publicly visible tenders (published, expired, or completed)
+    tenders = Tender.objects.filter(
+        Q(status='published') | Q(status='expired') | Q(status='completed')
+    ).select_related('institution').order_by('-updated_at')
+
+    if search_query:
+        tenders = tenders.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(institution__institution_name__icontains=search_query)
+        )
+
     context = {
-        'tenders': recent_tenders,
+        'tenders': tenders,
+        'search_query': search_query,
     }
     return render(request, 'accounts/home.html', context)
 

@@ -8,7 +8,7 @@ from django.db.models import Q, Count, Case, When
 from django.http import HttpResponseForbidden, Http404
 from django.db import transaction, IntegrityError
 from django.contrib import messages
-from tenders.models import Tender, TenderActivity
+from tenders.models import Tender, TenderActivity, Bid
 from .decorators import role_required
 from .forms import InstitutionUserCreationForm, InstitutionUserChangeForm, InstitutionProfileForm, UserProfileForm, PasswordChangeForm
 from django.utils import timezone
@@ -51,16 +51,21 @@ def dashboard(request):
             pending_approval=Count('id', filter=Q(status='pending_approval')),
             published=Count('id', filter=Q(status='published')),
             rejected=Count('id', filter=Q(status='rejected')),
-            archived=Count('id', filter=Q(status='archived')),
+            completed=Count('id', filter=Q(status='completed')),
             expired=Count('id', filter=Q(status='expired')),
         )
         stats['total_users'] = InstitutionUser.objects.filter(institution=institution).count()
+        stats['total_bids'] = Bid.objects.filter(tender__institution=institution).count()
+
         context['stats'] = stats
         context['chart_data'] = {
-            'labels': ['Published', 'Pending Approval', 'Rejected', 'Archived', 'Expired'],
-            'data': [stats['published'], stats['pending_approval'], stats['rejected'], stats['archived'], stats['expired']],
+            'labels': ['Published', 'Pending Approval', 'Completed', 'Rejected', 'Expired'],
+            'data': [stats['published'], stats['pending_approval'], stats['completed'], stats['rejected'], stats['expired']],
         }
-        context['tenders'] = all_tenders_in_institution.filter(status__in=['pending_approval', 'published']).order_by('-updated_at')
+        # Show all non-draft/archived tenders on the admin dashboard for a complete overview.
+        context['tenders'] = all_tenders_in_institution.exclude(
+            status__in=['draft', 'archived']
+        ).order_by('-updated_at')
 
     elif role == 'creator':
         creator_tenders = all_tenders_in_institution.filter(created_by=institution_user)
@@ -79,12 +84,27 @@ def dashboard(request):
         context['tenders'] = creator_tenders.order_by('-updated_at')
 
     elif role == 'reviewer':
-        stats = all_tenders_in_institution.aggregate(
-            pending_review=Count('id', filter=Q(status='pending_review')),
+        # Correctly calculate stats for reviewers
+        reviewer_activities = TenderActivity.objects.filter(
+            performed_by=institution_user, 
+            action__in=["Forwarded for Approval", "Returned to Creator"]
         )
-        stats['reviewed_count'] = TenderActivity.objects.filter(performed_by=institution_user, action__in=["Forwarded for Approval", "Returned to Creator"]).count()
+        stats = {
+            'Tenders Pending Review': all_tenders_in_institution.filter(status='pending_review').count(),
+            'Forwarded to Admin': reviewer_activities.filter(action="Forwarded for Approval").count(),
+            'Returned to Creator': reviewer_activities.filter(action="Returned to Creator").count(),
+        }
         context['stats'] = stats
-        context['tenders'] = all_tenders_in_institution.filter(status__in=['pending_review', 'pending_approval', 'approved', 'published', 'rejected']).order_by('-updated_at')
+        
+        # Tenders pending review by anyone, or tenders this reviewer has acted on.
+        reviewed_tender_ids = TenderActivity.objects.filter(performed_by=institution_user).values_list('tender_id', flat=True)
+        context['tenders'] = all_tenders_in_institution.filter(
+            Q(status='pending_review') | Q(id__in=reviewed_tender_ids)
+        ).select_related('created_by__user').distinct().order_by(
+            # Prioritize 'pending_review' tenders by sorting them first
+            Case(When(status='pending_review', then=0), default=1),
+            '-updated_at' # Then sort by the most recently updated
+        )
 
     return render(request, "institution/dashboard.html", context)
 
@@ -112,13 +132,6 @@ def manage_users(request):
         is_active = status_filter == 'active'
         users_list = users_list.filter(user__is_active=is_active)
 
-    # ***FIX***: Calculate stats on the filtered list *before* pagination
-    stats = users_list.aggregate(
-        total=Count('id'),
-        creators=Count('id', filter=Q(role='creator')),
-        reviewers=Count('id', filter=Q(role='reviewer')),
-    )
-
     # Pagination
     paginator = Paginator(users_list, 10) # Show 10 users per page
     page_number = request.GET.get('page')
@@ -127,7 +140,11 @@ def manage_users(request):
     context = {
         'institution': institution,
         'users': page_obj,
-        'stats': stats,
+        'stats': {
+            'total': paginator.count, # Use paginator.count for the total after filtering
+            'creators': users_list.filter(role='creator').count(),
+            'reviewers': users_list.filter(role='reviewer').count(),
+        },
         'search_query': search_query,
         'role_filter': role_filter,
         'status_filter': status_filter,
@@ -308,3 +325,10 @@ def change_password(request):
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'institution/change_password.html', {'form': form})
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def institution_report(request):
+    """Displays institution-specific reports with filters and export options."""
+    # This view will contain logic for filtering and generating report data.
+    return render(request, 'institution/institution_report.html')

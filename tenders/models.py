@@ -13,6 +13,7 @@ class Tender(models.Model):
         ('rejected', 'Rejected'),
         ('archived', 'Archived'),
         ('expired', 'Expired'),
+        ('completed', 'Completed'),
     )
 
     title = models.CharField(max_length=255)
@@ -24,6 +25,11 @@ class Tender(models.Model):
     created_by = models.ForeignKey(InstitutionUser, on_delete=models.CASCADE, related_name='created_tenders')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # New fields for tender details
+    terms_and_conditions = models.TextField(blank=True, help_text="All rules and regulations for this tender.")
+    eligibility_criteria = models.TextField(blank=True, help_text="Criteria for company eligibility.")
+    technical_requirements = models.TextField(blank=True, help_text="Technical specifications and requirements.")
+    tender_document = models.FileField(upload_to='tender_documents/', null=True, blank=True, help_text="Upload a PDF document for the tender.")
     remarks = models.TextField(blank=True, null=True, help_text="Reason for rejection, if applicable.")
     
     def __str__(self):
@@ -39,6 +45,7 @@ class Tender(models.Model):
             'rejected': 'bg-red-100 text-red-800',
             'archived': 'bg-purple-100 text-purple-800',
             'expired': 'bg-gray-100 text-gray-800 ring-1 ring-inset ring-gray-500/20',
+            'completed': 'bg-cyan-100 text-cyan-800',
         }.get(self.status, 'bg-gray-100 text-gray-800')
 
     def log_activity(self, user, action, remarks=None):
@@ -57,6 +64,7 @@ class Bid(models.Model):
     tender = models.ForeignKey(Tender, on_delete=models.CASCADE, related_name='bids')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='bids')
     bid_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    quotation_document = models.FileField(upload_to='quotations/', null=True, blank=True, help_text="Uploaded quotation document.")
     proposal_document = models.FileField(upload_to='proposals/')
     cover_letter = models.TextField(blank=True, null=True, help_text="Optional cover letter or remarks.")
     submitted_at = models.DateTimeField(auto_now_add=True)

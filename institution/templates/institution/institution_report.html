@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Institution Reports{% endblock %}
+
+{% block content %}
+<!-- Tailwind CSS CDN (Include this in your base.html head instead if possible) -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<div class="p-8 bg-gray-50 min-h-screen">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Institution Reports</h1>
+
+    <!-- Filters Section -->
+    <div class="mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Filters</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Date Range</label>
+                <select id="dateFilter" class="w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 border focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Time</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                <select id="statusFilter" class="w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 border focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Suspended">Suspended</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                <select id="categoryFilter" class="w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 border focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Categories</option>
+                    <option value="University">University</option>
+                    <option value="College">College</option>
+                    <option value="Institute">Institute</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <p class="text-xs text-gray-400 font-semibold uppercase">Total Institutions</p>
+            <p id="totalInstitutions" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <p class="text-xs text-gray-400 font-semibold uppercase">Active Count</p>
+            <p id="activeInstitutions" class="text-2xl font-bold text-green-600 mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+            <p class="text-xs text-gray-400 font-semibold uppercase">Pending Reviews</p>
+            <p id="pendingInstitutions" class="text-2xl font-bold text-yellow-600 mt-1">0</p>
+        </div>
+    </div>
+
+    <!-- Report Data Display Table -->
+    <div class="p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Report Data</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 w-full text-left text-sm text-gray-600">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold text-gray-700 tracking-wider">Institution Name</th>
+                        <th class="px-6 py-3 font-semibold text-gray-700 tracking-wider">Category</th>
+                        <th class="px-6 py-3 font-semibold text-gray-700 tracking-wider">Status</th>
+                        <th class="px-6 py-3 font-semibold text-gray-700 tracking-wider">Joined Date</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody" class="divide-y divide-gray-200 bg-white">
+                    <!-- Dynamic Rows Rendered Here by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Frontend JavaScript Interactivity -->
+<script>
+    // Mock Data mimicking what your backend would provide
+    const reportData = [
+        { name: "Apex Global University", category: "University", status: "Active", dateJoined: "2026-05-12", daysAgo: 69 },
+        { name: "Beacon Technical Institute", category: "Institute", status: "Pending", dateJoined: "2026-07-01", daysAgo: 19 },
+        { name: "Summit Community College", category: "College", status: "Active", dateJoined: "2026-06-15", daysAgo: 35 },
+        { name: "Vanguard Medical Academy", category: "Institute", status: "Suspended", dateJoined: "2025-11-20", daysAgo: 242 },
+        { name: "Horizon Science College", category: "College", status: "Pending", dateJoined: "2026-07-10", daysAgo: 10 }
+    ];
+
+    const dateFilter = document.getElementById('dateFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const tableBody = document.getElementById('reportTableBody');
+
+    // Color utility mapping for statuses
+    const statusBadges = {
+        Active: 'bg-green-100 text-green-800',
+        Pending: 'bg-yellow-100 text-yellow-800',
+        Suspended: 'bg-red-100 text-red-800'
+    };
+
+    function renderReport() {
+        const selectedDate = dateFilter.value;
+        const selectedStatus = statusFilter.value;
+        const selectedCategory = categoryFilter.value;
+
+        // Filtering logic
+        const filteredData = reportData.filter(item => {
+            const matchesDate = selectedDate === 'all' || item.daysAgo <= parseInt(selectedDate);
+            const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
+            const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+            return matchesDate && matchesStatus && matchesCategory;
+        });
+
+        // Update Summary Cards Metrics
+        document.getElementById('totalInstitutions').textContent = filteredData.length;
+        document.getElementById('activeInstitutions').textContent = filteredData.filter(i => i.status === 'Active').length;
+        document.getElementById('pendingInstitutions').textContent = filteredData.filter(i => i.status === 'Pending').length;
+
+        // Clear existing rows
+        tableBody.innerHTML = '';
+
+        // Render rows dynamically
+        if (filteredData.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400 italic">No reports found matching selected criteria.</td></tr>`;
+            return;
+        }
+
+        filteredData.forEach(item => {
+            const badgeClass = statusBadges[item.status] || 'bg-gray-100 text-gray-800';
+            const row = `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-gray-900">${item.name}</td>
+                    <td class="px-6 py-4">${item.category}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">${item.dateJoined}</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    // Attach Event Listeners
+    dateFilter.addEventListener('change', renderReport);
+    statusFilter.addEventListener('change', renderReport);
+    categoryFilter.addEventListener('change', renderReport);
+
+    // Initial load execution
+    document.addEventListener('DOMContentLoaded', renderReport);
+</script>
+{% endblock %}

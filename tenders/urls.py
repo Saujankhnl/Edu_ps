@@ -20,4 +20,6 @@ urlpatterns = [
     path("my-bids/", views.my_bids, name="my_bids"),
     path("bids/<int:bid_id>/", views.bid_detail, name="bid_detail"),
     path("bids/<int:bid_id>/update_status/", views.update_bid_status, name="update_bid_status"),
+    # Reporting URL
+    path('reports/tender/', views.tender_report, name='tender_report'),
 ]
