@@ -5,7 +5,11 @@ from django.db.models import Q
 from django.db import transaction
 from django.core.paginator import Paginator
 from django.utils import timezone
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from django.template.loader import get_template
+from io import BytesIO
+from xhtml2pdf import pisa
+
 
 from company.models import Company
 from institution.models import InstitutionUser
@@ -437,3 +441,74 @@ def tender_report(request):
     # This view will contain logic for filtering and generating report data.
     # Access control should be implemented based on user role.
     return render(request, 'tenders/tender_report.html')
+
+
+def render_to_pdf(template_src, context_dict={}):
+    """Helper function to render a Django template to a PDF."""
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('We had some errors<pre>%s</pre>' % html, status=500)
+
+@login_required
+def generate_tender_pdf(request, tender_id):
+    """Generates a PDF for a single tender's details."""
+    tender = get_object_or_404(Tender.objects.select_related('institution', 'created_by__user'), pk=tender_id)
+
+    # Authorization check: Only allow institution admins of the owning institution
+    try:
+        institution_user = request.user.institution_profile
+        if not (institution_user.role == 'admin' and institution_user.institution == tender.institution):
+            messages.error(request, "You do not have permission to generate this report.")
+            return redirect('tenders:tender_detail', tender_id=tender.id)
+    except (AttributeError, InstitutionUser.DoesNotExist):
+        messages.error(request, "You are not authorized to perform this action.")
+        return redirect('tenders:tender_detail', tender_id=tender.id)
+
+    context = {
+        'tender': tender,
+        'report_date': timezone.now(),
+    }
+    
+    pdf = render_to_pdf('tenders/tender_detail_pdf.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"Tender_{tender.id}_{tender.title.replace(' ', '_')}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    return HttpResponse("Error generating PDF.", status=500)
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def generate_bids_pdf(request, tender_id):
+    """Generates a PDF report of all bids submitted for a specific tender."""
+    tender = get_object_or_404(Tender, pk=tender_id)
+
+    # Authorization check
+    try:
+        institution_user = request.user.institution_profile
+        if not (institution_user.role == 'admin' and institution_user.institution == tender.institution):
+            messages.error(request, "You do not have permission to generate this report.")
+            return redirect('tenders:tender_detail', tender_id=tender.id)
+    except (AttributeError, InstitutionUser.DoesNotExist):
+        messages.error(request, "You are not authorized to perform this action.")
+        return redirect('tenders:tender_detail', tender_id=tender.id)
+
+    bids = tender.bids.all().select_related('company').order_by('bid_amount')
+
+    context = {
+        'tender': tender,
+        'bids': bids,
+        'report_date': timezone.now(),
+    }
+
+    pdf = render_to_pdf('tenders/bids_report_pdf.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"Bids_Report_for_{tender.title.replace(' ', '_')}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    return HttpResponse("Error generating PDF.", status=500)

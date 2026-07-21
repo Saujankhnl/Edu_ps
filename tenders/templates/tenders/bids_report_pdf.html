@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bids Report for {{ tender.title }}</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1.5cm;
+        }
+        body { 
+            font-family: "Helvetica", sans-serif; 
+            font-size: 10pt; 
+            color: #333;
+        }
+        h1 { 
+            font-size: 18pt; 
+            color: #1a1a1a; 
+            margin-bottom: 0.2cm;
+        }
+        h2 { 
+            font-size: 12pt; 
+            color: #555; 
+            margin-top: 0;
+            font-weight: normal;
+            margin-bottom: 1cm;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+            vertical-align: middle;
+        }
+        th { 
+            background-color: #f2f2f2; 
+            font-size: 11pt; 
+            font-weight: bold;
+        }
+        .footer {
+            position: fixed;
+            bottom: -1cm; left: 0; right: 0;
+            text-align: center; font-size: 8pt; color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">
+        Generated on: {{ report_date|date:"F j, Y" }} | Tender: {{ tender.title }}
+    </div>
+
+    <h1>Bid Submission Report</h1>
+    <h2>For Tender: {{ tender.title }}</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40%;">Company Name</th>
+                <th style="width: 25%;">Bid Amount</th>
+                <th style="width: 25%;">Submitted On</th>
+                <th style="width: 10%;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in bids %}
+            <tr>
+                <td><strong>{{ bid.company.company_name }}</strong></td>
+                <td>${{ bid.bid_amount|floatformat:2 }}</td>
+                <td>{{ bid.submitted_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ bid.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align: center; padding: 20px;">No bids have been submitted for this tender.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

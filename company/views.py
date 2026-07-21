@@ -5,10 +5,15 @@ from django.db.models import Count, Q
 from django.contrib.auth import update_session_auth_hash
 from django.db import IntegrityError
  
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.utils import timezone
+from io import BytesIO
+from xhtml2pdf import pisa
+
 from .models import Company
 from tenders.models import Tender, Bid
 from .forms import CompanyProfileForm, PasswordChangeForm
-
 def company_login_required(view_func):
     """Decorator to ensure user is a logged-in company user."""
     @login_required(login_url='accounts:login_page')
@@ -115,3 +120,45 @@ def analytics_reports(request):
         'total_failed_offers': total_failed_offers,
     }
     return render(request, 'company/analytics_reports.html', context)
+
+def render_to_pdf(template_src, context_dict={}):
+    """Helper function to render a Django template to a PDF."""
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('We had some errors<pre>%s</pre>' % html, status=500)
+
+@company_login_required
+def generate_analytics_pdf(request):
+    """Generates a PDF report of the company's bidding analytics."""
+    company = get_object_or_404(Company, user=request.user)
+    my_bids = Bid.objects.filter(company=company)
+
+    # Fetch the same stats as the analytics page
+    total_bids = my_bids.count()
+    successful_bids = my_bids.filter(status='accepted').count()
+    pending_bids = my_bids.filter(status__in=['submitted', 'under_review', 'shortlisted']).count()
+    rejected_bids = my_bids.filter(status='rejected').count()
+
+    context = {
+        'company': company,
+        'total_bids': total_bids,
+        'successful_bids': successful_bids,
+        'pending_bids': pending_bids,
+        'rejected_bids': rejected_bids,
+        'report_date': timezone.now(),
+        'all_bids': my_bids.select_related('tender').order_by('-submitted_at'),
+    }
+
+    pdf = render_to_pdf('company/report_pdf_template.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"Bidding_Analytics_Report_{company.company_name.replace(' ', '_')}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    
+    messages.error(request, "There was an error generating the PDF report.")
+    return redirect('company:analytics_reports')

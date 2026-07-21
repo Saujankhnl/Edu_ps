@@ -22,4 +22,6 @@ urlpatterns = [
     path("bids/<int:bid_id>/update_status/", views.update_bid_status, name="update_bid_status"),
     # Reporting URL
     path('reports/tender/', views.tender_report, name='tender_report'),
+    path('<int:tender_id>/pdf/', views.generate_tender_pdf, name='generate_tender_pdf'),
+    path('<int:tender_id>/bids/pdf/', views.generate_bids_pdf, name='generate_bids_pdf'),
 ]

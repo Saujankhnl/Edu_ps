@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tender Report</title>
+    <style>
+        
+        
+        body { 
+            font-family: "Helvetica", sans-serif; 
+            font-size: 10pt; 
+            color: #333333;
+        }
+        
+        /* Fixed margins and heights to stop text clipping in frames */
+        #header_content {
+            margin: 0;
+            padding: 0;
+        }
+        h1 { font-size: 18pt; color: #1a1a1a; margin: 0 0 4pt 0; padding: 0; }
+        h2 { font-size: 12pt; color: #555555; margin: 0; padding: 0; font-weight: normal; }
+        
+        /* PDF specific table improvements */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        th, td { 
+            border: 1px solid #e0e0e0; 
+            padding: 7px 6px; 
+            text-align: left; 
+            vertical-align: middle;
+        }
+        th { 
+            background-color: #f5f5f5; 
+            font-size: 10pt; 
+            font-weight: bold;
+            color: #222222;
+        }
+        
+        .footer { 
+            font-size: 8pt; 
+            color: #777777; 
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 4pt;
+        }
+        
+        /* Utility classes for nice PDF alignment and text wrapping */
+        .text-center { text-align: center; }
+        .text-muted { color: #666666; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Frame Target -->
+    <div id="header_content">
+        <h1>Tender Report</h1>
+        <h2>{{ institution_name }}</h2>
+    </div>
+
+    <!-- Footer Frame Target -->
+    <div id="footer_content" class="footer">
+        Generated on: {{ report_date|date:"F j, Y, g:i a" }} | Page <pdf:pagenumber />
+    </div>
+
+    <!-- Main Content Flow -->
+    <table>
+        <thead>
+            <tr>
+                <!-- Explicit proportional widths keep the PDF columns clean -->
+                <th style="width: 35%;">Title</th>
+                <th style="width: 20%;">Institution</th>
+                <th style="width: 15%;">Status</th>
+                <th style="width: 15%;">Created Date</th>
+                <th style="width: 15%;">Deadline</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tender in tenders %}
+            <tr>
+                <td><strong>{{ tender.title }}</strong></td>
+                <td>{{ tender.institution.institution_name }}</td>
+                <td>{{ tender.get_status_display }}</td>
+                <td class="text-muted">{{ tender.created_at|date:"Y-m-d" }}</td>
+                <td class="text-muted">{{ tender.deadline|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted" style="padding: 20px 0;">
+                    No tenders found for the selected criteria.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

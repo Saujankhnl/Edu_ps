@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tender Details - {{ tender.title }}</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1.5cm;
+        }
+        body { 
+            font-family: "Helvetica", sans-serif; 
+            font-size: 10pt; 
+            color: #333;
+        }
+        h1 { 
+            font-size: 20pt; 
+            color: #1a1a1a; 
+            margin-bottom: 0.5cm;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.2cm;
+        }
+        h2 { 
+            font-size: 14pt; 
+            color: #444; 
+            margin-top: 1cm;
+            margin-bottom: 0.5cm;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 0.1cm;
+        }
+        .header-info {
+            font-size: 9pt;
+            color: #666;
+            margin-bottom: 1cm;
+        }
+        .detail-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detail-grid td {
+            padding: 8px 0;
+            vertical-align: top;
+        }
+        .detail-grid .label {
+            font-weight: bold;
+            width: 150px;
+            color: #555;
+        }
+        .section {
+            margin-bottom: 1cm;
+        }
+        .section p {
+            line-height: 1.6;
+            white-space: pre-wrap; /* Respects line breaks from TextField */
+        }
+        .footer {
+            position: fixed;
+            bottom: -1cm;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8pt;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">
+        Generated on: {{ report_date|date:"F j, Y" }} | Tender ID: {{ tender.id }}
+    </div>
+
+    <h1>{{ tender.title }}</h1>
+    <div class="header-info">
+        Issued by: <strong>{{ tender.institution.institution_name }}</strong>
+    </div>
+
+    <div class="section">
+        <table class="detail-grid">
+            <tr><td class="label">Status:</td><td>{{ tender.get_status_display }}</td></tr>
+            <tr><td class="label">Category:</td><td>{{ tender.category }}</td></tr>
+            <tr><td class="label">Published On:</td><td>{{ tender.created_at|date:"F j, Y" }}</td></tr>
+            <tr><td class="label">Bidding Deadline:</td><td>{{ tender.deadline|date:"F j, Y, P" }}</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Description</h2>
+        <p>{{ tender.description|default:"No description provided." }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Eligibility Criteria</h2>
+        <p>{{ tender.eligibility_criteria|default:"Not specified." }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Technical Requirements</h2>
+        <p>{{ tender.technical_requirements|default:"Not specified." }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Terms & Conditions</h2>
+        <p>{{ tender.terms_and_conditions|default:"Not specified." }}</p>
+    </div>
+</body>
+</html>

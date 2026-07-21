@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bidding Analytics Report</title>
+    <style>
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            font-size: 10pt;
+            color: #333;
+        }
+        h1 {
+            font-size: 22pt;
+            color: #1a2b48;
+            margin: 0;
+        }
+        h2 {
+            font-size: 16pt;
+            color: #2c3e50;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 9pt;
+            text-transform: uppercase;
+        }
+        .summary-table td {
+            font-size: 12pt;
+        }
+        .summary-table .label {
+            font-weight: bold;
+        }
+        .header, .footer {
+            width: 100%;
+            text-align: center;
+        }
+        .footer {
+            font-size: 8pt;
+            color: #777;
+        }
+        .company-name {
+            font-size: 11pt;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header_content">
+        <h1>Bidding Analytics Report</h1>
+        <div class="company-name">{{ company.company_name }}</div>
+    </div>
+
+    <div id="footer_content" class="footer">
+        Page <pdf:pagenumber /> of <pdf:pagecount /> | Generated on: {{ report_date|date:"F j, Y, g:i a" }}
+    </div>
+
+    <h2>Summary</h2>
+    <table class="summary-table">
+        <tr><td class="label">Total Bids Submitted:</td><td>{{ total_bids }}</td></tr>
+        <tr><td class="label">Successful Bids (Won):</td><td>{{ successful_bids }}</td></tr>
+        <tr><td class="label">Pending Bids (Under Review):</td><td>{{ pending_bids }}</td></tr>
+        <tr><td class="label">Rejected Bids (Lost):</td><td>{{ rejected_bids }}</td></tr>
+    </table>
+
+    <h2>All Submitted Bids</h2>
+    <table>
+        <thead>
+            <tr><th>Tender Title</th><th>Bid Amount</th><th>Submitted On</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for bid in all_bids %}
+            <tr><td>{{ bid.tender.title }}</td><td>${{ bid.bid_amount|floatformat:2 }}</td><td>{{ bid.submitted_at|date:"Y-m-d" }}</td><td>{{ bid.get_status_display }}</td></tr>
+            {% empty %}
+            <tr><td colspan="4">No bids have been submitted.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

@@ -7,6 +7,10 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Case, When
 from django.http import HttpResponseForbidden, Http404
 from django.db import transaction, IntegrityError
+from django.http import HttpResponse
+from django.template.loader import get_template
+from io import BytesIO
+from xhtml2pdf import pisa
 from django.contrib import messages
 from tenders.models import Tender, TenderActivity, Bid
 from .decorators import role_required
@@ -330,5 +334,93 @@ def change_password(request):
 @role_required(allowed_roles=['admin'])
 def institution_report(request):
     """Displays institution-specific reports with filters and export options."""
-    # This view will contain logic for filtering and generating report data.
-    return render(request, 'institution/institution_report.html')
+    institution_user = get_object_or_404(InstitutionUser, user=request.user)
+    tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='archived').order_by('-created_at')
+
+    # Get filter values from request
+    status_filter = request.GET.get('status', '')
+    date_filter = request.GET.get('date_range', '')
+
+    # Apply filters
+    if status_filter:
+        tenders = tenders.filter(status=status_filter)
+    
+    if date_filter:
+        try:
+            days = int(date_filter)
+            start_date = timezone.now() - timezone.timedelta(days=days)
+            tenders = tenders.filter(created_at__gte=start_date)
+        except (ValueError, TypeError):
+            # Handle cases where date_filter is not a valid number
+            pass
+
+    # Calculate stats based on the filtered queryset
+    stats = tenders.aggregate(
+        total_tenders=Count('id'),
+        published=Count('id', filter=Q(status='published')),
+        completed=Count('id', filter=Q(status='completed')),
+        pending=Count('id', filter=Q(status__in=['pending_review', 'pending_approval'])),
+    )
+
+    # Pagination
+    paginator = Paginator(tenders, 15) # 15 tenders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'tenders': page_obj,
+        'stats': stats,
+        'status_choices': [choice for choice in Tender.STATUS_CHOICES if choice[0] not in ['draft', 'archived']],
+        'current_status': status_filter,
+        'current_date_range': date_filter,
+    }
+    return render(request, 'institution/institution_report.html', context)
+
+def render_to_pdf(template_src, context_dict={}):
+    """Helper function to render a Django template to a PDF."""
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    # Use UTF-8 encoding
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('We had some errors<pre>%s</pre>' % html, status=500)
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def generate_report_pdf(request):
+    """Generates a PDF report of tenders based on filters."""
+    institution_user = get_object_or_404(InstitutionUser, user=request.user)
+    tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='archived').order_by('-created_at')
+
+    # Reuse filtering logic from the main report view
+    status_filter = request.GET.get('status', '')
+    date_filter = request.GET.get('date_range', '')
+
+    if status_filter:
+        tenders = tenders.filter(status=status_filter)
+    
+    if date_filter:
+        try:
+            days = int(date_filter)
+            start_date = timezone.now() - timezone.timedelta(days=days)
+            tenders = tenders.filter(created_at__gte=start_date)
+        except (ValueError, TypeError):
+            pass
+
+    context = {
+        'tenders': tenders,
+        'institution_name': institution_user.institution.institution_name,
+        'report_date': timezone.now(),
+        'current_status': status_filter,
+        'current_date_range': date_filter,
+    }
+    
+    pdf = render_to_pdf('institution/report_pdf_template.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"Tender_Report_{institution_user.institution.institution_name.replace(' ', '_')}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    return HttpResponse("Error generating PDF.", status=500)
