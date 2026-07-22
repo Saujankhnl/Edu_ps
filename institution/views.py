@@ -312,23 +312,6 @@ def edit_user_profile(request):
     return render(request, 'institution/edit_user_profile.html', {'form': form})
 
 @login_required
-def change_password(request):
-    """Allows a user to change their own password."""
-    if request.method == 'POST':
-        form = PasswordChangeForm(user=request.user, data=request.POST)
-        if form.is_valid():
-            user = form.save()
-            # Important: update the session with the new password hash
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('institution:user_profile')
-        else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        form = PasswordChangeForm(user=request.user)
-    return render(request, 'institution/change_password.html', {'form': form})
-
-@login_required
 @role_required(allowed_roles=['admin'])
 def institution_report(request):
     """Displays institution-specific reports with filters and export options."""
@@ -422,3 +405,20 @@ def generate_report_pdf(request):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
     return HttpResponse("Error generating PDF.", status=500)
+
+@login_required
+def change_password(request):
+    """Allows a user to change their own password."""
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Important: update the session with the new password hash
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('institution:user_profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'accounts/change_password.html', {'form': form})
