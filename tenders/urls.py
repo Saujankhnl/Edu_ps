@@ -5,7 +5,6 @@ app_name = "tenders"
 urlpatterns = [
     path("create/", views.create_tender, name="create_tender"),
     path("list/", views.list_tenders, name="list_tenders"),
-    path("archived/", views.list_archived_tenders, name="list_archived_tenders"),
     path("for-approval/", views.list_for_approval, name="list_for_approval"),
     path("<int:tender_id>/edit/", views.edit_tender, name="edit_tender"),
     path("<int:tender_id>/delete/", views.delete_tender, name="delete_tender"),

@@ -76,7 +76,12 @@
                     <td class="px-6 py-4">{{ tender.created_by.user.get_full_name|default:tender.created_by.user.username }}</td>
                     <td class="px-6 py-4">{{ tender.deadline|date:"d M Y, P" }}</td>
                     <td class="px-6 py-4 text-right">
-                        <a href="{% url 'tenders:tender_detail' tender.id %}" class="font-medium text-blue-600 hover:underline">View Details</a>
+                        <a href="{% url 'tenders:tender_detail' tender.id %}" class="font-medium text-blue-600 hover:underline mr-4">View Details</a>
+                        {% if request.user.institution_profile.role == 'creator' and tender.created_by == request.user.institution_profile %}
+                            {% if tender.status == 'rejected' %}
+                                <a href="{% url 'tenders:edit_tender' tender.id %}" class="font-medium text-indigo-600 hover:underline">Edit</a>
+                            {% endif %}
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

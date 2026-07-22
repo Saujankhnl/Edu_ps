@@ -145,7 +145,7 @@
                                     <a href="{% url 'tenders:tender_detail' bid.tender.id %}" class="hover:underline text-blue-600 hover:text-blue-800">{{ bid.tender.title }}</a>
                                 </th>
                                 <td class="px-6 py-4 text-gray-600">{{ bid.tender.institution.institution_name }}</td>
-                                <td class="px-6 py-4 font-mono font-bold text-gray-900">${{ bid.bid_amount|floatformat:2 }}</td>
+                                <td class="px-6 py-4 font-mono font-bold text-gray-900">Np {{ bid.bid_amount|floatformat:2 }}</td>
                                 <td class="px-6 py-4 text-gray-500">{{ bid.submitted_at|date:"d M Y" }}</td>
                                 <td class="px-6 py-4">
                                     <!-- The dynamic status code assigns custom tailwind color variables from computed styles -->

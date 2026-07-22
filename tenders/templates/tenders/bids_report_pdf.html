@@ -69,7 +69,7 @@
             {% for bid in bids %}
             <tr>
                 <td><strong>{{ bid.company.company_name }}</strong></td>
-                <td>${{ bid.bid_amount|floatformat:2 }}</td>
+                <td>Np {{ bid.bid_amount|floatformat:2 }}</td>
                 <td>{{ bid.submitted_at|date:"Y-m-d H:i" }}</td>
                 <td>{{ bid.get_status_display }}</td>
             </tr>

@@ -67,9 +67,7 @@ def dashboard(request):
             'data': [stats['published'], stats['pending_approval'], stats['completed'], stats['rejected'], stats['expired']],
         }
         # Show all non-draft/archived tenders on the admin dashboard for a complete overview.
-        context['tenders'] = all_tenders_in_institution.exclude(
-            status__in=['draft', 'archived']
-        ).order_by('-updated_at')
+        context['tenders'] = all_tenders_in_institution.exclude(status='draft').order_by('-updated_at')
 
     elif role == 'creator':
         creator_tenders = all_tenders_in_institution.filter(created_by=institution_user)
@@ -335,7 +333,7 @@ def change_password(request):
 def institution_report(request):
     """Displays institution-specific reports with filters and export options."""
     institution_user = get_object_or_404(InstitutionUser, user=request.user)
-    tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='archived').order_by('-created_at')
+    tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='draft').order_by('-created_at')
 
     # Get filter values from request
     status_filter = request.GET.get('status', '')
@@ -370,7 +368,7 @@ def institution_report(request):
     context = {
         'tenders': page_obj,
         'stats': stats,
-        'status_choices': [choice for choice in Tender.STATUS_CHOICES if choice[0] not in ['draft', 'archived']],
+        'status_choices': [choice for choice in Tender.STATUS_CHOICES if choice[0] != 'draft'],
         'current_status': status_filter,
         'current_date_range': date_filter,
     }
@@ -392,7 +390,7 @@ def render_to_pdf(template_src, context_dict={}):
 def generate_report_pdf(request):
     """Generates a PDF report of tenders based on filters."""
     institution_user = get_object_or_404(InstitutionUser, user=request.user)
-    tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='archived').order_by('-created_at')
+    tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='draft').order_by('-created_at')
 
     # Reuse filtering logic from the main report view
     status_filter = request.GET.get('status', '')

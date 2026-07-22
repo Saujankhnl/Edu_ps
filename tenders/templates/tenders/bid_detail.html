@@ -70,7 +70,7 @@
                         </div>
                         <div class="text-xs">
                             <p class="text-emerald-600 font-bold uppercase tracking-wider">Submitted Bid Valuation</p>
-                            <p class="text-lg font-black text-emerald-700 mt-0.5">${{ bid.bid_amount|floatformat:2 }}</p>
+                            <p class="text-lg font-black text-emerald-700 mt-0.5">Np {{ bid.bid_amount|floatformat:2 }}</p>
                         </div>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
                 </a>
 
                 <!-- Admin Dynamic Actions -->
-                {% if request.user.is_authenticated and request.user.institution_profile and request.user.institution_profile.role == 'admin' and bid.tender.institution == request.user.institution_profile.institution %}
+                {% if request.user.is_authenticated and institution_user and institution_user.role == 'admin' and bid.tender.institution == institution_user.institution %}
                     <div class="w-full sm:w-auto flex flex-wrap items-center justify-end gap-3">
                         
                         <!-- Toggle Decline Overlay -->
@@ -147,8 +147,8 @@
                             <form id="decline-action-form" action="{% url 'tenders:update_bid_status' bid.id %}" method="post" class="hidden mt-3 sm:absolute sm:right-0 sm:bottom-14 sm:z-20 p-4 bg-white border border-gray-200 rounded-xl shadow-lg w-80 space-y-3">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="reject_bid">
-                                <label class="block text-xs font-bold text-gray-700">Rejection Reason</label>
-                                <textarea name="remarks" placeholder="Provide reason for rejecting this bid..." class="w-full text-xs rounded-lg p-2.5 border border-gray-200 focus:ring-2 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition" required></textarea>
+                                <label for="bid-rejection-reason" class="block text-xs font-bold text-gray-700">Rejection Reason</label>
+                                <textarea id="bid-rejection-reason" name="remarks" placeholder="Provide reason for rejecting this bid..." class="w-full text-xs rounded-lg p-2.5 border border-gray-200 focus:ring-2 focus:ring-red-500/10 focus:border-red-500 focus:outline-none transition" required></textarea>
                                 <div class="flex justify-end gap-2">
                                     <button type="button" id="cancel-decline-btn" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-gray-500 hover:bg-gray-50">Cancel</button>
                                     <button type="submit" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-red-600 hover:bg-red-700">Confirm Reject</button>
@@ -165,8 +165,8 @@
                             <form id="accept-action-form" action="{% url 'tenders:update_bid_status' bid.id %}" method="post" class="hidden mt-3 sm:absolute sm:right-0 sm:bottom-14 sm:z-20 p-4 bg-white border border-gray-200 rounded-xl shadow-lg w-80 space-y-3">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="accept_bid">
-                                <label class="block text-xs font-bold text-gray-700">Acceptance Notes</label>
-                                <textarea name="remarks" placeholder="Add acceptance terms or guidelines..." class="w-full text-xs rounded-lg p-2.5 border border-gray-200 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:outline-none transition" required></textarea>
+                                <label for="bid-acceptance-notes" class="block text-xs font-bold text-gray-700">Acceptance Notes</label>
+                                <textarea id="bid-acceptance-notes" name="remarks" placeholder="Add acceptance terms or guidelines..." class="w-full text-xs rounded-lg p-2.5 border border-gray-200 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:outline-none transition" required></textarea>
                                 <div class="flex justify-end gap-2">
                                     <button type="button" id="cancel-accept-btn" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-gray-500 hover:bg-gray-50">Cancel</button>
                                     <button type="submit" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700">Confirm Accept</button>

@@ -9,15 +9,18 @@ from .forms import InstitutionRegistrationForm, CompanyRegistrationForm, EmailFo
 from company.models import Company
 from institution.models import Institution, InstitutionUser
 from django.db.models import Q
+from django.utils import timezone
 from tenders.models import Tender
 
 def home(request): # Renamed from homepage
     """Displays the main landing page with a list of recent tenders."""
     search_query = request.GET.get('q', '')
+    now = timezone.now()
 
-    # Fetch all publicly visible tenders (published, expired, or completed)
+    # Fetch all publicly visible tenders that are still active.
+    # This includes published tenders with a future deadline or no deadline.
     tenders = Tender.objects.filter(
-        Q(status='published') | Q(status='expired') | Q(status='completed')
+        Q(status='published') & (Q(deadline__isnull=True) | Q(deadline__gt=now))
     ).select_related('institution').order_by('-updated_at')
 
     if search_query:

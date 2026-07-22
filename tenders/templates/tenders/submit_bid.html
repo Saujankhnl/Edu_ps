@@ -21,16 +21,6 @@
             {% else %}
                 <p class="text-sm text-gray-500">No specific terms and conditions were provided for this tender.</p>
             {% endif %}
-            {% if tender.tender_document %}
-                <div class="mt-4">
-                    <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-gray-700 hover:bg-gray-800 shadow-xs transition-all">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Download Tender Document
-                    </a>
-                </div>
-            {% endif %}
         </div>
 
         <form method="POST" enctype="multipart/form-data" class="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm space-y-8">
@@ -40,7 +30,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="{{ form.bid_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Bid Amount ($)</label>
+                    <label for="{{ form.bid_amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Bid Amount (Np)</label>
                     {{ form.bid_amount }}
                 </div>
                 <div class="md:col-span-2">

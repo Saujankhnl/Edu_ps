@@ -1,5 +1,6 @@
 from django import forms
 from .models import Tender, Bid
+from decimal import Decimal
 
 class TenderForm(forms.ModelForm):
     """Form for creating and editing a tender."""
@@ -21,6 +22,16 @@ class TenderForm(forms.ModelForm):
             }),
             'deadline': forms.DateTimeInput(attrs={'class': 'form-input', 'type': 'datetime-local'}),
         }
+
+    def clean_budget(self):
+        """
+        Custom validation to ensure the budget, if provided, is at least 1,000,000.
+        """
+        budget = self.cleaned_data.get('budget')
+        min_budget = Decimal('1000000.00')
+        if budget is not None and budget < min_budget:
+            raise forms.ValidationError(f"The budget must be at least Np {min_budget:,.2f}.")
+        return budget
 
 class BidSubmissionForm(forms.ModelForm):
     """Form for a company to submit a bid for a tender."""
