@@ -275,8 +275,11 @@ def institution_profile(request, institution_id):
 @login_required
 def user_profile(request):
     """Displays the logged-in user's own profile."""
-    institution_user = get_object_or_404(InstitutionUser, user=request.user)
-    return render(request, 'institution/user_profile.html', {'profile': institution_user})
+    profile = get_object_or_404(InstitutionUser, user=request.user)
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'institution/user_profile.html', context)
 
 @login_required
 def edit_user_profile(request):
@@ -421,4 +424,4 @@ def change_password(request):
             messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordChangeForm(user=request.user)
-    return render(request, 'accounts/change_password.html', {'form': form})
+    return render(request, 'institution/change_password.html', {'form': form})
