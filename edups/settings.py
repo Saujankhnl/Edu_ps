@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "institution",
     "company",
     "tenders",
+    "system_admin",
 ]
 
 MIDDLEWARE = [
