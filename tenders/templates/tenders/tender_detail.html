@@ -166,6 +166,11 @@
                                 Return to Creator...
                             </button>
                             
+                            <a href="{% url 'tenders:generate_tender_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-red-700 bg-red-50 border border-red-200/50 hover:bg-red-100 shadow-xs transition-all">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Generate PDF
+                            </a>
+
                             <form id="return-form" action="{% url 'tenders:update_tender_status' tender.id %}" method="post" class="hidden mt-3 sm:absolute sm:left-0 sm:top-12 sm:z-20 p-4 bg-white border border-gray-200 rounded-xl shadow-lg w-80 space-y-3 transition-all duration-200">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="return_to_creator">
@@ -211,17 +216,19 @@
                                 </form>
                             </div>
 
-                            {% if tender.tender_document %}
-                            <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-gray-700 bg-gray-100 border border-gray-200/50 hover:bg-gray-200 shadow-xs transition-all">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Download Document
-                            </a>
-                            {% endif %}
+                            
                         {% endif %}
                         
                         <!-- General Admin Actions -->
+                        {% if tender.tender_document %}
+                        <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-gray-700 bg-gray-100 border border-gray-200/50 hover:bg-gray-200 shadow-xs transition-all">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download Document
+                        </a>
+                        {% endif %}
+
                         <a href="{% url 'tenders:generate_tender_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-red-700 bg-red-50 border border-red-200/50 hover:bg-red-100 shadow-xs transition-all">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Generate PDF

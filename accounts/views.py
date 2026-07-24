@@ -33,6 +33,7 @@ def home(request): # Renamed from homepage
     context = {
         'tenders': tenders,
         'search_query': search_query,
+        'now': now,
     }
     return render(request, 'accounts/home.html', context)
 

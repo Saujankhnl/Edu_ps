@@ -1,101 +1,119 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Create New Tender{% endblock %}
 
 {% block content %}
-<div class="p-4 sm:p-6 lg:p-8">
-    <div class="max-w-4xl mx-auto">
-        
-        <div class="mb-8">
-            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Create a New Tender</h1>
-            <p class="mt-1 text-sm text-gray-500">Fill out the details below. You can either save it as a draft or send it directly for review.</p>
-        </div>
-
-        <form method="POST" enctype="multipart/form-data" class="bg-white p-8 rounded-2xl border border-gray-200/60 shadow-sm space-y-8">
-            {% csrf_token %}
-
-            {% if form.errors %}
-                <div class="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg">
-                    <p class="font-bold">Please correct the errors below:</p>
-                    <ul class="list-disc list-inside mt-2 text-sm">
-                        {% for field, errors in form.errors.items %}
-                            {% for error in errors %}
-                                <li>{{ field|title }}: {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-indigo-50/30 py-8 px-4 sm:px-6 lg:px-8 text-gray-800 antialiased dynamic-fade-in">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+            <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50">
+                <div class="space-y-1">
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">New Tender Dossier</span>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Create a New Tender</h1>
                 </div>
-            {% endif %}
+                <p class="mt-3 text-sm text-gray-600">Fill in the details below to create a new tender. You can save it as a draft or submit it for review.</p>
+            </div>
 
-            <div class="space-y-6">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Core Tender Information</h2>
+            <form method="post" enctype="multipart/form-data" class="p-6 md:p-8 space-y-6">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="p-4 bg-red-50 border-l-4 border-red-400 text-red-800 rounded-r-lg">
+                        <p class="font-bold">Please correct the errors below:</p>
+                        <ul class="list-disc list-inside text-sm mt-2">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ field|title }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="space-y-6">
+                    <div>
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Tender Title</label>
+                        {{ form.title }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Description</label>
+                        {{ form.description }}
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2">
-                            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Tender Title</label>
-                            {{ form.title }}
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            {{ form.description }}
+                        <div>
+                            <label for="{{ form.budget.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Budget (NP) </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-500"></span>
+                                {{ form.budget }}
+                            </div>
                         </div>
                         <div>
-    <label for="{{ form.budget.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-        Budget (NPR)
-    </label>
-    <div class="relative rounded-md shadow-sm">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 text-sm font-medium">
-           
-        </div>
-        {{ form.budget }}
-    </div>
-</div>
+                            <label for="{{ form.tender_document.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Tender Document (PDF)</label>
+                            {{ form.tender_document }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Deadline </label>
+                            <label for="{{ form.opening_date.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Bidding Opening Date </label>
+                            {{ form.opening_date }}
+                        </div>
+                        <div>
+                            <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Submission Deadline</label>
                             {{ form.deadline }}
                         </div>
+                        
+                    </div>
+
+                    <div>
+                        <label for="{{ form.terms_and_conditions.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Terms & Conditions</label>
+                        {{ form.terms_and_conditions }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.eligibility_criteria.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Eligibility Criteria</label>
+                        {{ form.eligibility_criteria }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.technical_requirements.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Technical Requirements</label>
+                        {{ form.technical_requirements }}
                     </div>
                 </div>
 
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900 border-b border-gray-200 pb-2 mb-4">Rules & Requirements</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="{{ form.terms_and_conditions.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Terms & Conditions</label>
-                            {{ form.terms_and_conditions }}
-                        </div>
-                        <div>
-                            <label for="{{ form.eligibility_criteria.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Eligibility Criteria</label>
-                            {{ form.eligibility_criteria }}
-                        </div>
-                        <div>
-                            <label for="{{ form.technical_requirements.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Technical Requirements</label>
-                            {{ form.technical_requirements }}
-                        </div>
-                        <div>
-                            <label for="{{ form.tender_document.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Tender Document (PDF)</label>
-                            {{ form.tender_document }}
-                            <p class="text-xs text-gray-500 mt-1">Attach a detailed PDF document if necessary.</p>
-                        </div>
-                    </div>
+                <div class="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-end gap-3">
+                    <a href="{% url 'institution:dashboard' %}" class="w-full sm:w-auto text-center px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all">
+                        Cancel
+                    </a>
+                    <button type="submit" name="action" value="save_draft" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/50 hover:bg-indigo-100 transition-all shadow-xs">
+                        Save as Draft
+                    </button>
+                    <button type="submit" name="action" value="send_for_review" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm">
+                        Submit for Review
+                    </button>
                 </div>
-            </div>
-
-            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-100">
-                <a href="{% url 'institution:dashboard' %}" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Cancel</a>
-                <button type="submit" name="action" value="save_draft" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gray-600 text-white hover:bg-gray-700 transition-all">Save as Draft</button>
-                <button type="submit" name="action" value="send_for_review" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all">Send for Review</button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
-
-<script>
-    // Add CSS classes to form fields rendered by Django for consistent styling
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('input, textarea, select').forEach(field => {
-            field.classList.add('form-input', 'w-full', 'text-sm', 'rounded-xl', 'px-4', 'py-2.5', 'border', 'border-gray-200', 'focus:outline-none', 'focus:ring-2', 'focus:ring-indigo-500/20', 'focus:border-indigo-600', 'transition-all', 'bg-gray-50/50', 'focus:bg-white');
-        });
-    });
-</script>
+<style>
+    .form-input {
+        width: 100%;
+        font-size: 0.875rem;
+        border-radius: 0.75rem;
+        padding: 0.625rem 1rem;
+        border: 1px solid #e5e7eb;
+        transition: all 0.15s ease-in-out;
+        background-color: rgba(249, 250, 251, 0.5);
+    }
+    .form-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        border-color: #4f46e5;
+        background-color: white;
+    }
+</style>
 {% endblock %}

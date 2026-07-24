@@ -33,10 +33,10 @@ def dashboard(request):
     # Auto-expire tenders
     expired_tenders = all_tenders_in_institution.filter(status='published', deadline__lt=timezone.now())
     if expired_tenders.exists():
-        expired_count = expired_tenders.update(status='expired')
         # Log this action for the first expired tender as a sample
-        if expired_count > 0:
-            sample_tender = expired_tenders.first()
+        sample_tender = expired_tenders.first()
+        if sample_tender:
+            expired_count = expired_tenders.update(status='expired')
             sample_tender.log_activity(None, f"{expired_count} tender(s) auto-expired")
 
     # Prepare context

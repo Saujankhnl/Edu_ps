@@ -194,13 +194,20 @@ def tender_detail(request, tender_id):
         company = request.user.company
         existing_bid = Bid.objects.filter(tender=tender, company=company).first()
 
+        # Check if the tender is published but not yet open
+        if tender.status == 'published' and tender.opening_date and timezone.now() < tender.opening_date:
+            context['tender_not_open'] = True
+            context['activities'] = []
+            context['bids'] = []
+            return render(request, 'tenders/tender_detail.html', context)
+
         # If the tender is published and the company has not bid yet,
         # redirect them directly to the submission page.
         if tender.status == 'published' and not existing_bid:
             return redirect('tenders:submit_bid', tender_id=tender.id)
 
         # Security: Company users can only see published or expired tenders.
-        if tender.status not in ['published', 'expired']:
+        if tender.status not in ['published', 'expired', 'completed']:
             raise Http404("This tender is not available for public viewing.")
         
         
@@ -211,7 +218,7 @@ def tender_detail(request, tender_id):
         return render(request, 'tenders/tender_detail.html', context)
 
     # Case 3: User is anonymous or has no relation to the tender
-    if tender.status not in ['published', 'expired']:
+    if tender.status not in ['published', 'expired', 'completed']:
         raise Http404("This tender is not available for public viewing.")
     
     context['activities'] = [] # Anonymous users don't see activities
@@ -295,6 +302,11 @@ def submit_bid(request, tender_id):
     # Check if the tender deadline has passed
     if tender.deadline and tender.deadline < timezone.now():
         messages.error(request, "The deadline for this tender has passed. You cannot submit a bid.")
+        return redirect('tenders:tender_detail', tender_id=tender.id)
+
+    # New check: Prevent bidding if the tender has not opened yet
+    if tender.opening_date and tender.opening_date > timezone.now():
+        messages.error(request, f"This tender is not yet open for bidding. It will open on {tender.opening_date.strftime('%d %b %Y, %I:%M %p')}.")
         return redirect('tenders:tender_detail', tender_id=tender.id)
 
     if Bid.objects.filter(tender=tender, company=company).exists():
@@ -456,7 +468,7 @@ def generate_tender_pdf(request, tender_id):
     # Authorization check: Only allow institution admins of the owning institution
     try:
         institution_user = request.user.institution_profile
-        if not (institution_user.role == 'admin' and institution_user.institution == tender.institution):
+        if not (institution_user.role in ['admin', 'reviewer'] and institution_user.institution == tender.institution):
             messages.error(request, "You do not have permission to generate this report.")
             return redirect('tenders:tender_detail', tender_id=tender.id)
     except (AttributeError, InstitutionUser.DoesNotExist):
