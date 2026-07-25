@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from institution.models import Institution, InstitutionUser
 
 class Tender(models.Model):
@@ -36,6 +37,9 @@ class Tender(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('tenders:tender_detail', args=[str(self.id)])
 
     def get_status_badge_class(self):
         return {
@@ -110,3 +114,6 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"Bid by {self.company.company_name} for {self.tender.title}"
+
+    def get_absolute_url(self):
+        return reverse('tenders:bid_detail', args=[str(self.id)])

@@ -10,6 +10,7 @@ class Company(models.Model):
     website = models.URLField(blank=True, verbose_name="Website URL")
     description = models.TextField(blank=True, verbose_name="About the Company")
     profile_picture = models.ImageField(upload_to='company_logos/', null=True, blank=True, verbose_name="Company Logo")
+    is_approved = models.BooleanField(default=False, help_text="Designates whether the company has been approved by a system admin.")
 
     def __str__(self):
         return self.company_name

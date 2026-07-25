@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>System Analytics Report</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 9pt;
+            color: #333;
+        }
+        h1 {
+            font-size: 20pt;
+            color: #003366;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .report-meta {
+            text-align: center;
+            font-size: 8pt;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 14pt;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 8pt;
+            text-transform: uppercase;
+        }
+        .kpi-table th { width: 60%; }
+        .kpi-table td { font-weight: bold; font-size: 11pt; }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>System Analytics & Reports</h1>
+    <div class="report-meta">
+        Generated on: {{ report_date|date:"F d, Y, P" }}
+    </div>
+
+    <h2>Key Performance Indicators</h2>
+    <table class="kpi-table">
+        <tbody>
+            <tr><th>Total Institutions</th><td>{{ stats.total_institutions }}</td></tr>
+            <tr><th>Total Companies</th><td>{{ stats.total_companies }}</td></tr>
+            <tr><th>Total Users</th><td>{{ stats.total_users }}</td></tr>
+            <tr><th>Total Tenders</th><td>{{ stats.total_tenders }}</td></tr>
+            <tr><th>Total Bids</th><td>{{ stats.total_bids }}</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Tender Status Breakdown</h2>
+    {% if tender_status_data %}
+    <table>
+        <thead><tr><th>Status</th><th>Count</th></tr></thead>
+        <tbody>
+            {% for item in tender_status_data %}
+            <tr><td>{{ item.status_display }}</td><td>{{ item.count }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="no-data">No tender data available.</p>{% endif %}
+
+    <h2>Top 10 Institutions by Tenders</h2>
+    {% if top_institutions %}
+    <table>
+        <thead><tr><th>Institution Name</th><th>Tenders Created</th></tr></thead>
+        <tbody>
+            {% for inst in top_institutions %}
+            <tr><td>{{ inst.institution_name }}</td><td>{{ inst.tender_count }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="no-data">No institutions found.</p>{% endif %}
+
+    <h2>Top 10 Companies by Bids</h2>
+    {% if top_companies %}
+    <table>
+        <thead><tr><th>Company Name</th><th>Bids Submitted</th></tr></thead>
+        <tbody>
+            {% for comp in top_companies %}
+            <tr><td>{{ comp.company_name }}</td><td>{{ comp.bid_count }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="no-data">No companies found.</p>{% endif %}
+
+</body>
+</html>

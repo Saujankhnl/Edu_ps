@@ -78,7 +78,7 @@ def register_page(request): # Renamed from register
                     institution.save()
                     # Create the InstitutionUser profile for the admin
                     InstitutionUser.objects.create(user=admin_user, institution=institution, role='admin')
-
+                
                 messages.success(request, "Institution registration successful. Please log in.")
                 return redirect('accounts:login_page')
             company_form = CompanyRegistrationForm(request.POST) # Repopulate with submitted data

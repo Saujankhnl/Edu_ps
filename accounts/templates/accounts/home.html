@@ -74,6 +74,11 @@
                            class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md transition-all">
                             Dashboard
                         </a>
+                    {% elif user.is_superuser %}
+                        <a href="{% url 'system_admin:dashboard' %}"
+                           class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-red-600 hover:bg-red-700 active:scale-[0.98] shadow-sm shadow-red-500/20 hover:shadow-md transition-all">
+                            System Admin
+                        </a>
                     {% endif %}
 
                     <form method="post" action="{% url 'accounts:logout' %}" class="inline">

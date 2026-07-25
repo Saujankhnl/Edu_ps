@@ -12,6 +12,7 @@ class Institution(models.Model):
     institution_head_name = models.CharField(max_length=100, blank=True, verbose_name="Institution Head Name")
     website = models.URLField(blank=True, verbose_name="Website URL")
     description = models.TextField(blank=True, verbose_name="About the Institution")
+    is_approved = models.BooleanField(default=False, help_text="Designates whether the institution has been approved by a system admin.")
 
     def __str__(self):
         return self.institution_name

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bid Monitoring Report</title>
+    <style>
+        @page {
+            size: a4 landscape;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 9pt;
+            color: #333;
+        }
+        h1 {
+            font-size: 18pt;
+            color: #003366;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .report-meta {
+            text-align: center;
+            font-size: 8pt;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 8pt;
+            text-transform: uppercase;
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bid Monitoring Report</h1>
+    <div class="report-meta">
+        Generated on: {{ report_date|date:"F d, Y, P" }}
+    </div>
+
+    <h2>All Bids ({{ all_bids|length }})</h2>
+    {% if all_bids %}
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">Company</th>
+                <th style="width: 25%;">Tender</th>
+                <th style="width: 20%;">Institution</th>
+                <th style="width: 10%;">Status</th>
+                <th style="width: 12%;">Bid Amount</th>
+                <th style="width: 13%;">Submitted At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in all_bids %}
+            <tr>
+                <td>{{ bid.company.company_name }}</td>
+                <td>{{ bid.tender.title }}</td>
+                <td>{{ bid.tender.institution.institution_name }}</td>
+                <td>{{ bid.get_status_display }}</td>
+                <td>${{ bid.bid_amount|floatformat:2 }}</td>
+                <td>{{ bid.submitted_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-data">No bids found in the system.</p>
+    {% endif %}
+
+</body>
+</html>
