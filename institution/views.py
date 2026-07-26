@@ -425,3 +425,16 @@ def change_password(request):
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'institution/change_password.html', {'form': form})
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def list_tenders_for_approval(request):
+    """Lists all tenders with 'pending_approval' status for the admin's institution."""
+    institution_user = get_object_or_404(InstitutionUser, user=request.user)
+    tenders = Tender.objects.filter(
+        institution=institution_user.institution,
+        status='pending_approval'
+    ).select_related('created_by__user').order_by('-updated_at')
+
+    context = {'tenders': tenders}
+    return render(request, 'institution/list_for_approval.html', context)

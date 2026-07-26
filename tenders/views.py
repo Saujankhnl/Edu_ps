@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db import transaction
 from django.utils import timezone
+from django.core.paginator import Paginator
 from django.http import Http404
 from institution.decorators import role_required
 from .models import Tender, Bid
@@ -11,6 +12,11 @@ from .forms import TenderForm
 from company.views import company_login_required
 from .forms import BidSubmissionForm
 from institution.models import InstitutionUser
+from django.http import HttpResponse
+from django.template.loader import get_template
+from io import BytesIO
+from xhtml2pdf import pisa
+
 from company.models import Company
 
 @login_required
@@ -25,7 +31,7 @@ def create_tender(request):
             tender.created_by = institution_user
             
             # Determine status based on which button was clicked
-            if 'submit_for_review' in request.POST:
+            if request.POST.get('action') == 'send_for_review':
                 tender.status = 'pending_review'
                 tender.save()
                 tender.log_activity(institution_user, "Tender Created and Submitted for Review")
@@ -52,23 +58,25 @@ def tender_detail(request, tender_id):
     is_admin = False
     is_company = False
     
-    if request.user.is_authenticated:
-        if hasattr(request.user, 'institution_profile'):
-            profile = request.user.institution_profile
-            if profile.institution == tender.institution:
-                user_role = profile.role
-                if user_role == 'creator' and tender.created_by == profile:
-                    is_creator = True
-                if user_role == 'reviewer':
-                    is_reviewer = True
-                if user_role == 'admin':
-                    is_admin = True
-        elif hasattr(request.user, 'company'):
-            is_company = True
+    if hasattr(request.user, 'institution_profile'):
+        profile = request.user.institution_profile
+        if profile.institution == tender.institution:
+            user_role = profile.role
+            is_creator = (user_role == 'creator' and tender.created_by == profile)
+            is_reviewer = (user_role == 'reviewer')
+            is_admin = (user_role == 'admin')
+    elif hasattr(request.user, 'company'):
+        is_company = True
 
     # Permissions check
+    # Only the creator or an admin can see a tender while it's a draft.
     if tender.status == 'draft' and not (is_creator or is_admin):
         raise Http404("Tender not found.")
+
+    # Check if the company user has already bid
+    has_bid = False
+    if is_company:
+        has_bid = Bid.objects.filter(tender=tender, company=request.user.company).exists()
 
     # Get related data
     activities = tender.activities.select_related('performed_by__user').order_by('-timestamp')
@@ -78,11 +86,13 @@ def tender_detail(request, tender_id):
         'tender': tender,
         'activities': activities,
         'bids': bids,
+        'role': user_role, # Add role to the context
         'user_role': user_role,
         'is_creator': is_creator,
         'is_reviewer': is_reviewer,
         'is_admin': is_admin,
         'is_company': is_company,
+        'has_bid': has_bid,
         'now': timezone.now(),
     }
     return render(request, 'tenders/tender_detail.html', context)
@@ -107,7 +117,7 @@ def edit_tender(request, tender_id):
         if form.is_valid():
             updated_tender = form.save(commit=False)
             
-            if 'submit_for_review' in request.POST:
+            if request.POST.get('action') == 'send_for_review':
                 updated_tender.status = 'pending_review'
                 updated_tender.remarks = "" # Clear previous rejection remarks
                 updated_tender.log_activity(institution_user, "Resubmitted for Review")
@@ -128,6 +138,61 @@ def edit_tender(request, tender_id):
     return render(request, 'tenders/edit_tender.html', context)
 
 @login_required
+@role_required(allowed_roles=['creator', 'admin'])
+def delete_tender(request, tender_id):
+    institution_user = get_object_or_404(InstitutionUser, user=request.user)
+    tender = get_object_or_404(Tender, pk=tender_id, institution=institution_user.institution)
+
+    # Permission check: Only creator (if draft) or admin can delete.
+    is_admin = institution_user.role == 'admin'
+    is_creator = tender.created_by == institution_user
+
+    if not (is_admin or (is_creator and tender.status == 'draft')):
+        messages.error(request, "You do not have permission to delete this tender.")
+        return redirect('tenders:tender_detail', tender_id=tender.id)
+
+    if request.method == 'POST':
+        tender_title = tender.title
+        tender.delete()
+        messages.success(request, f"Tender '{tender_title}' has been successfully deleted.")
+        return redirect('institution:dashboard')
+
+    return render(request, 'tenders/delete_tender_confirm.html', {'tender': tender})
+
+@login_required
+@role_required(allowed_roles=['creator', 'reviewer', 'admin'])
+def list_tenders(request):
+    institution_user = get_object_or_404(InstitutionUser, user=request.user)
+    tenders_list = Tender.objects.filter(institution=institution_user.institution).order_by('-updated_at')
+
+    # Filtering logic
+    search_query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+
+    if search_query:
+        tenders_list = tenders_list.filter(
+            Q(title__icontains=search_query) | Q(description__icontains=search_query)
+        )
+
+    if status_filter:
+        tenders_list = tenders_list.filter(status=status_filter)
+
+    # Pagination
+    paginator = Paginator(tenders_list, 10) # Show 10 tenders per page
+    page_number = request.GET.get('page')
+    tenders = paginator.get_page(page_number)
+
+    context = {
+        'tenders': tenders,
+        'status_choices': Tender.STATUS_CHOICES,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+    return render(request, 'tenders/list_tenders.html', context)
+
+
+
+@login_required
 @role_required(allowed_roles=['reviewer', 'admin'])
 def update_tender_status(request, tender_id):
     if request.method != 'POST':
@@ -140,6 +205,15 @@ def update_tender_status(request, tender_id):
     remarks = request.POST.get('remarks', '').strip()
     current_status = tender.status
     action_performed = False
+
+    # --- Creator Actions ---
+    if institution_user.role == 'creator' and tender.created_by == institution_user:
+        if action == 'submit_for_review' and current_status in ['draft', 'rejected']:
+            tender.status = 'pending_review'
+            tender.remarks = "" # Clear previous rejection remarks
+            tender.log_activity(institution_user, "Resubmitted for Review")
+            messages.success(request, "Tender has been resubmitted for review.")
+            action_performed = True
 
     # --- Reviewer Actions ---
     if institution_user.role == 'reviewer':
@@ -228,17 +302,33 @@ def my_bids(request):
 def bid_detail(request, bid_id):
     bid = get_object_or_404(Bid.objects.select_related('tender', 'company', 'tender__institution'), pk=bid_id)
     
+    institution_user = None
+    is_institution_user = False
+    is_company_user = False
+
     # Permissions check
-    is_institution_user = hasattr(request.user, 'institution_profile') and request.user.institution_profile.institution == bid.tender.institution
-    is_company_user = hasattr(request.user, 'company') and request.user.company == bid.company
+    if hasattr(request.user, 'institution_profile'):
+        institution_user = request.user.institution_profile
+        if institution_user.institution == bid.tender.institution:
+            is_institution_user = True
+    elif hasattr(request.user, 'company'):
+        if request.user.company == bid.company:
+            is_company_user = True
 
     if not (is_institution_user or is_company_user):
         raise Http404
 
+    # Determine if the bid is in a state where an admin can take action
+    can_admin_act = False
+    if is_institution_user and institution_user.role == 'admin':
+        can_admin_act = bid.status in ['submitted', 'under_review', 'shortlisted']
+
     context = {
         'bid': bid,
+        'institution_user': institution_user,
         'is_institution_user': is_institution_user,
         'is_company_user': is_company_user,
+        'can_admin_act': can_admin_act,
     }
     return render(request, 'tenders/bid_detail.html', context)
 
@@ -252,6 +342,11 @@ def update_bid_status(request, bid_id):
     bid = get_object_or_404(Bid, pk=bid_id)
     tender = bid.tender
 
+    # Critical Permission Check: Only allow actions on bids for 'published' or 'completed' tenders.
+    if tender.status not in ['published', 'completed']:
+        messages.error(request, f"Actions on bids are not allowed as the tender is not in 'Published' state. Current state: {tender.get_status_display()}.")
+        return redirect('tenders:bid_detail', bid_id=bid.id)
+
     # Ensure the admin belongs to the correct institution
     if tender.institution != institution_user.institution:
         messages.error(request, "You do not have permission to modify this bid.")
@@ -260,29 +355,30 @@ def update_bid_status(request, bid_id):
     action = request.POST.get('action')
     remarks = request.POST.get('remarks', '')
 
-    if action == 'accept':
-        with transaction.atomic():
-            # 1. Accept the current bid
-            bid.status = 'accepted'
-            bid.save()
-    
-            # 2. Reject all other bids for this tender
-            other_bids = tender.bids.exclude(pk=bid.id).filter(status__in=['submitted', 'under_review', 'shortlisted'])
-            for other_bid in other_bids:
-                other_bid.status = 'rejected'
-                other_bid.save()
-    
-            # 3. Update the tender status to 'completed'
-            tender.status = 'completed'
-            tender.save()
-    
-            # 4. Log activities
-            tender.log_activity(institution_user, f"Bid Accepted: {bid.company.company_name}", remarks=remarks)
-            messages.success(request, f"Bid from {bid.company.company_name} has been accepted. The tender is now completed.")
+    if action == 'accept_bid':
+        try:
+            with transaction.atomic():
+                # 1. Update the tender status to 'completed' first.
+                tender.status = 'completed'
+                tender.save()
 
-    elif action == 'reject':
+                # 2. Accept the winning bid.
+                bid.status = 'accepted'
+                bid.save()
+
+                # 3. Reject all other open bids for this tender.
+                tender.bids.exclude(pk=bid.id).filter(status__in=['submitted', 'under_review', 'shortlisted']).update(status='rejected')
+
+                # 4. Log the primary success activity.
+                tender.log_activity(institution_user, f"Bid from {bid.company.company_name} was accepted.", remarks=remarks)
+
+            messages.success(request, f"Successfully accepted the bid from {bid.company.company_name}. The tender is now marked as completed.")
+        except Exception as e:
+            messages.error(request, f"An unexpected error occurred: {e}")
+
+    elif action == 'reject_bid':
         if bid.status == 'accepted':
-            messages.error(request, "Cannot reject a bid that has already been accepted.")
+            messages.error(request, "This bid has already been accepted. You cannot reject a winning bid directly.")
             return redirect('tenders:bid_detail', bid_id=bid.id)
         bid.status = 'rejected'
         bid.save()
@@ -294,3 +390,36 @@ def update_bid_status(request, bid_id):
         messages.error(request, "Invalid action.")
 
     return redirect('tenders:bid_detail', bid_id=bid.id)
+
+def render_to_pdf(template_src, context_dict={}):
+    """Helper function to render a Django template to a PDF."""
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def generate_tender_pdf(request, tender_id):
+    tender = get_object_or_404(Tender, pk=tender_id)
+    context = {'tender': tender, 'report_date': timezone.now()}
+    pdf = render_to_pdf('tenders/tender_detail_pdf.html', context)
+    if pdf:
+        return pdf
+    messages.error(request, "Could not generate PDF report.")
+    return redirect('tenders:tender_detail', tender_id=tender.id)
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def generate_bids_pdf(request, tender_id):
+    tender = get_object_or_404(Tender, pk=tender_id)
+    bids = tender.bids.select_related('company').order_by('submitted_at')
+    context = {'tender': tender, 'bids': bids, 'report_date': timezone.now()}
+    pdf = render_to_pdf('tenders/bids_report_pdf.html', context)
+    if pdf:
+        return pdf
+    messages.error(request, "Could not generate Bids PDF report.")
+    return redirect('tenders:tender_detail', tender_id=tender.id)

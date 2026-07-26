@@ -9,6 +9,7 @@ urlpatterns = [
     path("users/create/", views.create_user, name="create_user"),
     path("users/edit/<int:user_id>/", views.edit_user, name="edit_user"),
     path("users/delete/<int:user_id>/", views.delete_user, name="delete_user"),
+    path('tenders/for-approval/', views.list_tenders_for_approval, name='list_for_approval'),
     # Institution Profile URLs
     path('profile/edit/', views.edit_institution_profile, name='edit_profile'),
     path('<int:institution_id>/profile/', views.institution_profile, name='profile'),

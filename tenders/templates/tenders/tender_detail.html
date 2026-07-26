@@ -166,11 +166,6 @@
                                 Return to Creator...
                             </button>
                             
-                            <a href="{% url 'tenders:generate_tender_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold text-red-700 bg-red-50 border border-red-200/50 hover:bg-red-100 shadow-xs transition-all">
-                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                Generate PDF
-                            </a>
-
                             <form id="return-form" action="{% url 'tenders:update_tender_status' tender.id %}" method="post" class="hidden mt-3 sm:absolute sm:left-0 sm:top-12 sm:z-20 p-4 bg-white border border-gray-200 rounded-xl shadow-lg w-80 space-y-3 transition-all duration-200">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="return_to_creator">
@@ -237,6 +232,24 @@
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg>
                             Generate Bids PDF
                         </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Company User Actions -->
+            {% if is_company %}
+                <div class="p-6 md:p-8 bg-gray-50/50 border-t border-gray-100">
+                    {% if tender.status == 'published' and not has_bid %}
+                        {% if not tender.deadline or tender.deadline > now %}
+                            <a href="{% url 'tenders:submit_bid' tender.id %}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                                Place a Bid
+                            </a>
+                        {% else %}
+                            <p class="text-sm font-medium text-red-600">The deadline for this tender has passed.</p>
+                        {% endif %}
+                    {% elif has_bid %}
+                        <p class="text-sm font-medium text-gray-600">You have already submitted a bid for this tender.</p>
                     {% endif %}
                 </div>
             {% endif %}

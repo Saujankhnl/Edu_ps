@@ -107,6 +107,23 @@
                                 <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
                             {% endif %}
                         </div>
+
+                        {% if institution_user and institution_user.role == 'admin' %}
+                        <div class="text-xs pt-4">
+                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Quotation Document</p>
+                            {% if bid.quotation_document %}
+                                <a href="{{ bid.quotation_document.url }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 underline mt-0.5">
+                                    Download Quotation File
+                                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            {% else %}
+                                <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -135,7 +152,7 @@
                 </a>
 
                 <!-- Admin Dynamic Actions -->
-                {% if request.user.is_authenticated and institution_user and institution_user.role == 'admin' and bid.tender.institution == institution_user.institution %}
+                {% if can_admin_act %}
                     <div class="w-full sm:w-auto flex flex-wrap items-center justify-end gap-3">
                         
                         <!-- Toggle Decline Overlay -->
