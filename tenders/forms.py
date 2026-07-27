@@ -7,12 +7,13 @@ class TenderForm(forms.ModelForm):
     """Form for creating and editing a tender."""
     class Meta:
         model = Tender
-        fields = ['title', 'description', 'budget', 'deadline', 'opening_date', 'terms_and_conditions', 'eligibility_criteria', 'technical_requirements', 'tender_document']
+        fields = ['title', 'category', 'description', 'budget', 'deadline', 'opening_date', 'terms_and_conditions', 'eligibility_criteria', 'technical_requirements', 'tender_document']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input'}),
             'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 5}),
             'terms_and_conditions': forms.Textarea(attrs={'class': 'form-input', 'rows': 5}),
             'eligibility_criteria': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
             'technical_requirements': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
             'tender_document': forms.FileInput(attrs={'class': 'form-input'}),
             'budget': forms.NumberInput(attrs={
@@ -42,20 +43,21 @@ class TenderForm(forms.ModelForm):
         return budget
 
     def clean_opening_date(self):
-        # Truncate 'now' to the minute to avoid race conditions with the form input.
-        now = timezone.now().replace(second=0, microsecond=0)
+        # Add a 1-minute grace period to prevent race condition errors.
+        # This allows submissions for the current minute to be valid.
+        now_with_grace = timezone.now() - timezone.timedelta(minutes=1)
         opening_date = self.cleaned_data.get('opening_date')
-        # The form input also lacks seconds, so we compare at the same precision.
-        if opening_date and opening_date < now:
+        
+        if opening_date and opening_date < now_with_grace:
             raise forms.ValidationError("The bidding opening date cannot be in the past.")
         return opening_date
 
     def clean_deadline(self):
-        # Truncate 'now' to the minute for consistent validation.
-        now = timezone.now().replace(second=0, microsecond=0)
+        # Add a 1-minute grace period here as well for consistency.
+        now_with_grace = timezone.now() - timezone.timedelta(minutes=1)
         deadline = self.cleaned_data.get('deadline')
-        # The form input also lacks seconds, so we compare at the same precision.
-        if deadline and deadline < now:
+
+        if deadline and deadline < now_with_grace:
             raise forms.ValidationError("The submission deadline cannot be in the past.")
         return deadline
 

@@ -13,6 +13,15 @@ class Tender(models.Model):
         ('completed', 'Completed'),
         ('expired', 'Expired'),
     ]
+    CATEGORY_CHOICES = [
+        ('it', 'IT & Technology'),
+        ('furniture', 'Furniture & Fixtures'),
+        ('construction', 'Construction & Renovation'),
+        ('stationery', 'Office & School Supplies'),
+        ('services', 'Professional Services'),
+        ('maintenance', 'Maintenance & Repair'),
+        ('other', 'Other'),
+    ]
     title = models.CharField(max_length=255)
     description = models.TextField()
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='tenders')
@@ -33,7 +42,7 @@ class Tender(models.Model):
     eligibility_criteria = models.TextField(blank=True, null=True)
     technical_requirements = models.TextField(blank=True, null=True)
     tender_document = models.FileField(upload_to='PDF/tender_documents/', null=True, blank=True)
-    category = models.CharField(max_length=100, blank=True, null=True)
+    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, blank=True, null=True)
 
     def __str__(self):
         return self.title

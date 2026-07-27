@@ -161,7 +161,7 @@
                 <!-- KPI Cards -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-10">
                     {% for card in kpi_cards %}
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm" title="Count of {{ card.label }}">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-500">{{ card.label }}</span>
                             <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">

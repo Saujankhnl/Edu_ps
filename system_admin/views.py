@@ -328,12 +328,12 @@ def generate_bid_monitoring_pdf(request):
 def analytics_reports(request):
     """Displays a page with system-wide analytics and charts."""
     # --- KPIs ---
-    stats = {
-        'total_institutions': Institution.objects.count(),
-        'total_companies': Company.objects.count(),
+    stats = { # Only count approved entities for these KPIs
+        'total_institutions': Institution.objects.filter(is_approved=True).count(),
+        'total_companies': Company.objects.filter(is_approved=True).count(),
         'total_users': User.objects.count(),
         'total_tenders': Tender.objects.count(),
-        'total_bids': Bid.objects.count(),
+        'total_bids': Bid.objects.count(), # All bids, regardless of company approval
     }
 
     # --- Tender Status Chart (Doughnut) ---
@@ -376,12 +376,12 @@ def analytics_reports(request):
 
     kpi_cards = [
         {
-            'label': 'Total Institutions',
+            'label': 'Verified Institutions',
             'value': stats['total_institutions'],
             'icon_path': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'
         },
         {
-            'label': 'Total Companies',
+            'label': 'Verified Companies',
             'value': stats['total_companies'],
             'icon_path': 'M21 13V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6m18 0v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6m18 0H3'
         },
@@ -429,8 +429,8 @@ def generate_analytics_pdf(request):
     
     # --- KPIs ---
     stats = {
-        'total_institutions': Institution.objects.count(),
-        'total_companies': Company.objects.count(),
+        'total_institutions': Institution.objects.filter(is_approved=True).count(),
+        'total_companies': Company.objects.filter(is_approved=True).count(),
         'total_users': User.objects.count(),
         'total_tenders': Tender.objects.count(),
         'total_bids': Bid.objects.count(),
