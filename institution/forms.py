@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+import re
 from .models import Institution, InstitutionUser
 from django.contrib.auth.forms import PasswordChangeForm as AuthPasswordChangeForm
 
@@ -113,8 +114,13 @@ class InstitutionVerificationForm(forms.ModelForm):
             'website': forms.URLInput(attrs={'placeholder': 'https://www.example.edu'}),
             'contact_person': forms.TextInput(attrs={'placeholder': 'Full name of the primary contact'}),
             'contact_person_number': forms.TextInput(attrs={'placeholder': 'Mobile or direct line of the contact person'}),
-            'registration_number': forms.TextInput(attrs={'placeholder': 'e.g., UXX-XXXX-XXXX'}),
-            'pan_number': forms.TextInput(attrs={'placeholder': 'e.g., ABCDE1234F'}),
+            'registration_number': forms.TextInput(attrs={
+                'placeholder': '5-20 characters (A-Z, 0-9, /,-)',
+                'pattern': r'[A-Za-z0-9\/-]{5,20}',
+                'title': 'Must be 5-20 characters and can only contain letters, numbers, hyphens (-), and slashes (/).',
+                'minlength': '5', 'maxlength': '20'
+            }),
+            'pan_number': forms.TextInput(attrs={'placeholder': 'Enter 9-digit PAN number', 'pattern': r'\d{9}', 'title': 'PAN number must be 9 digits.'}),
             'registration_certificate': forms.ClearableFileInput(),
             'pan_certificate': forms.ClearableFileInput(),
             'authorization_letter': forms.ClearableFileInput(),
@@ -127,3 +133,18 @@ class InstitutionVerificationForm(forms.ModelForm):
         required_fields = ['institution_name', 'email', 'phone_number', 'address', 'contact_person', 'contact_person_number', 'registration_number', 'pan_number', 'registration_certificate']
         for field_name in required_fields:
             self.fields[field_name].required = True
+
+    def clean_pan_number(self):
+        pan_number = self.cleaned_data.get('pan_number')
+        if pan_number and (not pan_number.isdigit() or len(pan_number) != 9):
+            raise forms.ValidationError("PAN number must be exactly 9 digits and contain only numbers.")
+        return pan_number
+
+    def clean_registration_number(self):
+        reg_number = self.cleaned_data.get('registration_number')
+        if reg_number:
+            if not (5 <= len(reg_number) <= 20):
+                raise forms.ValidationError("Registration number must be between 5 and 20 characters long.")
+            if not re.match(r'^[A-Za-z0-9\/-]+$', reg_number):
+                raise forms.ValidationError("Registration number can only contain letters, numbers, hyphens (-), and slashes (/).")
+        return reg_number
