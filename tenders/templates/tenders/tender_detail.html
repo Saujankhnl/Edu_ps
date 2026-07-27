@@ -239,17 +239,22 @@
             <!-- Company User Actions -->
             {% if is_company %}
                 <div class="p-6 md:p-8 bg-gray-50/50 border-t border-gray-100">
-                    {% if tender.status == 'published' and not has_bid %}
-                        {% if not tender.deadline or tender.deadline > now %}
-                            <a href="{% url 'tenders:submit_bid' tender.id %}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
-                                Place a Bid
-                            </a>
-                        {% else %}
-                            <p class="text-sm font-medium text-red-600">The deadline for this tender has passed.</p>
-                        {% endif %}
-                    {% elif has_bid %}
+                    {% if has_bid %}
                         <p class="text-sm font-medium text-gray-600">You have already submitted a bid for this tender.</p>
+                    {% elif company_verification_status != 'approved' %}
+                        <div class="text-sm font-medium text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-100">
+                            Your company profile must be verified before you can submit bids. 
+                            <a href="{% url 'company:dashboard' %}" class="font-bold underline hover:text-amber-800">Go to Dashboard</a> to complete the process.
+                        </div>
+                    {% elif tender.status != 'published' %}
+                        <p class="text-sm font-medium text-gray-600">This tender is not currently open for bidding.</p>
+                    {% elif tender.deadline and tender.deadline < now %}
+                        <p class="text-sm font-medium text-red-600">The deadline for this tender has passed.</p>
+                    {% else %}
+                        <a href="{% url 'tenders:submit_bid' tender.id %}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                            Place a Bid
+                        </a>
                     {% endif %}
                 </div>
             {% endif %}

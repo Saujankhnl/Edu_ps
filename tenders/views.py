@@ -57,6 +57,7 @@ def tender_detail(request, tender_id):
     is_reviewer = False
     is_admin = False
     is_company = False
+    company_verification_status = None
     
     if hasattr(request.user, 'institution_profile'):
         profile = request.user.institution_profile
@@ -67,6 +68,7 @@ def tender_detail(request, tender_id):
             is_admin = (user_role == 'admin')
     elif hasattr(request.user, 'company'):
         is_company = True
+        company_verification_status = request.user.company.verification_status
 
     # Permissions check
     # Only the creator or an admin can see a tender while it's a draft.
@@ -92,6 +94,7 @@ def tender_detail(request, tender_id):
         'is_reviewer': is_reviewer,
         'is_admin': is_admin,
         'is_company': is_company,
+        'company_verification_status': company_verification_status,
         'has_bid': has_bid,
         'now': timezone.now(),
     }
@@ -256,6 +259,12 @@ def update_tender_status(request, tender_id):
 def submit_bid(request, tender_id):
     tender = get_object_or_404(Tender, pk=tender_id, status='published')
     company = get_object_or_404(Company, user=request.user)
+
+    # Ensure the company is verified before allowing them to bid.
+    # The company dashboard already handles routing to the verification page if needed.
+    if company.verification_status != 'approved':
+        messages.error(request, "Your company profile must be verified before you can submit bids. Please complete your verification process.")
+        return redirect('company:dashboard')
 
     # Check if bidding is open
     now = timezone.now()
