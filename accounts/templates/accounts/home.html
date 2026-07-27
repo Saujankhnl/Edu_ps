@@ -179,7 +179,7 @@
         <!-- Tenders Cards Grid -->
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="tendersGrid">
             {% for tender in tenders %}
-            {% timezone "UTC" %}
+            {% timezone "Asia/Kathmandu" %}
             
             <div class="tender-card bg-white rounded-2xl border border-slate-200/90 flex flex-col justify-between overflow-hidden shadow-xs" 
                  data-status="{% if not tender.opening_date or tender.opening_date|utc <= now %}active{% else %}upcoming{% endif %}"
@@ -193,7 +193,7 @@
                             {{ tender.institution.institution_name }}
                         </span>
 
-                        {% if not tender.opening_date or tender.opening_date|utc <= now %}
+                        {% if not tender.opening_date or tender.opening_date <= now %}
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full border border-emerald-100">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Active
@@ -241,7 +241,7 @@
                         </div>
                     </div>
 
-                    {% if not tender.opening_date or tender.opening_date|utc <= now %}
+                    {% if not tender.opening_date or tender.opening_date <= now %}
                         <a href="{% url 'tenders:tender_detail' tender.id %}" 
                            class="w-full inline-flex justify-center items-center gap-2 py-3 px-4 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm shadow-blue-500/10">
                             <span>View Details & Bid</span>

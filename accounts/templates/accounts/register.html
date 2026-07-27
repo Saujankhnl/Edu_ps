@@ -230,6 +230,8 @@ Register
     const companyForm = document.getElementById("company-form");
     const subtitle = document.getElementById("register-subtitle");
     const accentBar = document.getElementById("accent-bar");
+    const instPhoneInput = document.querySelector('#institution-form input[name="phone_number"]');
+    const compPhoneInput = document.querySelector('#company-form input[name="phone_number"]');
 
     // Helper: Show Form Sequence
     function displayForm(targetForm, type) {
@@ -242,10 +244,12 @@ Register
             accentBar.className = "absolute top-0 left-0 right-0 h-1.5 bg-blue-600 transition-all duration-300";
             subtitle.textContent = "Fill details to construct institution panel";
             institutionForm.classList.add("animate-form-active");
+            if (instPhoneInput) instPhoneInput.name = "phone_number";
         } else {
             accentBar.className = "absolute top-0 left-0 right-0 h-1.5 bg-green-600 transition-all duration-300";
             subtitle.textContent = "Fill details to construct company profile";
             companyForm.classList.add("animate-form-active");
+            if (compPhoneInput) compPhoneInput.name = "phone_number";
         }
     }
 
@@ -263,12 +267,21 @@ Register
         choiceBox.classList.remove("hidden");
         accentBar.className = "absolute top-0 left-0 right-0 h-1.5 bg-blue-600";
         subtitle.textContent = "Choose Account Type";
+        // Deactivate phone inputs when form is hidden to avoid duplicate submissions
+        if (instPhoneInput) instPhoneInput.name = "_phone_number_inst_inactive";
+        if (compPhoneInput) compPhoneInput.name = "_phone_number_comp_inactive";
+
     }
 
     // Event listeners for routing selection
     institutionBtn.addEventListener("click", () => displayForm(institutionForm, 'institution'));
     companyBtn.addEventListener("click", () => displayForm(companyForm, 'company'));
     backBtn.addEventListener("click", resetView);
+
+    // Initial state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        resetView();
+    });
 
     // Password Eye Toggles for both scopes
     document.querySelectorAll('.toggle-password').forEach(button => {

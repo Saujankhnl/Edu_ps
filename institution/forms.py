@@ -91,3 +91,39 @@ class PasswordChangeForm(AuthPasswordChangeForm):
         self.fields['new_password2'].widget = forms.PasswordInput(attrs={
             'class': 'form-input', 'placeholder': 'Confirm new password'
         })
+
+class InstitutionVerificationForm(forms.ModelForm):
+    """
+    A form for institutions to submit their verification documents.
+    """
+    class Meta:
+        model = Institution
+        fields = [
+            'institution_name', 'institution_type', 'email', 'phone_number', 'address', 'website',
+            'contact_person', 'contact_person_number',
+            'registration_number', 'pan_number',
+            'registration_certificate', 'pan_certificate', 'authorization_letter', 'profile_picture'
+        ]
+        widgets = {
+            'institution_name': forms.TextInput(attrs={'placeholder': 'Your official institution name'}),
+            'institution_type': forms.Select(),
+            'email': forms.EmailInput(attrs={'placeholder': 'Official contact email'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Official contact number'}),
+            'address': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Full official address'}),
+            'website': forms.URLInput(attrs={'placeholder': 'https://www.example.edu'}),
+            'contact_person': forms.TextInput(attrs={'placeholder': 'Full name of the primary contact'}),
+            'contact_person_number': forms.TextInput(attrs={'placeholder': 'Mobile or direct line of the contact person'}),
+            'registration_number': forms.TextInput(attrs={'placeholder': 'e.g., UXX-XXXX-XXXX'}),
+            'pan_number': forms.TextInput(attrs={'placeholder': 'e.g., ABCDE1234F'}),
+            'registration_certificate': forms.ClearableFileInput(),
+            'pan_certificate': forms.ClearableFileInput(),
+            'authorization_letter': forms.ClearableFileInput(),
+            'profile_picture': forms.ClearableFileInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set required fields dynamically
+        required_fields = ['institution_name', 'email', 'phone_number', 'address', 'contact_person', 'contact_person_number', 'registration_number', 'pan_number', 'registration_certificate']
+        for field_name in required_fields:
+            self.fields[field_name].required = True

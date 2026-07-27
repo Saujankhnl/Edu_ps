@@ -20,4 +20,5 @@ urlpatterns = [
     # Reporting URLs
     path('reports/institution/', views.institution_report, name='institution_report'),
     path('reports/institution/pdf/', views.generate_report_pdf, name='generate_report_pdf'),
+    path('verification/', views.verification_submission, name='verification'),
 ]

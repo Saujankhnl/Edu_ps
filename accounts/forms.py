@@ -19,9 +19,15 @@ class InstitutionRegistrationForm(forms.ModelForm):
         widgets = {
             'institution_name': forms.TextInput(attrs={'placeholder': 'e.g., EduPs Academy', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}),
             'email': forms.EmailInput(attrs={'placeholder': 'admin@institution.com', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}),
-            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter 10-digit phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition', 'pattern': r'\d{10}', 'title': 'Phone number must be 10 digits.'}),
             'address': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Full legal location address', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none'}),
         }
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number and not (phone_number.isdigit() and len(phone_number) == 10):
+            raise forms.ValidationError("Phone number must be exactly 10 digits.")
+        return phone_number
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -51,9 +57,15 @@ class CompanyRegistrationForm(forms.ModelForm):
         widgets = {
             'company_name': forms.TextInput(attrs={'placeholder': 'e.g., EduPs Logistics Ltd', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition'}),
             'email': forms.EmailInput(attrs={'placeholder': 'contact@company.com', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition'}),
-            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter 10-digit phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition', 'pattern': r'\d{10}', 'title': 'Phone number must be 10 digits.'}),
             'address': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Corporate office address', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition resize-none'}),
         }
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number and not (phone_number.isdigit() and len(phone_number) == 10):
+            raise forms.ValidationError("Phone number must be exactly 10 digits.")
+        return phone_number
 
     def clean_username(self):
         username = self.cleaned_data.get('username')

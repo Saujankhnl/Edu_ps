@@ -11,4 +11,5 @@ urlpatterns = [
     path("tenders/", views.list_published_tenders, name="list_published_tenders"),
     path("analytics/", views.analytics_reports, name="analytics_reports"),
     path("analytics/pdf/", views.generate_analytics_pdf, name="generate_analytics_pdf"),
+    path('verification/', views.verification_submission, name='verification'),
 ]

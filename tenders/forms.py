@@ -2,6 +2,7 @@ from django import forms
 from .models import Tender, Bid
 from decimal import Decimal
 
+from django.utils import timezone
 class TenderForm(forms.ModelForm):
     """Form for creating and editing a tender."""
     class Meta:
@@ -24,6 +25,12 @@ class TenderForm(forms.ModelForm):
             'opening_date': forms.DateTimeInput(attrs={'class': 'form-input', 'type': 'datetime-local'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        now_str = timezone.now().strftime('%Y-%m-%dT%H:%M')
+        self.fields['opening_date'].widget.attrs['min'] = now_str
+        self.fields['deadline'].widget.attrs['min'] = now_str
+
     def clean_budget(self):
         """
         Custom validation to ensure the budget, if provided, is at least 1,000,000.
@@ -33,6 +40,33 @@ class TenderForm(forms.ModelForm):
         if budget is not None and budget < min_budget:
             raise forms.ValidationError(f"The budget must be at least Np {min_budget:,.2f}.")
         return budget
+
+    def clean_opening_date(self):
+        # Truncate 'now' to the minute to avoid race conditions with the form input.
+        now = timezone.now().replace(second=0, microsecond=0)
+        opening_date = self.cleaned_data.get('opening_date')
+        # The form input also lacks seconds, so we compare at the same precision.
+        if opening_date and opening_date < now:
+            raise forms.ValidationError("The bidding opening date cannot be in the past.")
+        return opening_date
+
+    def clean_deadline(self):
+        # Truncate 'now' to the minute for consistent validation.
+        now = timezone.now().replace(second=0, microsecond=0)
+        deadline = self.cleaned_data.get('deadline')
+        # The form input also lacks seconds, so we compare at the same precision.
+        if deadline and deadline < now:
+            raise forms.ValidationError("The submission deadline cannot be in the past.")
+        return deadline
+
+    def clean(self):
+        cleaned_data = super().clean()
+        opening_date = cleaned_data.get("opening_date")
+        deadline = cleaned_data.get("deadline")
+
+        if opening_date and deadline and deadline <= opening_date:
+            self.add_error('deadline', "The submission deadline must be after the bidding opening date.")
+        return cleaned_data
 
 class BidSubmissionForm(forms.ModelForm):
     """Form for a company to submit a bid for a tender."""

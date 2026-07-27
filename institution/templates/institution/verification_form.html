@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    /* Custom styles for file inputs to make them more user-friendly */
+    input[type="file"] {
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Submit for Verification - {{ institution.institution_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex flex-col">
+
+    <!-- Main Page Content -->
+    <main class="flex-1 bg-slate-50 overflow-y-auto py-8 sm:py-12">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Page Header -->
+            <div class="mb-8 text-center sm:text-left">
+                <div class="inline-flex items-center justify-center p-3 bg-blue-50 text-blue-600 rounded-2xl mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    Institution Verification
+                </h2>
+                <p class="mt-1.5 text-sm text-slate-500">
+                    Submit your legal documents to get your institution verified on the platform.
+                </p>
+            </div>
+
+            <!-- Initial Submission Info -->
+            {% if institution.verification_status == 'not_submitted' %}
+                <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-700 p-4 rounded-r-lg mb-6" role="alert">
+                    <p class="font-bold">Welcome!</p>
+                    <p class="text-sm">To get started, please complete the verification form below. Your account will be activated upon approval by a system administrator.</p>
+                </div>
+            {% endif %}
+            <!-- Status Alert -->
+            {% if institution.verification_status == 'pending' %}
+                <div class="bg-amber-50 border-l-4 border-amber-400 text-amber-700 p-4 rounded-r-lg mb-6" role="alert">
+                    <p class="font-bold">Pending Review</p>
+                    <p class="text-sm">Your documents have been submitted and are currently under review by the system administrator.</p>
+                </div>
+            {% elif institution.verification_status == 'approved' %}
+            {% elif institution.verification_status == 'rejected' %}
+                <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-r-lg mb-6" role="alert">
+                    <p class="font-bold">Verification Rejected</p>
+                    <p class="text-sm">Your previous submission was rejected. Please review the remarks, correct the information, and resubmit.</p>
+                    {% if institution.verification_remarks %}
+                    <div class="mt-2 pt-2 border-t border-red-200 text-xs">
+                        <strong>Admin Remarks:</strong> {{ institution.verification_remarks }}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Verification Form -->
+            <form id="verification-form" method="post" enctype="multipart/form-data" class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+                {% csrf_token %}
+                <div class="p-6 sm:p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in form %}
+                    <div class="form-group transition-all {% if field.name in 'address,description' %}md:col-span-2{% endif %}">
+                        <label for="{{ field.id_for_label }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                            {{ field.label }}
+                        </label>
+                        
+                        <div class="relative rounded-xl">
+                            {{ field }}
+                        </div>
+
+                        {% if field.help_text %}
+                            <p class="text-xs text-slate-400 mt-2 flex items-start gap-1.5 leading-relaxed">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ field.help_text|safe }}</span>
+                            </p>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="text-xs font-semibold text-red-500 mt-1.5 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ error }}</span>
+                            </p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    </div>
+
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="bg-slate-50/80 p-4 sm:px-8 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <a href="{% url 'accounts:logout' %}" class="px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-200">
+                        Logout
+                    </a>
+                    <a href="{% url 'institution:dashboard' %}" class="px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-200 {% if institution.verification_status != 'approved' %}hidden{% endif %}">
+                        Back to Dashboard
+                    </a>
+                    {% if institution.verification_status != 'approved' %}
+                    <button type="submit" id="submit-btn" class="px-5 py-2.5 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-sm shadow-blue-500/20 transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <span id="btn-text">
+                            {% if institution.verification_status == 'pending' %}
+                                Update Submission
+                            {% else %}
+                                Submit for Review
+                            {% endif %}
+                        </span>
+                        <svg id="btn-spinner" class="animate-spin h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+
+        </div>
+    </main>
+</div>
+
+<!-- Extra Form Field Style Integration -->
+<style>
+    #verification-form input[type="text"],
+    #verification-form input[type="email"],
+    #verification-form input[type="url"] {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #0f172a;
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        outline: none;
+        transition: all 0.15s ease-in-out;
+    }
+
+    #verification-form textarea,
+    #verification-form select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #0f172a;
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        outline: none;
+        transition: all 0.15s ease-in-out;
+    }
+
+    #verification-form input[type="file"] {
+        padding: 0.6rem;
+        background-color: #f8fafc; /* bg-slate-50 */
+    }
+
+    #verification-form input:focus,
+    #verification-form textarea:focus,
+    #verification-form select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .form-group:has(.text-red-500) input {
+        border-color: #ef4444;
+    }
+</style>
+
+<!-- JavaScript Controls -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('verification-form');
+        const btn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+
+        if (form && btn) {
+            form.addEventListener('submit', () => {
+                btn.disabled = true;
+                btn.classList.add('opacity-80', 'cursor-not-allowed');
+                btnText.textContent = 'Submitting...';
+                btnSpinner.classList.remove('hidden');
+            });
+        }
+    });
+</script>
+{% endblock %}

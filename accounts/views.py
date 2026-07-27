@@ -18,20 +18,21 @@ def home(request): # Renamed from homepage
     now = timezone.now()
 
     # Fetch all publicly visible tenders that are still active.
-    # This includes published tenders with a future deadline or no deadline.
-    tenders = Tender.objects.filter(
+    active_tenders = Tender.objects.filter(
         Q(status='published') & (Q(deadline__isnull=True) | Q(deadline__gt=now))
     ).select_related('institution').order_by('-updated_at')
 
     if search_query:
-        tenders = tenders.filter(
+        active_tenders = active_tenders.filter(
             Q(title__icontains=search_query) |
             Q(description__icontains=search_query) |
             Q(institution__institution_name__icontains=search_query)
         )
 
     context = {
-        'tenders': tenders,
+        # Pass the single queryset of all active tenders to the template.
+        # The template will handle the display logic for open vs. upcoming.
+        'tenders': active_tenders,
         'search_query': search_query,
         'now': now,
     }
@@ -45,17 +46,23 @@ def login_page(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
-                if hasattr(user, 'institution_profile'):
-                    return redirect('institution:dashboard')
-                elif hasattr(user, 'company'):
-                    return redirect('company:dashboard')
+                if user.is_active:
+                    login(request, user)
+                    if hasattr(user, 'institution_profile'):
+                        return redirect('institution:dashboard')
+                    elif hasattr(user, 'company'):
+                        return redirect('company:dashboard')
+                    else:
+                        # This would be for superusers or other user types
+                        return redirect('accounts:home')
                 else:
-                    return redirect('accounts:home')
+                    messages.error(request, "This account is not active. It may be pending administrator approval.")
             else:
-                messages.error(request,"Invalid username or password.")
+                messages.error(request, "Please enter a correct username and password. Note that both fields may be case-sensitive.")
         else:
-            messages.error(request,"Invalid username or password.")
+            # If the form is invalid, its errors will be displayed automatically.
+            # We can add a generic message if we want, but it's often redundant.
+            messages.error(request, "There was an issue with your submission. Please check the fields and try again.")
     form = AuthenticationForm()
     return render(request=request, template_name="accounts/login_page.html", context={"login_form":form})
 
@@ -70,16 +77,16 @@ def register_page(request): # Renamed from register
                     admin_user = User.objects.create_user(
                         username=institution_form.cleaned_data['username'],
                         password=institution_form.cleaned_data['password'],
-                        email=institution_form.cleaned_data['email']
+                        email=institution_form.cleaned_data['email'],
+                        is_active=True
                     )
                     # Create the Institution, linking it to the admin user
                     institution = institution_form.save(commit=False)
-                    institution.user = admin_user
                     institution.save()
                     # Create the InstitutionUser profile for the admin
                     InstitutionUser.objects.create(user=admin_user, institution=institution, role='admin')
-                
-                messages.success(request, "Institution registration successful. Please log in.")
+
+                messages.success(request, "Institution registration successful. Please log in to continue.")
                 return redirect('accounts:login_page')
             company_form = CompanyRegistrationForm(request.POST) # Repopulate with submitted data
         elif 'register_company' in request.POST:
@@ -89,12 +96,13 @@ def register_page(request): # Renamed from register
                     user = User.objects.create_user(
                         username=company_form.cleaned_data['username'],
                         password=company_form.cleaned_data['password'],
-                        email=company_form.cleaned_data['email']
+                        email=company_form.cleaned_data['email'],
+                        is_active=True
                     )
                     company = company_form.save(commit=False)
                     company.user = user
                     company.save()
-                messages.success(request, "Company registration successful. Please log in.")
+                messages.success(request, "Company registration successful. Please log in to continue.")
                 return redirect('accounts:login_page')
             institution_form = InstitutionRegistrationForm(request.POST) # Repopulate with submitted data
         else: # Handle cases where the form submission is not recognized

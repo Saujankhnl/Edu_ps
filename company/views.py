@@ -13,7 +13,7 @@ from xhtml2pdf import pisa
 
 from .models import Company
 from tenders.models import Tender, Bid
-from .forms import CompanyProfileForm, PasswordChangeForm
+from .forms import CompanyProfileForm, PasswordChangeForm, CompanyVerificationForm
 def company_login_required(view_func):
     """Decorator to ensure user is a logged-in company user."""
     @login_required(login_url='accounts:login_page')
@@ -27,6 +27,16 @@ def company_login_required(view_func):
 @company_login_required
 def dashboard(request):
     company = get_object_or_404(Company, user=request.user)
+
+    # --- Verification Flow Enforcement ---
+    # Always re-fetch the company object to get the latest status.
+    company = get_object_or_404(Company, pk=company.pk)
+
+    if company.verification_status == 'pending':
+        return render(request, 'company/verification_pending.html', {'company': company})
+    elif company.verification_status != 'approved': # Handles 'not_submitted' and 'rejected'
+        messages.info(request, "Please complete your company profile and submit for verification to access all features.")
+        return redirect('company:verification')
     
     # Stats
     total_published_tenders = Tender.objects.filter(status='published').count()
@@ -162,3 +172,30 @@ def generate_analytics_pdf(request):
     
     messages.error(request, "There was an error generating the PDF report.")
     return redirect('company:analytics_reports')
+
+@company_login_required
+def verification_submission(request):
+    """
+    Allows a company user to submit or update their verification documents.
+    """
+    company = get_object_or_404(Company, user=request.user)
+
+    if company.verification_status == 'approved':
+        messages.success(request, "Your company is already verified.")
+        return redirect('company:dashboard')
+
+    if request.method == 'POST':
+        form = CompanyVerificationForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            if instance.verification_status in ['not_submitted', 'rejected']:
+                instance.verification_status = 'pending'
+                instance.verification_remarks = "" # Clear old remarks
+            instance.save()
+            messages.success(request, "Your verification documents have been submitted and are pending review.")
+            return redirect('company:verification')
+    else:
+        form = CompanyVerificationForm(instance=company)
+
+    context = {'form': form, 'company': company}
+    return render(request, 'company/verification_form.html', context)

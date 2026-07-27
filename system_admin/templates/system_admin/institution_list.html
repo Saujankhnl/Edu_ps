@@ -213,16 +213,29 @@
                                         {{ inst.phone_number }}
                                     </td>
                                     <td class="py-3.5 px-6 text-slate-500 font-medium">
-                                        {{ inst.user.date_joined|date:"d M Y" }}
+                                        {% with admin_user=inst.users.first %}
+                                            {{ admin_user.user.date_joined|date:"d M Y"|default:"N/A" }}
+                                        {% endwith %}
                                     </td>
                                     <td class="py-3.5 px-6 text-right">
                                         {% if not inst.is_approved %}
-                                        <form action="{% url 'system_admin:approve_institution' inst.id %}" method="post" class="inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-emerald-500 hover:bg-emerald-600 shadow-xs shadow-emerald-500/20 transition-all">
-                                                Approve
-                                            </button>
-                                        </form>
+                                        <div class="flex items-center justify-end gap-2">
+                                            <a href="{% url 'system_admin:process_verification' inst.id %}" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all">
+                                                View Details
+                                            </a>
+                                            <form action="{% url 'system_admin:reject_institution' inst.id %}" method="post" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition-all">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                            <form action="{% url 'system_admin:approve_institution' inst.id %}" method="post" class="inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-emerald-500 hover:bg-emerald-600 shadow-xs shadow-emerald-500/20 transition-all">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                        </div>
                                         {% else %}
                                         <span class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-500 bg-slate-100">Approved</span>
                                         {% endif %}

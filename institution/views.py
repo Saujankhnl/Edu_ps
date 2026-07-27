@@ -14,18 +14,32 @@ from xhtml2pdf import pisa
 from django.contrib import messages
 from tenders.models import Tender, TenderActivity, Bid
 from .decorators import role_required
-from .forms import InstitutionUserCreationForm, InstitutionUserChangeForm, InstitutionProfileForm, UserProfileForm, PasswordChangeForm
+from .forms import InstitutionUserCreationForm, InstitutionUserChangeForm, InstitutionProfileForm, UserProfileForm, PasswordChangeForm, InstitutionVerificationForm
 from django.utils import timezone
 
 
 @login_required
 def dashboard(request):
     try:
-        institution_user = InstitutionUser.objects.get(user=request.user)
+        # Use select_related to fetch related Institution and User in one query for efficiency.
+        institution_user = InstitutionUser.objects.select_related('institution', 'user').get(user=request.user)
         institution = institution_user.institution
         role = institution_user.role
     except InstitutionUser.DoesNotExist:
+        # This can happen if a user exists but their InstitutionUser profile was deleted.
+        # It's a fallback to prevent a crash.
         return render(request, 'institution/error_no_profile.html')
+
+    # --- Verification Flow Enforcement ---
+    if role == 'admin':
+        # Always re-fetch the institution object right before the check to get the latest status.
+        # This prevents showing a stale 'pending' page after an admin has approved the verification.
+        institution = get_object_or_404(Institution, pk=institution.pk)
+
+        if institution.verification_status == 'pending':
+            return render(request, 'institution/verification_pending.html', {'institution': institution})
+        elif institution.verification_status != 'approved': # Handles 'not_submitted' and 'rejected'
+            return redirect('institution:verification')
 
     # Base querysets
     all_tenders_in_institution = Tender.objects.filter(institution=institution)
@@ -438,3 +452,37 @@ def list_tenders_for_approval(request):
 
     context = {'tenders': tenders}
     return render(request, 'institution/list_for_approval.html', context)
+
+@login_required
+@role_required(allowed_roles=['admin'])
+def verification_submission(request):
+    """
+    Allows an institution admin to submit or update their verification documents.
+    """
+    # Correctly fetch the institution through the InstitutionUser profile
+    institution_user = get_object_or_404(InstitutionUser, user=request.user, role='admin')
+    institution = institution_user.institution
+
+    # If the institution is already approved, redirect them to the dashboard.
+    if institution.verification_status == 'approved':
+        messages.success(request, "Your institution is verified. Welcome to your dashboard!")
+        return redirect('institution:dashboard')
+
+    if request.method == 'POST':
+        form = InstitutionVerificationForm(request.POST, request.FILES, instance=institution)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            # If the institution is submitting for the first time or resubmitting after rejection
+            if instance.verification_status in ['not_submitted', 'rejected']:
+                instance.verification_status = 'pending'
+                instance.verification_remarks = "" # Clear old remarks on resubmission
+            instance.save()
+            messages.success(request, "Your verification documents have been submitted successfully and are pending review.")
+            return redirect('institution:verification')
+        else:
+            messages.error(request, "Please correct the errors below and resubmit.")
+    else:
+        form = InstitutionVerificationForm(instance=institution)
+
+    context = {'form': form, 'institution': institution}
+    return render(request, 'institution/verification_form.html', context)

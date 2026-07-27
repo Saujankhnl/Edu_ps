@@ -7,6 +7,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from django.http import HttpResponse
 from django.template.loader import get_template
+from django.db import transaction
 from io import BytesIO
 from xhtml2pdf import pisa
 from institution.models import Institution, InstitutionUser
@@ -28,8 +29,8 @@ def dashboard(request):
     Displays a dashboard for the system administrator with system-wide statistics.
     """
     stats = {
-        'total_institutions': Institution.objects.count(),
-        'total_companies': Company.objects.count(),
+        'total_institutions': Institution.objects.filter(is_approved=True).count(),
+        'total_companies': Company.objects.filter(is_approved=True).count(),
         'total_tenders': Tender.objects.count(),
         'total_users': User.objects.count(),
     }
@@ -44,8 +45,10 @@ def dashboard(request):
 @user_passes_test(is_superuser, login_url='/login/')
 def list_pending_institutions(request):
     """Lists all institutions pending approval."""
-    # Assuming 'is_approved' is a BooleanField on the Institution model.
-    pending_list = Institution.objects.filter(is_approved=False).order_by('user__date_joined')
+    # This list should show institutions that are not yet approved and have not been rejected.
+    # This includes those who haven't submitted verification ('not_submitted') and those who have ('pending').
+    pending_list = Institution.objects.filter(is_approved=False, verification_status__in=['pending', 'not_submitted']).order_by('institution_name')
+    
     paginator = Paginator(pending_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -59,7 +62,7 @@ def list_pending_institutions(request):
 @user_passes_test(is_superuser, login_url='/login/')
 def list_all_institutions(request):
     """Lists all approved institutions."""
-    approved_list = Institution.objects.filter(is_approved=True).order_by('-user__date_joined')
+    approved_list = Institution.objects.filter(is_approved=True).order_by('-id')
     paginator = Paginator(approved_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -75,14 +78,98 @@ def approve_institution(request, institution_id):
     """Approves an institution registration."""
     if request.method == 'POST':
         institution = get_object_or_404(Institution, id=institution_id)
-        institution.is_approved = True
-        institution.user.is_active = True # Also activate the associated admin user
-        institution.save()
-        messages.success(request, f"Institution '{institution.institution_name}' has been approved.")
-        return redirect('system_admin:pending_institutions')
+        with transaction.atomic():
+            institution.is_approved = True
+            # The verification status should be 'approved' when the institution is approved.
+            institution.verification_status = 'approved'
+            institution.save()
+
+            # Correctly find and activate the admin user for this institution
+            try:
+                admin_user_profile = InstitutionUser.objects.get(institution=institution, role='admin')
+                admin_user_profile.user.is_active = True
+                admin_user_profile.user.save()
+            except InstitutionUser.DoesNotExist:
+                messages.warning(request, f"Institution '{institution.institution_name}' was approved, but no admin user was found to activate.")
+
+            messages.success(request, f"Institution '{institution.institution_name}' has been approved.")
+            return redirect('system_admin:pending_institutions')
     else:
         # Redirect if accessed via GET
         return redirect('system_admin:dashboard')
+
+@user_passes_test(is_superuser, login_url='/login/')
+def reject_institution(request, institution_id):
+    """
+    Initiates the rejection process by redirecting to the detail page for remarks.
+    This is triggered from the list view.
+    """
+    if request.method == 'POST':
+        institution = get_object_or_404(Institution, id=institution_id)
+        # This view's purpose is to lead to the page where remarks can be added.
+        messages.info(request, f"Please provide remarks to complete the rejection for '{institution.institution_name}'.")
+        return redirect('system_admin:process_verification', institution_id=institution.id)
+    else:
+        # Redirect if accessed via GET
+        return redirect('system_admin:pending_institutions')
+
+@user_passes_test(is_superuser, login_url='/login/')
+def list_pending_verifications(request):
+    """Lists all institutions with 'pending' verification status."""
+    pending_list = Institution.objects.filter(verification_status='pending').order_by('id')
+    
+    paginator = Paginator(pending_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'institutions': page_obj,
+        'page_title': 'Pending Verifications',
+        'page_description': 'Review and process new institution verification requests.'
+    }
+    return render(request, 'system_admin/verification_list.html', context)
+
+@user_passes_test(is_superuser, login_url='/login/')
+def process_verification(request, institution_id):
+    """
+    Approve or reject an institution's verification submission.
+    """
+    institution = get_object_or_404(Institution, id=institution_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        remarks = request.POST.get('remarks', '')
+
+        if action == 'approve':
+            with transaction.atomic():
+                institution.verification_status = 'approved'
+                institution.is_approved = True
+                institution.verification_remarks = ''  # Clear remarks on approval
+                institution.save()
+
+                try:
+                    admin_institution_user = InstitutionUser.objects.get(institution=institution, role='admin')
+                    admin_institution_user.user.is_active = True
+                    admin_institution_user.user.save()
+                except InstitutionUser.DoesNotExist:
+                    messages.warning(request, f"Could not find an admin user for '{institution.institution_name}' to activate.")
+            messages.success(request, f"'{institution.institution_name}' has been successfully verified and approved.")
+            return redirect('system_admin:dashboard')
+        
+        elif action == 'reject':
+            if not remarks:
+                messages.error(request, "Remarks are required to reject a verification.")
+                return render(request, 'system_admin/verification_detail.html', {'institution': institution})
+            with transaction.atomic():
+                institution.verification_status = 'rejected'
+                institution.is_approved = False # Explicitly set to False on rejection
+                institution.verification_remarks = remarks
+                institution.save()
+            messages.warning(request, f"'{institution.institution_name}' verification has been rejected with remarks.")
+            return redirect('system_admin:all_institutions')
+
+    # If not POST, just show the detail for review
+    return render(request, 'system_admin/verification_detail.html', {'institution': institution})
 
 @user_passes_test(is_superuser, login_url='/login/')
 def tender_monitoring(request):
@@ -440,7 +527,8 @@ def manage_all_users(request):
 @user_passes_test(is_superuser, login_url='/login/')
 def list_pending_companies(request):
     """Lists all companies pending approval."""
-    pending_list = Company.objects.filter(is_approved=False).order_by('user__date_joined')
+    # This list should show companies that are not yet approved and have not been rejected.
+    pending_list = Company.objects.filter(is_approved=False, verification_status__in=['pending', 'not_submitted']).order_by('user__date_joined')
     paginator = Paginator(pending_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -471,10 +559,79 @@ def approve_company(request, company_id):
     if request.method == 'POST':
         company = get_object_or_404(Company, id=company_id)
         company.is_approved = True
+        company.verification_status = 'approved' # Synchronize verification status
         company.user.is_active = True # Also activate the associated user
+        company.user.save() # Persist the change to the user's active status
         company.save()
         messages.success(request, f"Company '{company.company_name}' has been approved.")
         return redirect('system_admin:pending_companies')
     else:
         # Redirect if accessed via GET
         return redirect('system_admin:dashboard')
+
+@user_passes_test(is_superuser, login_url='/login/')
+def reject_company(request, company_id):
+    """
+    Initiates the rejection process for a company by redirecting to the detail page for remarks.
+    """
+    if request.method == 'POST':
+        company = get_object_or_404(Company, id=company_id)
+        # This view's purpose is to lead to the page where remarks can be added.
+        messages.info(request, f"Please provide remarks to complete the rejection for '{company.company_name}'.")
+        return redirect('system_admin:process_company_verification', company_id=company.id)
+    else:
+        # Redirect if accessed via GET
+        return redirect('system_admin:pending_companies')
+
+
+@user_passes_test(is_superuser, login_url='/login/')
+def list_pending_company_verifications(request):
+    """Lists all companies with 'pending' verification status."""
+    pending_list = Company.objects.filter(verification_status='pending').order_by('user__date_joined')
+    
+    paginator = Paginator(pending_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'companies': page_obj,
+        'page_title': 'Pending Company Verifications',
+        'page_description': 'Review and process new company verification requests.'
+    }
+    return render(request, 'system_admin/company_verification_list.html', context)
+
+@user_passes_test(is_superuser, login_url='/login/')
+def process_company_verification(request, company_id):
+    """
+    Approve or reject a company's verification submission.
+    """
+    company = get_object_or_404(Company, id=company_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        remarks = request.POST.get('remarks', '')
+
+        if action == 'approve':
+            with transaction.atomic():
+                company.verification_status = 'approved'
+                company.is_approved = True
+                company.verification_remarks = ''  # Clear remarks on approval
+                company.user.is_active = True
+                company.save()
+                company.user.save()
+            messages.success(request, f"Company '{company.company_name}' has been successfully verified and approved.")
+            return redirect('system_admin:dashboard')
+
+        elif action == 'reject':
+            if not remarks:
+                messages.error(request, "Remarks are required to reject a verification.")
+                return render(request, 'system_admin/company_verification_detail.html', {'company': company})
+            with transaction.atomic():
+                company.verification_status = 'rejected'
+                company.verification_remarks = remarks
+                company.save()
+            messages.warning(request, f"Company '{company.company_name}' verification has been rejected with remarks.")
+            return redirect('system_admin:dashboard')
+
+    # If not POST, just show the detail for review
+    return render(request, 'system_admin/company_verification_detail.html', {'company': company})
