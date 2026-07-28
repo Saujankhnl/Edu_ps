@@ -5,18 +5,23 @@ Register
 {% endblock %}
 
 {% block content %}
-<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl relative overflow-hidden">
-        
-        <!-- Subtle Decorative Accent Header Lines -->
+<section class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md p-8 transition-all duration-300 relative overflow-hidden">
+
+        <!-- Accent Bar -->
         <div id="accent-bar" class="absolute top-0 left-0 right-0 h-1.5 bg-blue-600 transition-colors duration-300"></div>
 
         <!-- Heading Zone -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold tracking-tight text-blue-600 drop-shadow-sm">
-                EduPs
-            </h1>
-            <p id="register-subtitle" class="text-gray-500 mt-2 font-medium">
+            <div class="inline-flex items-center gap-2 mb-3">
+                <div class="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-600 text-white font-black text-base">
+                    E
+                </div>
+                <span class="text-2xl font-extrabold tracking-tight text-gray-900">
+                    Edu<span class="text-blue-600">Ps</span>
+                </span>
+            </div>
+            <p id="register-subtitle" class="text-gray-500 font-medium">
                 Choose Account Type
             </p>
         </div>
@@ -29,13 +34,13 @@ Register
             &larr; Change Account Type
         </button>
 
-        <!-- Premium Account Selection Cards -->
+        <!-- Account Selection Cards -->
         <div id="choice-box" class="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
             <!-- Institution Card -->
             <button
                 type="button"
                 id="institution-btn"
-                class="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm hover:border-blue-500 hover:shadow-md transition-all duration-200 group text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="flex flex-col items-center justify-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm hover:border-blue-400 hover:shadow-md transition-all duration-200 group text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition duration-200">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -49,7 +54,7 @@ Register
             <button
                 type="button"
                 id="company-btn"
-                class="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm hover:border-green-500 hover:shadow-md transition-all duration-200 group text-center focus:outline-none focus:ring-2 focus:ring-green-500">
+                class="flex flex-col items-center justify-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm hover:border-green-400 hover:shadow-md transition-all duration-200 group text-center focus:outline-none focus:ring-2 focus:ring-green-500">
                 <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-4 group-hover:bg-green-100 transition duration-200">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -121,7 +126,7 @@ Register
                 {{ institution_form.confirm_password.errors }}
             </div>
 
-            <button type="submit" class="submit-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
+            <button type="submit" class="submit-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
                 <span class="btn-text">Register Institution</span>
                 <svg class="spinner animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             </button>
@@ -188,7 +193,7 @@ Register
                 {{ company_form.confirm_password.errors }}
             </div>
 
-            <button type="submit" class="submit-btn w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
+            <button type="submit" class="submit-btn w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 flex items-center justify-center space-x-2">
                 <span class="btn-text">Register Company</span>
                 <svg class="spinner animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             </button>
@@ -196,7 +201,7 @@ Register
 
 
         <!-- Secondary Action Footer Links -->
-        <div class="text-center mt-8 border-t border-gray-100 pt-6">
+        <div class="text-center mt-8 border-t border-gray-200 pt-6">
             <p class="text-sm text-gray-600">
                 Already have an account?
                 <a href="{% url 'accounts:login_page' %}" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-150 ml-1">

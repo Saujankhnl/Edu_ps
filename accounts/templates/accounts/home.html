@@ -4,48 +4,15 @@
 
 {% block title %}Welcome - E-Procurement System{% endblock %}
 
-{% block extra_head %}
-<style>
-    /* Custom Smooth Glass & Interactive Utilities */
-    .glass-header {
-        background: rgba(255, 255, 255, 0.82);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-    }
-
-    .tender-card {
-        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                    border-color 0.25s ease;
-        will-change: transform, box-shadow;
-    }
-
-    .tender-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.08), 0 8px 12px -6px rgba(15, 23, 42, 0.04);
-        border-color: #3b82f6;
-    }
-
-    .search-container:focus-within {
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-        border-color: #3b82f6;
-    }
-
-    .filter-tab {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<!-- Navbar Header -->
-<header class="glass-header border-b border-gray-200/80 sticky top-0 z-50 transition-all">
+<!-- Navbar -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            
-            <!-- Brand Logo -->
+
+            <!-- Brand -->
             <a href="{% url 'accounts:home' %}" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
+                <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-600 text-white font-black text-xl">
                     E
                 </div>
                 <span class="text-xl font-extrabold tracking-tight text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -53,46 +20,46 @@
                 </span>
             </a>
 
-            <!-- Navigation Bar Actions -->
+            <!-- Navigation -->
             <div class="flex items-center gap-3 sm:gap-4">
                 {% if user.is_authenticated %}
-                    <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <div class="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 text-xs font-semibold text-gray-700">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                         </span>
                         <span>{{ user.username }}</span>
                     </div>
-                    
+
                     {% if user.institution_profile %}
                         <a href="{% url 'institution:dashboard' %}"
-                           class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md transition-all">
+                           class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors">
                             Dashboard
                         </a>
                     {% elif user.company %}
                         <a href="{% url 'company:dashboard' %}"
-                           class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md transition-all">
+                           class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors">
                             Dashboard
                         </a>
                     {% elif user.is_superuser %}
                         <a href="{% url 'system_admin:dashboard' %}"
-                           class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-red-600 hover:bg-red-700 active:scale-[0.98] shadow-sm shadow-red-500/20 hover:shadow-md transition-all">
+                           class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 shadow-sm transition-colors">
                             System Admin
                         </a>
                     {% endif %}
 
                     <form method="post" action="{% url 'accounts:logout' %}" class="inline">
                         {% csrf_token %}
-                        <button type="submit" 
-                                class="px-3.5 py-2 text-sm font-semibold rounded-xl text-slate-600 hover:text-red-600 hover:bg-red-50/80 transition-all">
+                        <button type="submit"
+                                class="px-3.5 py-2 text-sm font-semibold rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors">
                             Logout
                         </button>
                     </form>
                 {% else %}
-                    <a href="{% url 'accounts:login_page' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors">
+                    <a href="{% url 'accounts:login_page' %}" class="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors">
                         Log in
                     </a>
-                    <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-sm shadow-blue-500/20 hover:shadow-md transition-all">
+                    <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors">
                         Register
                     </a>
                 {% endif %}
@@ -102,100 +69,99 @@
     </div>
 </header>
 
-<!-- Main Page Section -->
-<main class="bg-slate-50 min-h-[calc(100vh-4rem)] py-12 sm:py-16">
+<!-- Main Content -->
+<main class="min-h-[calc(100vh-4rem)] bg-gray-50 py-12 sm:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Hero Header -->
-        <div class="text-center max-w-3xl mx-auto mb-10">
-            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 shadow-2xs mb-4">
+
+        <!-- Hero Section -->
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 mb-4">
                 <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
                 </span>
                 Live Institutional Procurement Portal
             </span>
-            <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            <h1 class="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight leading-tight">
                 Explore Open Tenders
             </h1>
-            <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+            <p class="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
                 Discover, evaluate, and bid on verified institutional opportunities in real-time with complete transparency.
             </p>
         </div>
 
-        <!-- Search Bar Area -->
-        <div class="max-w-2xl mx-auto mb-10">
+        <!-- Search Bar -->
+        <div class="max-w-2xl mx-auto mb-12">
             <form method="get" id="searchForm" class="relative">
-                <div class="search-container relative w-full flex items-center bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-200">
-                    <div class="pl-4 flex items-center pointer-events-none text-slate-400">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                <div class="relative w-full flex items-center bg-white border border-gray-200 rounded-full shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
+                    <div class="pl-5 flex items-center pointer-events-none text-gray-400">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
-                    
-                    <input type="text" 
+
+                    <input type="text"
                            id="searchInput"
-                           name="q" 
-                           value="{{ search_query|default:'' }}" 
-                           placeholder="Search by tender title or institution name..."
+                           name="q"
+                           value="{{ search_query|default:'' }}"
+                           placeholder="Search by tender title or institution..."
                            autocomplete="off"
-                           class="w-full pl-3 pr-28 py-4 text-sm text-slate-900 bg-transparent rounded-2xl focus:outline-none placeholder:text-slate-400">
-                    
-                    <button type="button" 
-                            id="clearSearchBtn" 
-                            class="{% if not search_query %}hidden{% endif %} absolute right-24 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-slate-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                           class="w-full bg-transparent border-none focus:outline-none focus:ring-0 px-4 py-3 text-sm text-gray-900 placeholder-gray-400">
+
+                    <button type="button"
+                            id="clearSearchBtn"
+                            class="{% if not search_query %}hidden{% endif %} absolute right-24 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400 hover:text-gray-700 px-2.5 py-1.5 rounded-full hover:bg-gray-100 transition-colors">
                         Clear
                     </button>
 
-                    <button type="submit" 
-                            class="absolute right-2 top-2 bottom-2 px-5 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-sm shadow-blue-500/20">
-                        <span>Search</span>
+                    <button type="submit"
+                            class="absolute right-1.5 top-1.5 bottom-1.5 px-6 rounded-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors">
+                        Search
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Filters Navigation & Status Metadata -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
-            <!-- Filter Pills -->
-            <div class="flex items-center gap-1.5 bg-slate-200/70 p-1.5 rounded-2xl text-xs font-semibold text-slate-600" id="filterTabs">
-                <button type="button" data-filter="all" class="filter-tab active px-4 py-2 rounded-xl bg-white text-slate-900 shadow-sm">
+        <!-- Filters + Meta -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200">
+            <div class="flex items-center gap-1.5 bg-gray-100 p-1.5 rounded-full" id="filterTabs">
+                <button type="button" data-filter="all" class="filter-tab active px-5 py-1.5 rounded-full text-xs font-semibold text-gray-900 bg-white shadow-sm transition-colors">
                     All Tenders
                 </button>
-                <button type="button" data-filter="active" class="filter-tab px-4 py-2 rounded-xl hover:text-slate-900">
+                <button type="button" data-filter="active" class="filter-tab px-5 py-1.5 rounded-full text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
                     Active
                 </button>
-                <button type="button" data-filter="upcoming" class="filter-tab px-4 py-2 rounded-xl hover:text-slate-900">
+                <button type="button" data-filter="upcoming" class="filter-tab px-5 py-1.5 rounded-full text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
                     Upcoming
                 </button>
             </div>
 
-            <!-- Dynamic Counter Tag -->
-            <span class="text-xs text-slate-500 font-medium tracking-wide">
-                Showing <span id="visibleCount" class="font-bold text-slate-900">{{ tenders|length }}</span> <span id="opportunityText">Opportunity</span>
+            <span class="text-xs text-gray-500 font-medium bg-white border border-gray-200 rounded-full px-4 py-1.5">
+                Showing <span id="visibleCount" class="font-bold text-gray-900">{{ tenders|length }}</span>
+                <span id="opportunityText">Opportunities</span>
             </span>
         </div>
 
-        <!-- Tenders Cards Grid -->
+        <!-- Tenders Grid -->
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="tendersGrid">
             {% for tender in tenders %}
             {% timezone "Asia/Kathmandu" %}
-            
-            <div class="tender-card bg-white rounded-2xl border border-slate-200/90 flex flex-col justify-between overflow-hidden shadow-xs" 
+
+            <div class="tender-card flex flex-col justify-between bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 transition-all duration-300"
                  data-status="{% if not tender.opening_date or tender.opening_date|utc <= now %}active{% else %}upcoming{% endif %}"
                  data-title="{{ tender.title|lower }}"
                  data-institution="{{ tender.institution.institution_name|lower }}">
-                
+
                 <div class="p-6">
                     <!-- Badges -->
                     <div class="flex items-center justify-between gap-2 mb-4">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-lg truncate max-w-[170px]">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 truncate max-w-[170px]">
                             {{ tender.institution.institution_name }}
                         </span>
 
                         {% if not tender.opening_date or tender.opening_date <= now %}
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full border border-emerald-100">
-                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                 Active
                             </span>
                         {% else %}
@@ -207,21 +173,21 @@
 
                     <!-- Title & Description -->
                     <a href="{% url 'tenders:tender_detail' tender.id %}" class="block group">
-                        <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+                        <h3 class="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
                             {{ tender.title }}
                         </h3>
-                        <p class="mt-2.5 text-xs sm:text-sm text-slate-500 line-clamp-3 leading-relaxed">
+                        <p class="mt-2.5 text-xs sm:text-sm text-gray-500 line-clamp-3 leading-relaxed">
                             {{ tender.description }}
                         </p>
                     </a>
                 </div>
 
-                <!-- Footer Card Info -->
-                <div class="bg-slate-50/80 px-6 py-4 border-t border-slate-100">
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 rounded-b-2xl">
                     <div class="grid grid-cols-2 gap-2 text-xs mb-4">
-                        <div class="bg-white p-2.5 rounded-xl border border-slate-100">
-                            <span class="text-slate-400 block font-medium mb-0.5">Opening</span>
-                            <span class="text-slate-800 font-bold">
+                        <div class="bg-white p-2.5 rounded-xl border border-gray-100">
+                            <span class="text-gray-400 block font-medium mb-0.5">Opening</span>
+                            <span class="text-gray-800 font-bold">
                                 {% if tender.opening_date %}
                                     {{ tender.opening_date|date:"d M Y" }}
                                 {% else %}
@@ -229,9 +195,9 @@
                                 {% endif %}
                             </span>
                         </div>
-                        <div class="bg-white p-2.5 rounded-xl border border-slate-100">
-                            <span class="text-slate-400 block font-medium mb-0.5">Deadline</span>
-                            <span class="text-slate-800 font-bold">
+                        <div class="bg-white p-2.5 rounded-xl border border-gray-100">
+                            <span class="text-gray-400 block font-medium mb-0.5">Deadline</span>
+                            <span class="text-gray-800 font-bold">
                                 {% if tender.deadline %}
                                     {{ tender.deadline|date:"d M Y" }}
                                 {% else %}
@@ -241,18 +207,31 @@
                         </div>
                     </div>
 
+                    <!-- Action Buttons -->
                     {% if not tender.opening_date or tender.opening_date <= now %}
-                        <a href="{% url 'tenders:tender_detail' tender.id %}" 
-                           class="w-full inline-flex justify-center items-center gap-2 py-3 px-4 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm shadow-blue-500/10">
-                            <span>View Details & Bid</span>
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                            </svg>
-                        </a>
+                        <div class="grid grid-cols-2 gap-2">
+                            <a href="{% url 'tenders:tender_detail' tender.id %}"
+                               class="inline-flex justify-center items-center py-2.5 px-3 text-xs font-semibold rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors">
+                                View Tender
+                            </a>
+                            <a href="{% url 'tenders:tender_detail' tender.id %}"
+                               class="inline-flex justify-center items-center gap-1.5 py-2.5 px-3 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-colors">
+                                Place Bid
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </a>
+                        </div>
                     {% else %}
-                        <button disabled class="w-full py-3 px-4 text-xs font-semibold rounded-xl text-slate-400 bg-slate-200/70 cursor-not-allowed">
-                            Opening Soon
-                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <a href="{% url 'tenders:tender_detail' tender.id %}"
+                               class="inline-flex justify-center items-center py-2.5 px-3 text-xs font-semibold rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors">
+                                View Tender
+                            </a>
+                            <button disabled class="py-2.5 px-3 text-xs font-semibold rounded-xl text-gray-400 bg-gray-200 cursor-not-allowed">
+                                Opening Soon
+                            </button>
+                        </div>
                     {% endif %}
                 </div>
 
@@ -261,16 +240,16 @@
             {% empty %}
             {% endfor %}
 
-            <!-- Dynamic Empty State -->
-            <div id="noResults" class="{% if tenders %}hidden{% endif %} md:col-span-2 lg:col-span-3 py-20 px-6 bg-white rounded-3xl border border-dashed border-slate-300 text-center shadow-xs">
-                <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto text-blue-600 mb-4">
-                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+            <!-- Empty State -->
+            <div id="noResults" class="{% if tenders %}hidden{% endif %} md:col-span-2 lg:col-span-3 py-20 px-6 bg-white rounded-2xl border border-dashed border-gray-300 text-center shadow-sm">
+                <div class="w-16 h-16 flex items-center justify-center mx-auto rounded-2xl bg-blue-50 text-blue-600 mb-4">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                     </svg>
                 </div>
-                <h3 class="text-base font-bold text-slate-900">No tenders found</h3>
-                <p class="mt-1 text-xs text-slate-500 max-w-sm mx-auto">We couldn't find any opportunities matching your active criteria. Try broadening your keywords.</p>
-                <button type="button" id="resetSearchBtn" class="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors">
+                <h3 class="text-base font-bold text-gray-900">No tenders found</h3>
+                <p class="mt-1 text-xs text-gray-500 max-w-sm mx-auto">We couldn't find any opportunities matching your active criteria. Try broadening your keywords.</p>
+                <button type="button" id="resetSearchBtn" class="mt-5 inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors">
                     Reset search filters
                 </button>
             </div>
@@ -279,10 +258,10 @@
     </div>
 </main>
 
-<!-- Vanilla JS Enhancements -->
+<!-- Vanilla JS -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const filterButtons = document.querySelectorAll('#filterTabs .filter-tab');
+        const filterTabs = document.querySelectorAll('#filterTabs .filter-tab');
         const cards = document.querySelectorAll('.tender-card');
         const visibleCountEl = document.getElementById('visibleCount');
         const opportunityText = document.getElementById('opportunityText');
@@ -294,7 +273,15 @@
         let currentFilter = 'all';
         let debounceTimer;
 
-        // Combined Filter Functionality
+        function setActiveTabStyles(activeTab) {
+            filterTabs.forEach(btn => {
+                btn.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+                btn.classList.add('text-gray-500');
+            });
+            activeTab.classList.remove('text-gray-500');
+            activeTab.classList.add('bg-white', 'shadow-sm', 'text-gray-900');
+        }
+
         function applyFilters() {
             const query = searchInput.value.trim().toLowerCase();
             let visibleCount = 0;
@@ -315,51 +302,42 @@
                 }
             });
 
-            // Toggle clear button state
             if (clearSearchBtn) {
                 clearSearchBtn.classList.toggle('hidden', !searchInput.value);
             }
 
-            // Update Counter & Pluralization
-            if (visibleCountEl) {
-                visibleCountEl.textContent = visibleCount;
-            }
+            if (visibleCountEl) visibleCountEl.textContent = visibleCount;
             if (opportunityText) {
                 opportunityText.textContent = visibleCount === 1 ? 'Opportunity' : 'Opportunities';
             }
 
-            // Toggle Empty State Visibility
             if (noResults) {
                 noResults.classList.toggle('hidden', visibleCount > 0);
             }
         }
 
-        // Tab Switching Listener
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                currentFilter = button.getAttribute('data-filter');
-
-                filterButtons.forEach(btn => {
-                    btn.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-                    btn.classList.add('hover:text-slate-900');
-                });
-                
-                button.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
-                button.classList.remove('hover:text-slate-900');
-
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                currentFilter = tab.getAttribute('data-filter');
+                setActiveTabStyles(tab);
                 applyFilters();
             });
         });
 
-        // Debounced Input Listener for High-Performance Realtime Search
         if (searchInput) {
             searchInput.addEventListener('input', () => {
                 clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(applyFilters, 150);
+                debounceTimer = setTimeout(applyFilters, 120);
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilters();
+                }
             });
         }
 
-        // Clear Search Action
         if (clearSearchBtn) {
             clearSearchBtn.addEventListener('click', () => {
                 searchInput.value = '';
@@ -368,17 +346,14 @@
             });
         }
 
-        // Reset Filter Action
         if (resetSearchBtn) {
             resetSearchBtn.addEventListener('click', () => {
                 searchInput.value = '';
                 currentFilter = 'all';
-                
-                filterButtons.forEach(btn => {
-                    btn.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-                    btn.classList.add('hover:text-slate-900');
+
+                filterTabs.forEach(btn => {
                     if (btn.getAttribute('data-filter') === 'all') {
-                        btn.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+                        setActiveTabStyles(btn);
                     }
                 });
 
@@ -386,7 +361,6 @@
             });
         }
 
-        // Initial Filter Pass
         applyFilters();
     });
 </script>
