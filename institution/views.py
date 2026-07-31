@@ -9,7 +9,7 @@ from django.http import HttpResponseForbidden, Http404
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.template.loader import get_template
-from io import BytesIO
+from io import BytesIO # Keep this import, it's used by render_to_pdf
 from xhtml2pdf import pisa
 from django.contrib import messages
 from tenders.models import Tender, TenderActivity, Bid
@@ -127,8 +127,34 @@ def dashboard(request):
 @login_required
 @role_required(allowed_roles=['admin'])
 def manage_users(request):
-    admin_user_profile = get_object_or_404(InstitutionUser.objects.select_related('institution'), user=request.user)
-    institution = admin_user_profile.institution
+    admin_profile = get_object_or_404(InstitutionUser.objects.select_related('institution'), user=request.user)
+    institution = admin_profile.institution
+
+    if request.method == 'POST':
+        form = InstitutionUserCreationForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    new_user = User.objects.create_user(
+                        username=form.cleaned_data['username'],
+                        email=form.cleaned_data['email'],
+                        password=form.cleaned_data['password'],
+                        first_name=form.cleaned_data.get('first_name', ''),
+                        last_name=form.cleaned_data.get('last_name', '')
+                    )
+                    InstitutionUser.objects.create(
+                        user=new_user,
+                        institution=admin_profile.institution,
+                        role=form.cleaned_data['role']
+                    )
+                messages.success(request, f"User '{new_user.username}' created successfully.")
+                return redirect('institution:manage_users')
+            except IntegrityError:
+                form.add_error('username', 'A user with this username or email already exists.')
+    else:
+        form = InstitutionUserCreationForm()
+
+    # This logic runs for both GET requests and failed POST requests
     users_list = InstitutionUser.objects.filter(institution=institution).exclude(role='admin').select_related('user').order_by('user__first_name', 'user__last_name')
 
     search_query = request.GET.get('q', '')
@@ -164,6 +190,7 @@ def manage_users(request):
         'search_query': search_query,
         'role_filter': role_filter,
         'status_filter': status_filter,
+        'form': form, # Pass the form instance (either new or with errors)
     }
     return render(request, 'institution/manage_users.html', context)
 
@@ -171,7 +198,7 @@ def manage_users(request):
 @role_required(allowed_roles=['admin'])
 def create_user(request):
     admin_profile = get_object_or_404(InstitutionUser, user=request.user)
-
+    # This view now primarily serves the dedicated "Create User" page, not the modal.
     if request.method == 'POST':
         form = InstitutionUserCreationForm(request.POST)
         if form.is_valid():
@@ -194,11 +221,16 @@ def create_user(request):
                 messages.success(request, f"User '{new_user.email}' created successfully.")
                 return redirect('institution:manage_users')
             except IntegrityError:
-                messages.error(request, "A user with this email already exists.")
+                form.add_error(None, "A user with this username or email already exists.")
     else:
         form = InstitutionUserCreationForm()
 
-    return render(request, 'institution/create_user.html', {'form': form})
+    context = {
+        'form': form,
+        'institution_user': admin_profile,
+        'role': admin_profile.role,
+    }
+    return render(request, 'institution/create_user.html', context)
 
 @login_required
 @role_required(allowed_roles=['admin'])
@@ -227,7 +259,13 @@ def edit_user(request, user_id):
         initial_data = {'first_name': user_to_edit.first_name, 'last_name': user_to_edit.last_name, 'email': user_to_edit.email}
         form = InstitutionUserChangeForm(instance=profile_to_edit, initial=initial_data)
 
-    return render(request, 'institution/edit_user.html', {'form': form, 'user_to_edit': user_to_edit})
+    context = {
+        'form': form,
+        'user_to_edit': user_to_edit,
+        'institution_user': admin_profile,
+        'role': admin_profile.role,
+    }
+    return render(request, 'institution/edit_user.html', context)
 
 @login_required
 @role_required(allowed_roles=['admin'])
@@ -246,7 +284,12 @@ def delete_user(request, user_id):
         messages.success(request, f"User '{user_email}' has been deleted.")
         return redirect('institution:manage_users')
 
-    return render(request, 'institution/delete_user_confirm.html', {'user_to_delete': user_to_delete})
+    context = {
+        'user_to_delete': user_to_delete,
+        'institution_user': admin_profile,
+        'role': admin_profile.role,
+    }
+    return render(request, 'institution/delete_user_confirm.html', context)
 
 @login_required
 @role_required(allowed_roles=['admin'])
@@ -273,17 +316,29 @@ def edit_institution_profile(request):
 def institution_profile(request, institution_id):
     """Displays a public-facing profile for an institution."""
     institution = get_object_or_404(Institution, pk=institution_id)
-    
-    # Check if the logged-in user is the admin of this specific institution
-    is_admin = False
-    if request.user.is_authenticated and hasattr(request.user, 'institution_profile'):
-        if request.user.institution_profile.institution == institution and request.user.institution_profile.role == 'admin':
-            is_admin = True
-
     context = {
         'institution': institution,
-        'is_admin': is_admin,
+        'is_admin': False,
+        'institution_user': None,
+        'role': None,
     }
+    
+    # Check if the logged-in user is the admin of this specific institution
+    if request.user.is_authenticated and hasattr(request.user, 'institution_profile'):
+        try:
+            # Pass the full institution_user object to the template
+            # This makes the sidebar and other components work correctly
+            institution_user = InstitutionUser.objects.select_related('institution').get(user=request.user)
+            context['institution_user'] = institution_user
+            context['role'] = institution_user.role
+            
+            # Specifically check if the user is an admin of THIS institution
+            if institution_user.institution == institution and institution_user.role == 'admin':
+                context['is_admin'] = True
+        except InstitutionUser.DoesNotExist:
+            # User is logged in but has no institution profile, so we do nothing.
+            pass
+
     return render(request, 'institution/institution_profile.html', context)
 
 @login_required
@@ -326,12 +381,18 @@ def edit_user_profile(request):
         }
         form = UserProfileForm(instance=profile, initial=initial_data)
 
-    return render(request, 'institution/edit_user_profile.html', {'form': form})
+    context = {
+        'form': form,
+        'institution_user': profile,
+        'role': profile.role,
+    }
+    return render(request, 'institution/edit_user_profile.html', context)
 
 @login_required
 @role_required(allowed_roles=['admin'])
 def institution_report(request):
     """Displays institution-specific reports with filters and export options."""
+    # Fetch the institution_user to pass to the template for the sidebar
     institution_user = get_object_or_404(InstitutionUser, user=request.user)
     tenders = Tender.objects.filter(institution=institution_user.institution).exclude(status='draft').order_by('-created_at')
 
@@ -371,6 +432,8 @@ def institution_report(request):
         'status_choices': [choice for choice in Tender.STATUS_CHOICES if choice[0] != 'draft'],
         'current_status': status_filter,
         'current_date_range': date_filter,
+        'institution_user': institution_user,  # Pass for sidebar logic
+        'role': institution_user.role,          # Pass for sidebar logic
     }
     return render(request, 'institution/institution_report.html', context)
 

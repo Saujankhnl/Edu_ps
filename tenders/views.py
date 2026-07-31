@@ -45,7 +45,13 @@ def create_tender(request):
             return redirect('institution:dashboard')
     else:
         form = TenderForm()
-    return render(request, 'tenders/create_tender.html', {'form': form})
+    
+    context = {
+        'form': form,
+        'institution_user': institution_user,
+        'role': institution_user.role,
+    }
+    return render(request, 'tenders/create_tender.html', context)
 
 @login_required
 def tender_detail(request, tender_id):
@@ -190,6 +196,8 @@ def list_tenders(request):
         'status_choices': Tender.STATUS_CHOICES,
         'search_query': search_query,
         'status_filter': status_filter,
+        'institution_user': institution_user,
+        'role': institution_user.role,
     }
     return render(request, 'tenders/list_tenders.html', context)
 
