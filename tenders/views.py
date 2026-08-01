@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.http import Http404
 from institution.decorators import role_required
-from .models import Tender, Bid
+from .models import Tender, Bid, TenderActivity
 from .forms import TenderForm
 from company.views import company_login_required
 from .forms import BidSubmissionForm
@@ -177,11 +177,21 @@ def list_tenders(request):
     # Filtering logic
     search_query = request.GET.get('q', '')
     status_filter = request.GET.get('status', '')
+    reviewed_by_filter = request.GET.get('reviewed_by', '')
 
     if search_query:
         tenders_list = tenders_list.filter(
             Q(title__icontains=search_query) | Q(description__icontains=search_query)
         )
+
+    if reviewed_by_filter == 'me' and institution_user.role == 'reviewer':
+        # Get IDs of tenders this user has logged an activity for
+        reviewed_tender_ids = TenderActivity.objects.filter(
+            performed_by=institution_user
+        ).values_list('tender_id', flat=True).distinct()
+        
+        # Filter the main tender list to only these tenders
+        tenders_list = tenders_list.filter(id__in=reviewed_tender_ids)
 
     if status_filter:
         tenders_list = tenders_list.filter(status=status_filter)
@@ -196,6 +206,7 @@ def list_tenders(request):
         'status_choices': Tender.STATUS_CHOICES,
         'search_query': search_query,
         'status_filter': status_filter,
+        'reviewed_by_filter': reviewed_by_filter,
         'institution_user': institution_user,
         'role': institution_user.role,
     }

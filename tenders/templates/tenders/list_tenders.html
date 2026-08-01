@@ -185,8 +185,13 @@
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
+                    {% if reviewed_by_filter == 'me' %}
+                    <h1 class="text-2xl font-black text-gray-900 tracking-tight">My Reviewed Tenders</h1>
+                    <p class="text-xs text-gray-500 mt-0.5">A list of all tenders you have reviewed or acted upon.</p>
+                    {% else %}
                     <h1 class="text-2xl font-black text-gray-900 tracking-tight">All Tenders</h1>
                     <p class="text-xs text-gray-500 mt-0.5">Browse and manage all tenders within your institution.</p>
+                    {% endif %}
                 </div>
                 {% if role == 'creator' %}
                 <div>
@@ -236,6 +241,9 @@
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Created By</th>
                             <th scope="col" class="px-6 py-3">Deadline</th>
+                            {% if reviewed_by_filter == 'me' %}
+                            <th scope="col" class="px-6 py-3">Last Activity By</th>
+                            {% endif %}
                             <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
                         </tr>
                     </thead>
@@ -252,6 +260,11 @@
                             </td>
                             <td class="px-6 py-4">{{ tender.created_by.user.get_full_name|default:tender.created_by.user.username }}</td>
                             <td class="px-6 py-4">{{ tender.deadline|date:"d M Y, P" }}</td>
+                            {% if reviewed_by_filter == 'me' %}
+                            <td class="px-6 py-4">
+                                {{ tender.activities.first.performed_by.user.get_full_name|default:tender.activities.first.performed_by.user.username|default:"N/A" }}
+                            </td>
+                            {% endif %}
                             <td class="px-6 py-4 text-right">
                                 <a href="{% url 'tenders:tender_detail' tender.id %}" class="font-medium text-blue-600 hover:underline mr-4">View Details</a>
                                 {% if role == 'creator' and tender.created_by == institution_user %}
@@ -263,7 +276,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                            <td colspan="{% if reviewed_by_filter == 'me' %}6{% else %}5{% endif %}" class="px-6 py-10 text-center text-gray-500">
                                 <h3 class="font-semibold text-lg">No Tenders Found</h3>
                                 <p class="text-xs">Adjust your filters or create a new tender.</p>
                             </td>

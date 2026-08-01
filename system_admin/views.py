@@ -510,8 +510,24 @@ def change_password(request):
 @user_passes_test(is_superuser, login_url='/login/')
 def manage_all_users(request):
     """Lists all institution users across all institutions for the system admin."""
+    search_query = request.GET.get('q', '')
+    institution_filter = request.GET.get('institution', '')
+    role_filter = request.GET.get('role', '')
+
     # Use select_related to optimize database queries by fetching related user and institution data in a single query.
     users_list = InstitutionUser.objects.select_related('user', 'institution').order_by('institution__institution_name', 'user__username')
+
+    if search_query:
+        users_list = users_list.filter(
+            Q(user__username__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query)
+        )
+    if institution_filter:
+        users_list = users_list.filter(institution__id=institution_filter)
+    if role_filter:
+        users_list = users_list.filter(role=role_filter)
 
     paginator = Paginator(users_list, 15)  # Show 15 users per page
     page_number = request.GET.get('page')
@@ -519,8 +535,13 @@ def manage_all_users(request):
 
     context = {
         'institution_users': page_obj,
+        'all_institutions': Institution.objects.filter(is_approved=True).order_by('institution_name'),
+        'role_choices': InstitutionUser.ROLE_CHOICES,
         'page_title': 'User Management',
-        'page_description': 'A list of all administrative, creator, and reviewer users across all institutions.'
+        'page_description': 'A list of all administrative, creator, and reviewer users across all institutions.',
+        'search_query': search_query,
+        'institution_filter': institution_filter,
+        'role_filter': role_filter,
     }
     return render(request, 'system_admin/user_list.html', context)
 

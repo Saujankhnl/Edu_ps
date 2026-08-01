@@ -3,6 +3,7 @@
 {% block title %}Tenders for Final Approval{% endblock %}
 
 {% block content %}
+<!-- Main Container -->
 <div x-data="{ sidebarOpen: false }" class="h-screen w-full flex overflow-hidden bg-gray-50">
     
     <!-- Mobile Sidebar Backdrop -->
@@ -15,7 +16,7 @@
          x-transition:leave-end="opacity-0"
          @click="sidebarOpen = false" 
          class="fixed inset-0 z-40 bg-gray-600/75 md:hidden" 
-         style="display: none;"></div>
+         x-cloak></div>
 
     <!-- Sidebar -->
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
@@ -167,7 +168,7 @@
             <a href="{% url 'institution:user_profile' %}" class="flex items-center space-x-3 overflow-hidden group">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-white shrink-0 group-hover:ring-blue-200 transition">
                     {% if request.user.institution_profile.profile_picture %}
-                        <img src="{{ request.user.institution_profile.profile_picture.url }}" alt=" " class="w-full h-full object-cover rounded-full">
+                        <img src="{{ request.user.institution_profile.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover rounded-full">
                     {% else %}
                         {{ request.user.username|slice:":1"|upper }}
                     {% endif %}
@@ -180,9 +181,9 @@
         </div>
     </aside>
 
-    <!-- Main Content Container -->
-    <div class="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
-        <!-- Top Bar for Mobile Menu Toggle -->
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <!-- Top Navigation Bar -->
         <header class="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/80 px-4 sm:px-8 flex items-center justify-between shrink-0 z-10 sticky top-0">
             <div class="flex items-center gap-2">
                 <button @click.stop="sidebarOpen = !sidebarOpen" class="md:hidden p-2 text-gray-500 hover:text-gray-700 rounded-lg transition hover:bg-gray-100 focus:outline-none">
@@ -198,7 +199,7 @@
             </a>
         </header>
 
-        <!-- Main Inner Area -->
+        <!-- Page Content -->
         <main class="flex-1 p-4 md:p-8 w-full space-y-6 overflow-y-auto">
             <!-- Header -->
             <div>
