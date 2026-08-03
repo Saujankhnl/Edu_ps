@@ -48,99 +48,103 @@
             </div>
 
             <!-- Meta Information Grid -->
-            <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-100">
-                <div class="space-y-4">
-                    <div class="flex items-center text-gray-600">
-                        <div class="p-2 bg-gray-50 rounded-lg mr-3">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
+            {% if is_company_user or (is_institution_user and institution_user.role == 'admin') %}
+                <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-100">
+                    <div class="space-y-4">
+                        <div class="flex items-center text-gray-600">
+                            <div class="p-2 bg-gray-50 rounded-lg mr-3">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                            <div class="text-xs">
+                                <p class="text-gray-400 font-semibold uppercase tracking-wider">Company Name</p>
+                                <p class="text-sm font-bold text-gray-900 mt-0.5">{{ bid.company.company_name }}</p>
+                            </div>
                         </div>
-                        <div class="text-xs">
-                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Company Name</p>
-                            <p class="text-sm font-bold text-gray-900 mt-0.5">{{ bid.company.company_name }}</p>
+
+                        <div class="flex items-center text-gray-600">
+                            <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg mr-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="text-xs">
+                                <p class="text-emerald-600 font-bold uppercase tracking-wider">Submitted Bid Valuation</p>
+                                <p class="text-lg font-black text-emerald-700 mt-0.5">Np {{ bid.bid_amount|floatformat:2 }}</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex items-center text-gray-600">
-                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg mr-3">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                    <div class="space-y-4">
+                        <div class="flex items-center text-gray-600">
+                            <div class="p-2 bg-gray-50 rounded-lg mr-3">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="text-xs">
+                                <p class="text-gray-400 font-semibold uppercase tracking-wider">Submission Date</p>
+                                <p class="text-sm font-bold text-gray-900 mt-0.5">{{ bid.submitted_at|date:"M d, Y \a\t H:i" }}</p>
+                            </div>
                         </div>
-                        <div class="text-xs">
-                            <p class="text-emerald-600 font-bold uppercase tracking-wider">Submitted Bid Valuation</p>
-                            <p class="text-lg font-black text-emerald-700 mt-0.5">Np {{ bid.bid_amount|floatformat:2 }}</p>
+
+                        <div class="flex items-center text-gray-600">
+                            <div class="p-2 bg-gray-50 rounded-lg mr-3">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="text-xs">
+                                <p class="text-gray-400 font-semibold uppercase tracking-wider">Proposal Document</p>
+                                {% if bid.proposal_document %}
+                                    <a href="{{ bid.proposal_document.url }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 underline mt-0.5">
+                                        Download Proposal File
+                                        <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                    </a>
+                                {% else %}
+                                    <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
+                                {% endif %}
+                            </div>
+
+                            {% if institution_user and institution_user.role == 'admin' %}
+                            <div class="text-xs pt-4">
+                                <p class="text-gray-400 font-semibold uppercase tracking-wider">Quotation Document</p>
+                                {% if bid.quotation_document %}
+                                    <a href="{{ bid.quotation_document.url }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 underline mt-0.5">
+                                        Download Quotation File
+                                        <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                    </a>
+                                {% else %}
+                                    <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
                         </div>
                     </div>
                 </div>
-
-                <div class="space-y-4">
-                    <div class="flex items-center text-gray-600">
-                        <div class="p-2 bg-gray-50 rounded-lg mr-3">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="text-xs">
-                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Submission Date</p>
-                            <p class="text-sm font-bold text-gray-900 mt-0.5">{{ bid.submitted_at|date:"M d, Y \a\t H:i" }}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center text-gray-600">
-                        <div class="p-2 bg-gray-50 rounded-lg mr-3">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <div class="text-xs">
-                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Proposal Document</p>
-                            {% if bid.proposal_document %}
-                                <a href="{{ bid.proposal_document.url }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 underline mt-0.5">
-                                    Download Proposal File
-                                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                </a>
-                            {% else %}
-                                <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
-                            {% endif %}
-                        </div>
-
-                        {% if institution_user and institution_user.role == 'admin' %}
-                        <div class="text-xs pt-4">
-                            <p class="text-gray-400 font-semibold uppercase tracking-wider">Quotation Document</p>
-                            {% if bid.quotation_document %}
-                                <a href="{{ bid.quotation_document.url }}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700 underline mt-0.5">
-                                    Download Quotation File
-                                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                </a>
-                            {% else %}
-                                <p class="text-sm font-semibold text-gray-400 mt-0.5">Not Provided</p>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-
-                    </div>
-                </div>
-            </div>
+            {% endif %}
 
             <!-- Cover Letter Section -->
-            {% if bid.cover_letter %}
-                <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/30">
-                    <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center">
-                        <svg class="w-4.5 h-4.5 mr-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                        </svg>
-                        Cover Letter & Supporting Remarks
-                    </h3>
-                    <div class="bg-white border border-gray-200/60 rounded-xl p-4 shadow-xs">
-                        <p class="text-xs leading-relaxed text-gray-600 whitespace-pre-wrap">{{ bid.cover_letter }}</p>
+            {% if is_company_user or (is_institution_user and institution_user.role == 'admin') %}
+                {% if bid.cover_letter %}
+                    <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/30">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                            <svg class="w-4.5 h-4.5 mr-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                            Cover Letter & Supporting Remarks
+                        </h3>
+                        <div class="bg-white border border-gray-200/60 rounded-xl p-4 shadow-xs">
+                            <p class="text-xs leading-relaxed text-gray-600 whitespace-pre-wrap">{{ bid.cover_letter }}</p>
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             {% endif %}
 
             <!-- Interactive Action Panel -->

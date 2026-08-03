@@ -269,6 +269,7 @@
         </div>
 
         <!-- Bids Received Section -->
+        {% if is_admin %}
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-extrabold text-gray-900 tracking-tight flex items-center">
@@ -318,6 +319,7 @@
                 </div>
             {% endif %}
         </div>
+        {% endif %}
 
         <!-- Interactive Activity Timeline Log -->
         {% if activities %}

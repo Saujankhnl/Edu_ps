@@ -35,12 +35,12 @@
                 </div>
                 <div class="md:col-span-2">
                     <label for="{{ form.proposal_document.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Proposal Document (PDF)</label>
-                    {{ form.proposal_document }}
+                    <input type="file" name="{{ form.proposal_document.name }}" id="{{ form.proposal_document.id_for_label }}" accept=".pdf,application/pdf" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:bg-gray-100 file:text-gray-700 file:font-semibold file:px-4 file:py-2 file:border-0 file:mr-4 hover:file:bg-gray-200">
                     <p class="text-xs text-gray-500 mt-1">Your main proposal document.</p>
                 </div>
                 <div class="md:col-span-2">
                     <label for="{{ form.quotation_document.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Quotation Document (PDF)</label>
-                    {{ form.quotation_document }}
+                    <input type="file" name="{{ form.quotation_document.name }}" id="{{ form.quotation_document.id_for_label }}" accept=".pdf,application/pdf" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:bg-gray-100 file:text-gray-700 file:font-semibold file:px-4 file:py-2 file:border-0 file:mr-4 hover:file:bg-gray-200">
                     <p class="text-xs text-gray-500 mt-1">A detailed breakdown of costs.</p>
                 </div>
                 <div class="md:col-span-2">
