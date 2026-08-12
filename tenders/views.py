@@ -8,8 +8,8 @@ from django.core.paginator import Paginator
 from django.http import Http404
 from institution.decorators import role_required
 from .models import Tender, Bid, TenderActivity
-from .forms import TenderForm
-from company.views import company_login_required
+from .forms import TenderForm, BidSubmissionForm
+from company.decorators import company_role_required
 from .forms import BidSubmissionForm
 from institution.models import InstitutionUser
 from django.http import HttpResponse
@@ -18,6 +18,7 @@ from io import BytesIO
 from xhtml2pdf import pisa
 
 from company.models import Company
+from company.decorators import company_login_required
 
 @login_required
 @role_required(allowed_roles=['creator', 'admin'])
@@ -65,26 +66,30 @@ def tender_detail(request, tender_id):
     is_company = False
     company_verification_status = None
     
-    if hasattr(request.user, 'institution_profile'):
+    # Check if the user is an institution user (and is authenticated)
+    if request.user.is_authenticated and hasattr(request.user, 'institution_profile'):
         profile = request.user.institution_profile
         if profile.institution == tender.institution:
             user_role = profile.role
             is_creator = (user_role == 'creator' and tender.created_by == profile)
             is_reviewer = (user_role == 'reviewer')
             is_admin = (user_role == 'admin')
-    elif hasattr(request.user, 'company'):
+    # Check if the user is a company user
+    elif request.user.is_authenticated and hasattr(request.user, 'company'):
         is_company = True
-        company_verification_status = request.user.company.verification_status
+        company_profile = request.user.company
+        user_role = company_profile.role # Correctly assign the company user's role
+        company_verification_status = company_profile.verification_status
 
     # Permissions check
     # Only the creator or an admin can see a tender while it's a draft.
     if tender.status == 'draft' and not (is_creator or is_admin):
         raise Http404("Tender not found.")
 
-    # Check if the company user has already bid
-    has_bid = False
+    # Check if the company user has already bid (any status)
+    existing_bid = None
     if is_company:
-        has_bid = Bid.objects.filter(tender=tender, company=request.user.company).exists()
+        existing_bid = Bid.objects.filter(tender=tender, company=request.user.company).first()
 
     # Get related data
     activities = tender.activities.select_related('performed_by__user').order_by('-timestamp')
@@ -101,7 +106,7 @@ def tender_detail(request, tender_id):
         'is_admin': is_admin,
         'is_company': is_company,
         'company_verification_status': company_verification_status,
-        'has_bid': has_bid,
+        'existing_bid': existing_bid, # Pass the existing bid object
         'now': timezone.now(),
     }
     return render(request, 'tenders/tender_detail.html', context)
@@ -274,10 +279,15 @@ def update_tender_status(request, tender_id):
 
     return redirect('tenders:tender_detail', tender_id=tender.id)
 
+@login_required
 @company_login_required
+@company_role_required(allowed_roles=['bid_submitter'])
 def submit_bid(request, tender_id):
-    tender = get_object_or_404(Tender, pk=tender_id, status='published')
+    tender = get_object_or_404(Tender, pk=tender_id)
     company = get_object_or_404(Company, user=request.user)
+
+    # Check if a draft bid already exists for this tender and company
+    existing_bid = Bid.objects.filter(tender=tender, company=company, status='pending_approval').first()
 
     # Ensure the company is verified before allowing them to bid.
     # The company dashboard already handles routing to the verification page if needed.
@@ -285,44 +295,89 @@ def submit_bid(request, tender_id):
         messages.error(request, "Your company profile must be verified before you can submit bids. Please complete your verification process.")
         return redirect('company:dashboard')
 
-    # Check if bidding is open
+    # Check if bidding is open and tender is published
     now = timezone.now()
-    if tender.opening_date and now < tender.opening_date:
-        messages.error(request, "Bidding for this tender has not opened yet.")
-        return redirect('tenders:tender_detail', tender_id=tender.id)
-    if tender.deadline and now > tender.deadline:
-        messages.error(request, "The deadline for this tender has passed.")
+    if tender.status != 'published' or (tender.opening_date and now < tender.opening_date) or (tender.deadline and now > tender.deadline):
+        messages.error(request, "This tender is not currently open for bidding.")
         return redirect('tenders:tender_detail', tender_id=tender.id)
 
-    # Check if company has already bid
-    if Bid.objects.filter(tender=tender, company=company).exists():
+    # If a submitted bid exists (not a draft), prevent new submission
+    if Bid.objects.filter(tender=tender, company=company).exclude(status='pending_approval').exists():
         messages.warning(request, "You have already submitted a bid for this tender.")
         return redirect('tenders:tender_detail', tender_id=tender.id)
 
     if request.method == 'POST':
-        form = BidSubmissionForm(request.POST, request.FILES)
+        # If an existing draft is found, use it as the instance for the form
+        form = BidSubmissionForm(request.POST, request.FILES, instance=existing_bid)
         if form.is_valid():
             bid = form.save(commit=False)
             bid.tender = tender
             bid.company = company
+            bid.status = 'pending_approval'  # Always save/resave as pending approval
+            bid.remarks = None # Clear any previous rejection remarks upon resubmission
             bid.save()
-            messages.success(request, "Your bid has been submitted successfully.")
+            messages.success(request, "Your bid has been saved as a draft and sent to your company admin for review and final submission.")
             return redirect('tenders:my_bids')
-    else:
-        form = BidSubmissionForm()
+    else: 
+        # If an existing draft is found, pre-populate the form with its data
+        form = BidSubmissionForm(instance=existing_bid)
 
     context = {
         'form': form,
         'tender': tender,
+        'existing_bid': existing_bid, # Pass existing bid to template for context
     }
     return render(request, 'tenders/submit_bid.html', context)
 
+@login_required
+@company_login_required
+@company_role_required(allowed_roles=['admin'])
+def review_and_submit_bid(request, bid_id):
+    """Allows a company admin to review a draft bid and submit it."""
+    bid = get_object_or_404(Bid.objects.select_related('tender', 'company'), pk=bid_id)
+    admin_company = get_object_or_404(Company, user=request.user)
+
+    # Security check: ensure the bid belongs to the admin's company and is a draft
+    if bid.company.company_name != admin_company.company_name or bid.status != 'pending_approval':
+        messages.error(request, "You do not have permission to review this bid or it's not in a reviewable state.")
+        return redirect('company:dashboard')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'submit_bid':
+            bid.status = 'submitted'
+            bid.submitted_at = timezone.now() # Update submission time to when admin submits
+            bid.remarks = "" # Clear any previous rejection remarks
+            bid.save()
+            messages.success(request, f"The bid for '{bid.tender.title}' has been successfully submitted.")
+            return redirect('company:dashboard')
+
+        elif action == 'reject_draft':
+            remarks = request.POST.get('remarks', '').strip()
+            if not remarks:
+                messages.error(request, "Remarks are required to reject a bid.")
+                # Re-render the page with the error message if remarks are missing
+                return render(request, 'tenders/review_bid.html', {'bid': bid})
+            else:
+                # Keep the status as 'pending_approval' so the submitter can edit it.
+                bid.remarks = f"Internally rejected by admin. Reason: {remarks}"
+                bid.save(update_fields=['remarks'])
+                messages.warning(request, f"The draft bid for '{bid.tender.title}' has been returned to the submitter with your remarks.")
+                return redirect('company:dashboard')
+    
+    return render(request, 'tenders/review_bid.html', {'bid': bid})
+
+@login_required
 @company_login_required
 def my_bids(request):
+    """Displays all bids associated with the user's company."""
     company = get_object_or_404(Company, user=request.user)
-    bids = Bid.objects.filter(company=company).select_related('tender').order_by('-submitted_at')
+    # Filter bids by the company name to show all bids for the company, not just the user.
+    bids = Bid.objects.filter(company__company_name=company.company_name).select_related('tender', 'tender__institution').order_by('-submitted_at')
     context = {
         'bids': bids,
+        'company': company, # Pass company for role checking in template
     }
     return render(request, 'tenders/my_bids.html', context)
 

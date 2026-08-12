@@ -106,6 +106,7 @@ class TenderActivity(models.Model):
 
 class Bid(models.Model):
     STATUS_CHOICES = [
+        ('pending_approval', 'Pending Approval'), # Pending company admin approval
         ('submitted', 'Submitted'),
         ('under_review', 'Under Review'),
         ('shortlisted', 'Shortlisted'),
@@ -119,7 +120,8 @@ class Bid(models.Model):
     quotation_document = models.FileField(upload_to='PDF/quotation/', null=True, blank=True)
     cover_letter = models.TextField(blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_approval')
+    remarks = models.TextField(blank=True, null=True, help_text="Internal remarks from company admin if a draft is rejected.")
 
     def __str__(self):
         return f"Bid by {self.company.company_name} for {self.tender.title}"

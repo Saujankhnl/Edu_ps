@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Deletion{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <h2 class="mt-5 text-lg font-bold text-gray-900">Delete User Account</h2>
+        <p class="mt-2 text-sm text-gray-500">
+            Are you sure you want to permanently delete the user 
+            <strong class="text-gray-800">{{ user_to_delete.username }}</strong>?
+        </p>
+        <p class="mt-1 text-xs text-red-500">
+            This action is irreversible. All data associated with this user will be removed.
+        </p>
+
+        <form method="post" class="mt-6">
+            {% csrf_token %}
+            <div class="flex justify-center gap-4">
+                <a href="{% url 'company:manage_users' %}" class="px-4 py-2.5 text-xs font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-sm">
+                    Cancel
+                </a>
+                <button type="submit" class="px-5 py-2.5 text-xs font-semibold rounded-xl text-white bg-red-600 hover:bg-red-700 shadow-sm">
+                    Yes, Delete User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@ from django import forms
 import re
 from .models import Company
 from django.contrib.auth.forms import PasswordChangeForm as AuthPasswordChangeForm
-
+ 
 class CompanyProfileForm(forms.ModelForm):
     """Form for companies to update their profile."""
     class Meta:
@@ -31,7 +31,7 @@ class PasswordChangeForm(AuthPasswordChangeForm):
         self.fields['new_password2'].widget = forms.PasswordInput(attrs={
             'class': 'form-input', 'placeholder': 'Confirm new password'
         })
-
+ 
 class CompanyVerificationForm(forms.ModelForm):
     """
     A form for companies to submit their verification documents.
@@ -79,3 +79,51 @@ class CompanyVerificationForm(forms.ModelForm):
             if not re.match(r'^[A-Za-z0-9\/-]+$', reg_number):
                 raise forms.ValidationError("Registration number can only contain letters, numbers, hyphens (-), and slashes (/).")
         return reg_number
+class CompanyUserCreationForm(forms.Form):
+    """Form for a Company Admin to create new users for their company."""
+    username = forms.CharField(max_length=150, required=True)
+    email = forms.EmailField(required=True)
+    password = forms.CharField(widget=forms.PasswordInput, required=True)
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    role = forms.ChoiceField(choices=[])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Admin can only create Bid Submitters or Viewers.
+        self.fields['role'].choices = [
+            (role, display) for role, display in Company.ROLE_CHOICES if role in ['bid_submitter', 'viewer']
+        ]
+
+class CompanyUserChangeForm(forms.ModelForm):
+    """Form for a Company Admin to edit existing users."""
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+
+    class Meta:
+        model = Company
+        fields = ['email', 'first_name', 'last_name', 'role']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Admin can only assign Bid Submitter or Viewer roles.
+        self.fields['role'].choices = [
+            (role, display) for role, display in Company.ROLE_CHOICES if role in ['bid_submitter', 'viewer']
+        ]
+
+class CompanyUserProfileForm(forms.ModelForm):
+    """Form for a company user to edit their own profile details."""
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = Company
+        # This form edits fields on both User and Company models.
+        # We list the Company model fields here.
+        # The view will handle updating the User model separately.
+        fields = ['first_name', 'last_name', 'email', 'phone_number']
+        widgets = {
+            'phone_number': forms.TextInput(attrs={'class': 'form-input'}),
+        }

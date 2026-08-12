@@ -247,8 +247,20 @@
             <!-- Company User Actions -->
             {% if is_company %}
                 <div class="p-6 md:p-8 bg-gray-50/50 border-t border-gray-100">
-                    {% if has_bid %}
-                        <p class="text-sm font-medium text-gray-600">You have already submitted a bid for this tender.</p>
+                    {% if existing_bid %} 
+                        {% if existing_bid.status == 'pending_approval' %}
+                            <div class="text-sm font-medium text-blue-700 bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center justify-between">
+                                <span>You have a draft bid for this tender.</span>
+                                <a href="{% url 'tenders:submit_bid' tender.id %}" class="font-bold underline hover:text-blue-800">Continue Editing</a>
+                            </div>
+                            {% if existing_bid.remarks %}
+                                <div class="mt-3 text-sm font-medium text-red-700 bg-red-50 p-4 rounded-xl border border-red-100">
+                                    <strong>Admin Remarks:</strong> {{ existing_bid.remarks }}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-sm font-medium text-gray-600">You have already submitted a bid for this tender (Status: {{ existing_bid.get_status_display }}).</p>
+                        {% endif %}
                     {% elif company_verification_status != 'approved' %}
                         <div class="text-sm font-medium text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-100">
                             Your company profile must be verified before you can submit bids. 
@@ -256,13 +268,16 @@
                         </div>
                     {% elif tender.status != 'published' %}
                         <p class="text-sm font-medium text-gray-600">This tender is not currently open for bidding.</p>
-                    {% elif tender.deadline and tender.deadline < now %}
+                    {% elif tender.deadline and now > tender.deadline %}
                         <p class="text-sm font-medium text-red-600">The deadline for this tender has passed.</p>
-                    {% else %}
+                    {% elif user_role == 'bid_submitter' %}
                         <a href="{% url 'tenders:submit_bid' tender.id %}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
                             Place a Bid
                         </a>
+                    {% else %}
+                        <!-- This message shows for company admins/viewers on the tender detail page -->
+                        <p class="text-sm font-medium text-gray-600">Only users with the 'Bid Submitter' role can place bids.</p>
                     {% endif %}
                 </div>
             {% endif %}

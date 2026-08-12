@@ -7,9 +7,25 @@
     <div class="max-w-4xl mx-auto">
         
         <div class="mb-8">
-            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Submit Your Bid</h1>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">
+                {% if existing_bid %}
+                    Edit Your Draft Bid
+                {% else %}
+                    Submit Your Bid
+                {% endif %}
+            </h1>
             <p class="mt-1 text-sm text-gray-500">You are placing a bid for the tender: <strong class="text-gray-700">{{ tender.title }}</strong></p>
         </div>
+
+        {% if existing_bid and existing_bid.remarks %}
+            <div class="bg-red-50/60 border border-red-200/80 text-red-700 px-4 py-3 rounded-lg text-sm mb-6 flex items-start gap-2.5">
+                <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <div>
+                    <span class="font-semibold">Admin Remarks:</span> {{ existing_bid.remarks }}
+                    <p class="text-xs mt-1">Please review and update your bid based on this feedback.</p>
+                </div>
+            </div>
+        {% endif %}
 
         <!-- Terms and Conditions Section -->
         <div class="bg-white p-6 rounded-2xl border border-gray-200/60 shadow-sm mb-8">
@@ -64,7 +80,11 @@
             <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-100">
                 <a href="{% url 'tenders:tender_detail' tender.id %}" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Cancel</a>
                 <button id="submit-bid-btn" type="submit" disabled class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed">
-                    Place Bid
+                    {% if existing_bid %}
+                        Save Draft & Send for Review
+                    {% else %}
+                        Place Bid
+                    {% endif %}
                 </button>
             </div>
         </form>

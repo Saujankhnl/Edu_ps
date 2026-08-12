@@ -1,219 +1,91 @@
 {% extends "base.html" %}
 
-{% load static %}
-{% block title %}My Submitted Bids{% endblock %}
+{% block title %}My Bids{% endblock %}
 
 {% block content %}
-<div class="h-screen w-screen overflow-hidden bg-gray-50 flex">
-    
-    <!-- Sidebar Panel Container (Light Blue Theme) -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-sky-50/70 border-r border-blue-100 text-slate-700 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:relative md:h-full flex-shrink-0 shadow-lg md:shadow-none transition-transform duration-300 ease-in-out">
-        <div>
-            <!-- Header Brand Logo Container -->
-            <div class="h-16 flex items-center justify-between px-6 bg-blue-50/80 border-b border-blue-100">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 text-white font-black text-sm shadow-sm">
-                        E
-                    </div>
-                    <div class="leading-tight">
-                        <div class="text-sm font-bold text-slate-900 tracking-wide">EduPs</div>
-                        <div class="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Company Admin</div>
-                    </div>
-                </div>
-                <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-slate-700 focus:outline-none p-1 rounded-lg hover:bg-sky-100">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
+<div class="p-4 sm:p-6 lg:p-8">
+    <div class="max-w-6xl mx-auto">
 
-            <!-- Navigation Links -->
-            <nav class="mt-6 px-4 space-y-1.5">
-                <a href="{% url 'company:dashboard' %}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-600 hover:bg-sky-100/70 hover:text-blue-900 rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-blue-500/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path>
-                    </svg>
-                    Dashboard
-                </a>
-
-                <!-- Active Link: My Bids -->
-                <a href="{% url 'tenders:my_bids' %}" class="flex items-center px-4 py-3 text-sm font-bold text-white bg-blue-600 rounded-xl shadow-sm shadow-blue-200 transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    My Bids
-                </a>
-
-                <a href="{% url 'company:company_profile' %}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-600 hover:bg-sky-100/70 hover:text-blue-900 rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-blue-500/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    Profile
-                </a>
-
-                <a href="{% url 'company:change_password' %}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-600 hover:bg-sky-100/70 hover:text-blue-900 rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-blue-500/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                    Change Password
-                </a>
-
-                <a href="{% url 'company:analytics_reports' %}" class="flex items-center px-4 py-3 text-sm font-medium text-slate-600 hover:bg-sky-100/70 hover:text-blue-900 rounded-xl transition duration-150">
-                    <svg class="w-5 h-5 mr-3 text-blue-500/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                    Analytics & Reports
-                </a>
-            </nav>
-        </div>
-
-        <!-- Sidebar Footer Sign Out Section -->
-        <div class="p-4 bg-blue-50/50 border-t border-blue-100">
-            <a href="{% url 'accounts:logout' %}" class="flex items-center justify-center w-full bg-white hover:bg-red-50 text-slate-700 hover:text-red-600 text-sm font-semibold py-2.5 px-4 rounded-xl border border-blue-100 hover:border-red-200 transition duration-150 shadow-sm">
-                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                </svg>
-                Sign Out
-            </a>
-        </div>
-    </aside>
-
-    <!-- Backdrop overlay for mobile screen viewports -->
-    <div id="sidebarBackdrop" class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm hidden md:hidden transition-opacity duration-300"></div>
-
-    <!-- Main Workspace Application Window Panel -->
-    <main class="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
-        
-        <!-- Sticky Navigation Row Controls Header -->
-        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 flex-shrink-0">
-            <div class="flex items-center">
-                <button id="openSidebarBtn" class="md:hidden text-gray-500 hover:text-gray-800 focus:outline-none mr-4 p-1 rounded-lg hover:bg-gray-100">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-                <div class="hidden sm:block">
-                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Proposal Pipelines</span>
-                    <h2 class="text-sm font-bold text-gray-800">My Submissions</h2>
-                </div>
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">My Company's Bids</h1>
+                <p class="text-sm text-gray-500 mt-1">A history of all bids submitted by your company.</p>
             </div>
             <div>
                 <a href="{% url 'company:dashboard' %}" class="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-xl text-xs transition duration-150">
                     &larr; Back to Dashboard
                 </a>
             </div>
-        </header>
+        </div>
 
-        <!-- Dynamic Context Content Wrapper -->
-        <div class="p-4 md:p-8 max-w-6xl mx-auto w-full space-y-6">
-            
-            <div>
-                <h1 class="text-2xl font-black text-gray-900 tracking-tight">My Submitted Bids</h1>
-                <p class="text-xs text-gray-500 mt-0.5">Track the status of all tenders you have applied for.</p>
-            </div>
-
-            <!-- Bid List Table Container -->
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-400 uppercase bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th scope="col" class="px-6 py-3.5 font-bold tracking-wider">Tender Title</th>
-                                <th scope="col" class="px-6 py-3.5 font-bold tracking-wider">Institution</th>
-                                <th scope="col" class="px-6 py-3.5 font-bold tracking-wider">Bid Amount</th>
-                                <th scope="col" class="px-6 py-3.5 font-bold tracking-wider">Submitted On</th>
-                                <th scope="col" class="px-6 py-3.5 font-bold tracking-wider text-center">Status</th>
-                                <th scope="col" class="px-6 py-3.5 font-bold tracking-wider text-right"><span class="sr-only">Actions</span></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            {% for bid in bids %}
-                            <tr class="hover:bg-gray-50/70 transition duration-150">
-                                <th scope="row" class="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap">
-                                    <a href="{% url 'tenders:tender_detail' bid.tender.id %}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ bid.tender.title }}</a>
-                                </th>
-                                <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ bid.tender.institution.institution_name }}</td>
-                                <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">Np {{ bid.bid_amount|floatformat:2 }}</td>
-                                <td class="px-6 py-4 text-gray-500 whitespace-nowrap">{{ bid.submitted_at|date:"d M Y" }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <span class="status-badge px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full" data-status="{{ bid.status|lower }}">
+        <!-- Bids Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tender Title</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bid Amount</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for bid in bids %}
+                        <tr class="{% if bid.status == 'draft' and bid.remarks %} bg-red-50/50 hover:bg-red-50 {% else %} hover:bg-gray-50 {% endif %} transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-semibold text-gray-900">{{ bid.tender.title }}</div>
+                                <div class="text-xs text-gray-500">{{ bid.tender.institution.institution_name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">Np {{ bid.bid_amount|floatformat:2 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ bid.submitted_at|date:"Y-m-d H:i" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if bid.status == 'accepted' %} bg-emerald-100 text-emerald-800 
+                                    {% elif bid.status == 'rejected' %} bg-rose-100 text-rose-800 
+                                    {% elif bid.status == 'pending_approval' and bid.remarks %} bg-red-100 text-red-800
+                                    {% elif bid.status == 'pending_approval' %} bg-yellow-100 text-yellow-800
+                                    {% else %} bg-blue-100 text-blue-800 {% endif %}">
+                                    {% if bid.status == 'pending_approval' and bid.remarks %}
+                                        Returned by Admin
+                                    {% else %}
                                         {{ bid.get_status_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <a href="{% url 'tenders:bid_detail' bid.id %}" class="inline-flex items-center text-xs font-bold text-slate-700 bg-gray-100 hover:bg-gray-200 py-1.5 px-3 rounded-lg transition duration-150">
-                                        View Details
-                                    </a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6" class="px-6 py-16 text-center text-gray-500">
-                                    <div class="max-w-xs mx-auto space-y-2">
-                                        <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        <h3 class="font-bold text-gray-900 text-sm">No Active Submissions Found</h3>
-                                        <p class="text-xs text-gray-400">You haven't submitted formal bid offerings to any open contract placements yet.</p>
+                                    {% endif %}
+                                </span>
+                                {% if bid.status == 'pending_approval' and bid.remarks %}
+                                    <div class="text-xs text-red-600 mt-1 truncate" title="{{ bid.remarks }}">
+                                        Remarks: {{ bid.remarks|truncatechars:30 }}
                                     </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                {% if bid.status == 'pending_approval' and request.user.company.role == 'bid_submitter' %}
+                                    <a href="{% url 'tenders:submit_bid' bid.tender.id %}" class="text-indigo-600 hover:text-indigo-900 font-bold">Edit & Resubmit</a>
+                                {% elif bid.status == 'pending_approval' and request.user.company.role == 'admin' %}
+                                     <a href="{% url 'tenders:review_and_submit_bid' bid.id %}" class="text-emerald-600 hover:text-emerald-900 font-bold">Review</a>
+                                {% else %}
+                                    <a href="{{ bid.get_absolute_url }}" class="text-gray-500 hover:text-gray-800">View Details</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-10 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No bids found</h3>
+                                <p class="mt-1 text-xs text-gray-400">Your company has not placed any bids yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </main>
+
+    </div>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        // 1. Mobile Sidebar Toggle Operations
-        const openBtn = document.getElementById('openSidebarBtn');
-        const closeBtn = document.getElementById('closeSidebarBtn');
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('sidebarBackdrop');
-
-        function toggleSidebar() {
-            if (sidebar && backdrop) {
-                sidebar.classList.toggle('-translate-x-full');
-                backdrop.classList.toggle('hidden');
-            }
-        }
-
-        if (openBtn) openBtn.addEventListener('click', toggleSidebar);
-        if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-        if (backdrop) backdrop.addEventListener('click', toggleSidebar);
-
-        // 2. Dynamic Status Badge Styling (Tailwind class map matching Company Dashboard)
-        const badgeClasses = {
-            accepted: ['bg-emerald-100', 'text-emerald-800'],
-            pending: ['bg-amber-100', 'text-amber-800'],
-            review: ['bg-blue-100', 'text-blue-800'],
-            rejected: ['bg-red-100', 'text-red-800'],
-            default: ['bg-gray-200', 'text-gray-800']
-        };
-
-        const statusBadges = document.querySelectorAll('.status-badge');
-        statusBadges.forEach(badge => {
-            const rawStatus = (badge.getAttribute('data-status') || '').trim();
-            let key = 'default';
-            
-            if (rawStatus.includes('accept') || rawStatus.includes('won') || rawStatus.includes('approv')) {
-                key = 'accepted';
-            } else if (rawStatus.includes('pend')) {
-                key = 'pending';
-            } else if (rawStatus.includes('review')) {
-                key = 'review';
-            } else if (rawStatus.includes('reject') || rawStatus.includes('lost') || rawStatus.includes('declin')) {
-                key = 'rejected';
-            }
-
-            badge.classList.add(...badgeClasses[key]);
-        });
-    });
-</script>
 {% endblock %}

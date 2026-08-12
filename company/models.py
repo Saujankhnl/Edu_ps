@@ -3,6 +3,12 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 class Company(models.Model):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('bid_submitter', 'Bid Submitter'),
+        ('viewer', 'Viewer'),
+    )
+
     VERIFICATION_STATUS_CHOICES = [
         ('not_submitted', 'Not Submitted'),
         ('pending', 'Pending Review'),
@@ -11,6 +17,7 @@ class Company(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='company')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='admin', help_text="Role of the user within the company.")
     company_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20)

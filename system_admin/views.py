@@ -510,39 +510,67 @@ def change_password(request):
 @user_passes_test(is_superuser, login_url='/login/')
 def manage_all_users(request):
     """Lists all institution users across all institutions for the system admin."""
+    # --- Get filter parameters from the request ---
     search_query = request.GET.get('q', '')
     institution_filter = request.GET.get('institution', '')
     role_filter = request.GET.get('role', '')
+    type_filter = request.GET.get('type', '') # New filter for user type
 
-    # Use select_related to optimize database queries by fetching related user and institution data in a single query.
-    users_list = InstitutionUser.objects.select_related('user', 'institution').order_by('institution__institution_name', 'user__username')
+    # --- Fetch both Institution and Company users ---
+    institution_users = InstitutionUser.objects.select_related('user', 'institution').all()
+    company_users = Company.objects.select_related('user').all()
 
+    # --- Combine and structure the user list ---
+    # We'll create a unified list of objects that the template can easily iterate over.
+    combined_users = []
+    for iu in institution_users:
+        combined_users.append({
+            'user': iu.user,
+            'role': iu.get_role_display(),
+            'organization_name': iu.institution.institution_name,
+            'organization_id': iu.institution.id,
+            'type': 'Institution',
+        })
+    for cu in company_users:
+        combined_users.append({
+            'user': cu.user,
+            'role': cu.get_role_display(),
+            'organization_name': cu.company_name,
+            'organization_id': cu.id,
+            'type': 'Company',
+        })
+
+    # --- Apply Filters ---
     if search_query:
-        users_list = users_list.filter(
-            Q(user__username__icontains=search_query) |
-            Q(user__email__icontains=search_query) |
-            Q(user__first_name__icontains=search_query) |
-            Q(user__last_name__icontains=search_query)
-        )
-    if institution_filter:
-        users_list = users_list.filter(institution__id=institution_filter)
-    if role_filter:
-        users_list = users_list.filter(role=role_filter)
+        combined_users = [u for u in combined_users if search_query.lower() in u['user'].username.lower() or search_query.lower() in u['user'].email.lower()]
+    if institution_filter: # This filter now acts as an "organization" filter
+        combined_users = [u for u in combined_users if str(u['organization_id']) == institution_filter]
+    if role_filter: # Note: Role names might differ (e.g., 'admin' vs 'Institution Admin')
+        combined_users = [u for u in combined_users if role_filter.lower() in u['role'].lower()]
+    if type_filter:
+        combined_users = [u for u in combined_users if u['type'] == type_filter]
 
-    paginator = Paginator(users_list, 15)  # Show 15 users per page
+    # Sort the combined list
+    combined_users.sort(key=lambda x: x['organization_name'])
+
+    # --- Pagination ---
+    paginator = Paginator(combined_users, 15)  # Show 15 users per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'institution_users': page_obj,
+        'all_users': page_obj,
         'all_institutions': Institution.objects.filter(is_approved=True).order_by('institution_name'),
-        'role_choices': InstitutionUser.ROLE_CHOICES,
+        # We can't use a single role_choices anymore, so we'll filter by text input or predefined list
+        'role_choices': [('admin', 'Admin'), ('creator', 'Creator'), ('reviewer', 'Reviewer'), ('viewer', 'Viewer'), ('bid_submitter', 'Bid Submitter')],
         'page_title': 'User Management',
-        'page_description': 'A list of all administrative, creator, and reviewer users across all institutions.',
+        'page_description': 'A list of all users from both institutions and companies.',
         'search_query': search_query,
         'institution_filter': institution_filter,
         'role_filter': role_filter,
+        'type_filter': type_filter,
     }
+    # Assuming the template is named 'user_list.html' based on the original view
     return render(request, 'system_admin/user_list.html', context)
 
 @user_passes_test(is_superuser, login_url='/login/')
