@@ -234,17 +234,24 @@
         </aside>
 
         <!-- Main Page Content -->
-        <main class="flex-1 bg-slate-50 overflow-y-auto py-8 sm:py-10">
-            <!-- Mobile Header Bar Toggle -->
-            <div class="md:hidden px-4 mb-4 flex items-center justify-between">
-                <button @click="sidebarOpen = true" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-xs">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">System Portal</span>
-            </div>
-
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
+            <header class="h-16 bg-white/80 backdrop-blur-md border-b border-blue-100/70 px-4 sm:px-6 flex items-center justify-between shrink-0 z-10">
+                <div class="flex items-center gap-3">
+                    <button @click="sidebarOpen = !sidebarOpen" type="button" class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-base font-extrabold text-slate-800 tracking-tight hidden sm:block">{{ page_title }}</h2>
+                </div>
+                <div>
+                    <a href="{% url 'system_admin:dashboard' %}" class="px-3.5 py-2 text-xs font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-sm transition-all flex items-center gap-1.5 w-fit">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
+                        <span>Back to Dashboard</span>
+                    </a>
+                </div>
+            </header>
+            <main class="flex-1 bg-slate-50 overflow-y-auto py-8 sm:py-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <!-- Page Header -->
@@ -257,12 +264,6 @@
                             {{ page_description }}
                         </p>
                     </div>
-                    <a href="{% url 'system_admin:dashboard' %}" class="px-3.5 py-2 text-xs font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-sm transition-all flex items-center gap-1.5 w-fit">
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                        </svg>
-                        <span>Back to Dashboard</span>
-                    </a>
                 </div>
 
                 <!-- Company Table -->
@@ -353,6 +354,7 @@
                 {% endif %}
 
             </div>
+            </main>
         </main>
     </div>
 </div>

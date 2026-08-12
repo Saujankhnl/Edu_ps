@@ -39,6 +39,11 @@ def home(request): # Renamed from homepage
     return render(request, 'accounts/home.html', context)
 
 def login_page(request):
+    # Clear any existing messages from previous pages to ensure a clean login screen.
+    # This prevents messages from other parts of the site (e.g., "Remarks are required...") from appearing here.
+    storage = messages.get_messages(request)
+    storage.used = True
+
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -58,13 +63,13 @@ def login_page(request):
                 else:
                     messages.error(request, "This account is not active. It may be pending administrator approval.")
             else:
-                messages.error(request, "Please enter a correct username and password. Note that both fields may be case-sensitive.")
+                # This branch is technically unreachable because AuthenticationForm's is_valid()
+                # fails if authenticate() returns None. The error is handled in the `else` block below.
+                messages.error(request, "Incorrect username or password.")
         else:
-            # If the form is invalid, its errors will be displayed automatically.
-            # We can add a generic message if we want, but it's often redundant.
-            messages.error(request, "There was an issue with your submission. Please check the fields and try again.")
-    form = AuthenticationForm()
-    return render(request=request, template_name="accounts/login_page.html", context={"login_form":form})
+            # This block now handles both empty fields and incorrect credentials.
+            messages.error(request, "Incorrect username or password.")
+    return render(request=request, template_name="accounts/login_page.html", context={"login_form":AuthenticationForm()})
 
 def register_page(request): # Renamed from register
     """Handles the registration for both institutions and companies."""

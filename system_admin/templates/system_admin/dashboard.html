@@ -53,8 +53,8 @@
                     </svg>
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-600 block">Administration</span>
-                    <h1 class="text-sm font-extrabold text-slate-900 tracking-tight">System Portal</h1>
+                    <div class="text-[10px] font-extrabold uppercase tracking-widest text-blue-600 block">Edups</div>
+                    <h1 class="text-sm font-extrabold text-slate-900 tracking-tight">System Admin</h1>
                 </div>
             </div>
 
@@ -265,15 +265,8 @@
                 <a href="{% url 'accounts:home' %}" class="px-3.5 py-2 text-xs font-semibold rounded-xl text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-sm transition-all flex items-center gap-1.5 w-fit" title="Back to Home Page">
                     <span>Home Page</span>
                 </a>
-                <span class="text-xs font-bold text-slate-700 hidden sm:inline-block">{{ request.user.username }}</span>
-                <form method="post" action="{% url 'accounts:logout' %}" class="inline">
-                    {% csrf_token %}
-                    <button type="submit" class="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Logout">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                    </button>
-                </form>
+                
+                
             </div>
         </header>
 

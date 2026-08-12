@@ -33,12 +33,16 @@ def dashboard(request):
         'total_companies': Company.objects.filter(is_approved=True).count(),
         'total_tenders': Tender.objects.count(),
         'total_users': User.objects.count(),
+        'pending_institutions': Institution.objects.filter(is_approved=False, verification_status='pending').count(),
+        'pending_companies': Company.objects.filter(is_approved=False, verification_status='pending').count(),
     }
 
     context = {
         'stats': stats,
         'recent_users': User.objects.order_by('-date_joined')[:5],
         'recent_tenders': Tender.objects.order_by('-created_at')[:5],
+        'page_title': 'Dashboard',
+        'page_description': 'A high-level overview of the platform\'s key metrics and recent activities.'
     }
     return render(request, 'system_admin/dashboard.html', context)
 

@@ -28,6 +28,21 @@
             border-bottom: 1px solid #f0f0f0;
             padding-bottom: 0.1cm;
         }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+            vertical-align: middle;
+        }
+        th { 
+            background-color: #f2f2f2; 
+            font-weight: bold;
+        }
         .header-info {
             font-size: 9pt;
             color: #666;
@@ -77,9 +92,11 @@
     <div class="section">
         <table class="detail-grid">
             <tr><td class="label">Status:</td><td>{{ tender.get_status_display }}</td></tr>
-            <tr><td class="label">Category:</td><td>{{ tender.category }}</td></tr>
+            <tr><td class="label">Category:</td><td>{{ tender.get_category_display }}</td></tr>
+            <tr><td class="label">Budget:</td><td>{% if tender.budget %}Np {{ tender.budget|floatformat:2 }}{% else %}N/A{% endif %}</td></tr>
             <tr><td class="label">Published On:</td><td>{{ tender.created_at|date:"F j, Y" }}</td></tr>
-            <tr><td class="label">Bidding Deadline:</td><td>{{ tender.deadline|date:"F j, Y, P" }}</td></tr>
+            <tr><td class="label">Bidding Opening Date:</td><td>{{ tender.opening_date|date:"F j, Y, P"|default:"N/A" }}</td></tr>
+            <tr><td class="label">Bidding Deadline:</td><td>{{ tender.deadline|date:"F j, Y, P"|default:"N/A" }}</td></tr>
         </table>
     </div>
 
@@ -102,5 +119,41 @@
         <h2>Terms & Conditions</h2>
         <p>{{ tender.terms_and_conditions|default:"Not specified." }}</p>
     </div>
+
+    {% if bids %}
+    <div class="section">
+        <h2>Bid Submissions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40%;">Company Name</th>
+                    <th style="width: 25%;">Bid Amount</th>
+                    <th style="width: 25%;">Submitted On</th>
+                    <th style="width: 10%;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bid in bids %}
+                <tr>
+                    <td><strong>{{ bid.company.company_name }}</strong></td>
+                    <td>Np {{ bid.bid_amount|floatformat:2 }}</td>
+                    <td>{{ bid.submitted_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        {% if tender.status == 'completed' %}
+                            {% if bid.status == 'accepted' %}
+                                Accepted
+                            {% else %}
+                                Rejected
+                            {% endif %}
+                        {% else %}
+                            {{ bid.get_status_display }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </body>
 </html>

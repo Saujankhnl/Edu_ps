@@ -262,7 +262,13 @@
                             <td class="px-6 py-4">{{ tender.deadline|date:"d M Y, P" }}</td>
                             {% if reviewed_by_filter == 'me' %}
                             <td class="px-6 py-4">
-                                {{ tender.activities.first.performed_by.user.get_full_name|default:tender.activities.first.performed_by.user.username|default:"N/A" }}
+                                {% with first_activity=tender.activities.first %}
+                                    {% if first_activity.performed_by %}
+                                        {{ first_activity.performed_by.user.get_full_name|default:first_activity.performed_by.user.username }}
+                                    {% else %}
+                                        <span class="text-gray-400 italic">System Action</span>
+                                    {% endif %}
+                                {% endwith %}
                             </td>
                             {% endif %}
                             <td class="px-6 py-4 text-right">

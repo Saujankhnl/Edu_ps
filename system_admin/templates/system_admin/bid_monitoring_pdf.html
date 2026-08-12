@@ -76,7 +76,7 @@
                 <td>{{ bid.tender.title }}</td>
                 <td>{{ bid.tender.institution.institution_name }}</td>
                 <td>{{ bid.get_status_display }}</td>
-                <td>${{ bid.bid_amount|floatformat:2 }}</td>
+                <td>Np {{ bid.bid_amount|floatformat:2 }}</td>
                 <td>{{ bid.submitted_at|date:"d M Y" }}</td>
             </tr>
             {% endfor %}

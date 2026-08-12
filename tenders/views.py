@@ -64,12 +64,14 @@ def tender_detail(request, tender_id):
     is_reviewer = False
     is_admin = False
     is_company = False
+    institution_user = None
     company_verification_status = None
     
     # Check if the user is an institution user (and is authenticated)
     if request.user.is_authenticated and hasattr(request.user, 'institution_profile'):
         profile = request.user.institution_profile
         if profile.institution == tender.institution:
+            institution_user = profile
             user_role = profile.role
             is_creator = (user_role == 'creator' and tender.created_by == profile)
             is_reviewer = (user_role == 'reviewer')
@@ -100,6 +102,7 @@ def tender_detail(request, tender_id):
         'activities': activities,
         'bids': bids,
         'role': user_role, # Add role to the context
+        'institution_user': institution_user,
         'user_role': user_role,
         'is_creator': is_creator,
         'is_reviewer': is_reviewer,
@@ -287,7 +290,7 @@ def submit_bid(request, tender_id):
     company = get_object_or_404(Company, user=request.user)
 
     # Check if a draft bid already exists for this tender and company
-    existing_bid = Bid.objects.filter(tender=tender, company=company, status='pending_approval').first()
+    existing_bid = Bid.objects.filter(tender=tender, company=company, status__in=['draft', 'pending_approval']).first()
 
     # Ensure the company is verified before allowing them to bid.
     # The company dashboard already handles routing to the verification page if needed.
@@ -302,7 +305,7 @@ def submit_bid(request, tender_id):
         return redirect('tenders:tender_detail', tender_id=tender.id)
 
     # If a submitted bid exists (not a draft), prevent new submission
-    if Bid.objects.filter(tender=tender, company=company).exclude(status='pending_approval').exists():
+    if Bid.objects.filter(tender=tender, company=company).exclude(status__in=['draft', 'pending_approval']).exists():
         messages.warning(request, "You have already submitted a bid for this tender.")
         return redirect('tenders:tender_detail', tender_id=tender.id)
 
@@ -326,6 +329,8 @@ def submit_bid(request, tender_id):
         'form': form,
         'tender': tender,
         'existing_bid': existing_bid, # Pass existing bid to template for context
+        'company': company,
+        'role': company.role,
     }
     return render(request, 'tenders/submit_bid.html', context)
 
@@ -357,8 +362,12 @@ def review_and_submit_bid(request, bid_id):
             remarks = request.POST.get('remarks', '').strip()
             if not remarks:
                 messages.error(request, "Remarks are required to reject a bid.")
-                # Re-render the page with the error message if remarks are missing
-                return render(request, 'tenders/review_bid.html', {'bid': bid})
+                # Re-render the page with the error message and necessary context
+                return render(request, 'tenders/review_bid.html', {
+                    'bid': bid,
+                    'company': admin_company,
+                    'role': admin_company.role,
+                })
             else:
                 # Keep the status as 'pending_approval' so the submitter can edit it.
                 bid.remarks = f"Internally rejected by admin. Reason: {remarks}"
@@ -366,7 +375,11 @@ def review_and_submit_bid(request, bid_id):
                 messages.warning(request, f"The draft bid for '{bid.tender.title}' has been returned to the submitter with your remarks.")
                 return redirect('company:dashboard')
     
-    return render(request, 'tenders/review_bid.html', {'bid': bid})
+    return render(request, 'tenders/review_bid.html', {
+        'bid': bid,
+        'company': admin_company,
+        'role': admin_company.role,
+    })
 
 @login_required
 @company_login_required
@@ -378,6 +391,7 @@ def my_bids(request):
     context = {
         'bids': bids,
         'company': company, # Pass company for role checking in template
+        'role': company.role, # Pass role for sidebar
     }
     return render(request, 'tenders/my_bids.html', context)
 

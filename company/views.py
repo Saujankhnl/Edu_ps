@@ -54,8 +54,11 @@ def dashboard(request):
     # Recent activities (e.g., recent bids)
     recent_activities = my_bids.select_related('tender').order_by('-submitted_at')[:5]
 
-    # Bids pending company admin approval
-    pending_admin_approval_bids = Bid.objects.filter(company__company_name=company.company_name, status='pending_approval')
+    # Bids pending company admin approval.
+    # We filter for `remarks__isnull=True` because a bid with remarks has already been rejected by the admin.
+    pending_admin_approval_bids = Bid.objects.filter(
+        company__company_name=company.company_name, status='pending_approval', remarks__isnull=True
+    )
 
     context = {
         'company': company,

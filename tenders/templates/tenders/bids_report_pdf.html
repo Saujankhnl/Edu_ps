@@ -71,7 +71,17 @@
                 <td><strong>{{ bid.company.company_name }}</strong></td>
                 <td>Np {{ bid.bid_amount|floatformat:2 }}</td>
                 <td>{{ bid.submitted_at|date:"Y-m-d H:i" }}</td>
-                <td>{{ bid.get_status_display }}</td>
+                <td>
+                    {% if tender.status == 'completed' %}
+                        {% if bid.status == 'accepted' %}
+                            Accepted
+                        {% else %}
+                            Rejected
+                        {% endif %}
+                    {% else %}
+                        {{ bid.get_status_display }}
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}
             <tr><td colspan="4" style="text-align: center; padding: 20px;">No bids have been submitted for this tender.</td></tr>

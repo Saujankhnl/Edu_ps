@@ -23,6 +23,19 @@ Login
             </p>
         </div>
 
+        <!-- Messages & Alerts -->
+        {% if messages %}
+            <div id="messages-container" class="mb-6 space-y-2">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="p-4 text-sm rounded-lg bg-red-100 text-red-700" role="alert">
+                            <span class="font-medium">{{ message|capfirst }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <!-- Login Form -->
         <form id="loginForm" method="POST" class="space-y-5">
             {% csrf_token %}
@@ -147,5 +160,21 @@ Login
         btnText.textContent = "Signing In...";
         spinner.classList.remove('hidden');
     });
+
+    // JS Feature 3: Auto-hide messages after a delay
+    const messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+        // Set a timeout to start the fade-out process
+        setTimeout(() => {
+            messagesContainer.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            messagesContainer.style.opacity = '0';
+            messagesContainer.style.transform = 'translateY(-10px)';
+            
+            // After the transition, remove the element from the DOM
+            setTimeout(() => {
+                messagesContainer.remove();
+            }, 500); // This duration should match the CSS transition time
+        }, 5000); // 5000ms = 5 seconds
+    }
 </script>
 {% endblock %}

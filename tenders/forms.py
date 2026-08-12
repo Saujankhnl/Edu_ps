@@ -15,7 +15,7 @@ class TenderForm(forms.ModelForm):
             'eligibility_criteria': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'technical_requirements': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
-            'tender_document': forms.FileInput(attrs={'class': 'form-input'}),
+            'tender_document': forms.FileInput(attrs={'class': 'form-input', 'accept': 'application/pdf'}),
             'budget': forms.NumberInput(attrs={
                 'class': 'form-input w-full text-sm rounded-xl pl-8 pr-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all bg-gray-50/50 focus:bg-white',
                 'placeholder': 'e.g., 50000.00',
