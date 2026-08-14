@@ -1,40 +1,123 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<!-- Tailwind CSS via CDN -->
+
+
+<style>
+    /* Pulse ring animation around the status icon */
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 12px rgba(59, 130, 246, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
+    }
+
+    .status-pulse {
+        animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+</style>
+{% endblock %}
+
 {% block title %}Verification Pending - EduPs{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-lg w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl text-center border border-slate-200/80">
+<div class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 antialiased">
+    <div class="max-w-lg w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl shadow-xl shadow-slate-200/60 text-center border border-slate-200/80 transition-all">
         
+        <!-- Header & Icon -->
         <div>
-            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 border-4 border-blue-100">
-                <svg class="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <div class="status-pulse mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-blue-50 border-4 border-blue-100 text-blue-600 mb-6">
+                <svg class="h-10 w-10 animate-spin-slow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
+            
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 mb-3">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                Under Review
+            </span>
+
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">
                 Verification Pending
             </h2>
-            <p class="mt-2 text-center text-sm text-slate-600">
-                Your company profile, <strong class="font-semibold text-slate-800">{{ company.company_name }}</strong>, has been submitted for verification.
+            <p class="mt-3 text-sm text-slate-600 leading-relaxed">
+                Your company profile, <strong class="font-semibold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60">{{ company.company_name }}</strong>, has been successfully submitted for verification.
             </p>
         </div>
 
-        <div class="mt-5 prose prose-sm text-slate-500 max-w-none">
-            <p>
-                Our administrative team is currently reviewing your documents. You will be notified once the process is complete. 
-                Until your account is approved, you will not be able to place bids on tenders.
-            </p>
-            <p>
-                Thank you for your patience.
-            </p>
+        <!-- Details Info Box -->
+        <div class="bg-slate-50/80 p-5 rounded-2xl border border-slate-100 text-slate-600 text-xs sm:text-sm space-y-3 text-left">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="leading-relaxed">
+                    Our administrative team is currently reviewing your uploaded credentials. You will receive an update once the process is complete.
+                </p>
+            </div>
+            <div class="flex items-start gap-3 pt-2 border-t border-slate-200/60 text-slate-500">
+                <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="leading-relaxed">
+                    Until your account is verified, bidding privileges on active tenders remain restricted.
+                </p>
+            </div>
         </div>
 
-        <div class="mt-8">
-            <a href="{% url 'accounts:home' %}" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+        <!-- Action Buttons -->
+        <div class="space-y-3 pt-2">
+            <a href="{% url 'accounts:home' %}" class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md shadow-blue-500/10 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Back to Home
             </a>
+
+            <button id="check-status-btn" class="w-full flex justify-center items-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200/70 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <svg id="refresh-icon" class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span id="refresh-text">Check Verification Status</span>
+            </button>
         </div>
+
+        <!-- Logout Link -->
+        <div class="pt-4 border-t border-slate-100">
+            <a href="{% url 'accounts:logout' %}" class="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors">
+                Sign out of account
+            </a>
+        </div>
+
     </div>
 </div>
+
+<!-- Embedded JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkBtn = document.getElementById('check-status-btn');
+        const refreshIcon = document.getElementById('refresh-icon');
+        const refreshText = document.getElementById('refresh-text');
+
+        if (checkBtn) {
+            checkBtn.addEventListener('click', () => {
+                // Animate refresh icon on click
+                refreshIcon.classList.add('animate-spin');
+                refreshText.textContent = 'Checking status...';
+                checkBtn.disabled = true;
+
+                // Reload the page after a short feedback delay to check if status updated
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            });
+        }
+    });
+</script>
 {% endblock %}

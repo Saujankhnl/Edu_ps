@@ -36,3 +36,7 @@ class Company(models.Model):
 
     def __str__(self):
         return self.company_name
+
+    class Meta:
+        verbose_name = 'Company User'
+        verbose_name_plural = 'Company Users'

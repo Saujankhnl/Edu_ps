@@ -134,6 +134,50 @@ class InstitutionVerificationForm(forms.ModelForm):
         for field_name in required_fields:
             self.fields[field_name].required = True
 
+    def clean_registration_certificate(self):
+        file = self.cleaned_data.get('registration_certificate', False)
+        if file:
+            if hasattr(file, 'content_type'): # Check if it's a new upload
+                file_type = file.content_type.split('/')[0]
+                if file_type != 'image':
+                    raise forms.ValidationError("Invalid file type. Only images are allowed.")
+                if file.size > 2 * 1024 * 1024:  # 2MB limit
+                    raise forms.ValidationError("Image file size cannot exceed 2MB.")
+        return file
+
+    def clean_pan_certificate(self):
+        file = self.cleaned_data.get('pan_certificate', False)
+        if file:
+            if hasattr(file, 'content_type'): # Check if it's a new upload
+                file_type = file.content_type.split('/')[0]
+                if file_type != 'image':
+                    raise forms.ValidationError("Invalid file type. Only images are allowed.")
+                if file.size > 2 * 1024 * 1024:  # 2MB limit
+                    raise forms.ValidationError("Image file size cannot exceed 2MB.")
+        return file
+
+    def clean_authorization_letter(self):
+        file = self.cleaned_data.get('authorization_letter', False)
+        if file:
+            if hasattr(file, 'content_type'): # Check if it's a new upload
+                file_type = file.content_type.split('/')[0]
+                if file_type != 'image':
+                    raise forms.ValidationError("Invalid file type. Only images are allowed.")
+                if file.size > 2 * 1024 * 1024:  # 2MB limit
+                    raise forms.ValidationError("Image file size cannot exceed 2MB.")
+        return file
+
+    def clean_profile_picture(self):
+        image = self.cleaned_data.get('profile_picture', False)
+        if image:
+            if hasattr(image, 'content_type'): # Check if it's a new upload
+                if image.size > 2 * 1024 * 1024:  # 2MB limit
+                    raise forms.ValidationError("Image file size cannot exceed 2MB.")
+                file_type = image.content_type.split('/')[1].lower()
+                if file_type not in ['jpeg', 'jpg', 'png', 'webp']:
+                    raise forms.ValidationError("Invalid file type. Only JPG, JPEG, PNG, and WEBP are allowed.")
+        return image
+
     def clean_pan_number(self):
         pan_number = self.cleaned_data.get('pan_number')
         if pan_number and (not pan_number.isdigit() or len(pan_number) != 9):

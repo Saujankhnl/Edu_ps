@@ -5,8 +5,8 @@
 {% block content %}
 {% with url_name=request.resolver_match.url_name namespace=request.resolver_match.namespace %}
 <div x-data="{ 
-    sidebarOpen: false, 
-    openMenu: '{% if url_name == "pending_institutions" or url_name == "all_institutions" %}inst{% elif url_name == "pending_companies" or url_name == "all_companies" %}comp{% else %}null{% endif %}' 
+    sidebarOpen: false,
+    openMenu: '{{ request.resolver_match.url_name }}'.includes('institution') ? 'inst' : ('{{ request.resolver_match.url_name }}'.includes('compan') ? 'comp' : null)
 }" class="h-screen w-full flex overflow-hidden bg-gray-50">
 
     <!-- Mobile Sidebar Backdrop -->

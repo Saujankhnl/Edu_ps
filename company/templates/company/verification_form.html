@@ -1,81 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Company Verification{% endblock %}
+{% block extra_head %}
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-{% block content %}
-<div class="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6">
-    <div class="max-w-xl w-full">
-
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">Company Verification</h1>
-            <p class="text-xs text-slate-500 mt-1.5">Enter your details below to request account verification.</p>
-        </div>
-
-        <!-- Status Alerts -->
-        {% if company.verification_status == 'rejected' %}
-            <div class="bg-rose-50/60 border border-rose-200/80 text-rose-700 px-4 py-3 rounded-lg text-xs mb-6 flex items-start gap-2.5">
-                <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <div>
-                    <span class="font-semibold">Verification Rejected:</span> {{ company.verification_remarks|default:"Please review your submission and try again." }}
-                </div>
-            </div>
-        {% elif company.verification_status == 'pending' %}
-            <div class="bg-amber-50/60 border border-amber-200/80 text-amber-800 px-4 py-3 rounded-lg text-xs mb-6 flex items-start gap-2.5">
-                <svg class="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <div>
-                    <span class="font-semibold">Status Pending:</span> Your application is currently under review.
-                </div>
-            </div>
-        {% endif %}
-
-        <!-- Minimalist Form Card -->
-        <form id="verification-form" method="post" enctype="multipart/form-data" class="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-2xl shadow-sm space-y-5">
-            {% csrf_token %}
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {% for field in form %}
-                    <div class="{% if field.name in 'address description' %}sm:col-span-2{% endif %}">
-                        <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-slate-700 mb-1.5">
-                            {{ field.label }}
-                            {% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}
-                        </label>
-
-                        <div class="minimal-input-wrapper">
-                            {{ field }}
-                        </div>
-
-                        {% if field.help_text %}
-                            <p class="text-[11px] text-slate-400 mt-1.5 leading-normal">{{ field.help_text|safe }}</p>
-                        {% endif %}
-
-                        {% for error in field.errors %}
-                            <p class="text-[11px] font-medium text-rose-600 mt-1">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
-
-            <!-- Form Actions -->
-            <div class="pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
-                <a href="{% url 'accounts:logout' %}" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                    Logout
-                </a>
-                <button type="submit" id="submit-btn" class="px-5 py-2.5 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span class="btn-text">Submit Verification</span>
-                    <svg class="btn-spinner hidden animate-spin ml-2 h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </button>
-            </div>
-        </form>
-
-    </div>
-</div>
-
-<!-- Minimalist Form Styles -->
+<!-- Custom Minimalist Styles -->
 <style>
+    /* Styling for rendered Django form fields */
     .minimal-input-wrapper input[type="text"],
     .minimal-input-wrapper input[type="email"],
     .minimal-input-wrapper input[type="url"],
@@ -101,6 +32,7 @@
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 0.5rem;
+        cursor: pointer;
     }
 
     .minimal-input-wrapper input:focus,
@@ -114,14 +46,127 @@
     .minimal-input-wrapper textarea {
         min-height: 80px;
     }
-</style>
 
-<!-- Embedded JS -->
+    /* Interactive Dropzone Dragging State */
+    .file-dropzone.dragover {
+        border-color: #0f172a !important;
+        background-color: #f1f5f9 !important;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Company Verification{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50/50 flex items-center justify-center py-12 px-4 sm:px-6 antialiased">
+    <div class="max-w-xl w-full">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-100 text-slate-800 rounded-xl mb-3 border border-slate-200/60 shadow-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">Company Verification</h1>
+            <p class="text-xs text-slate-500 mt-1.5">Enter your details below to request account verification.</p>
+        </div>
+
+        <!-- Status Alerts -->
+        {% if company.verification_status == 'rejected' %}
+            <div class="bg-rose-50/80 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-xs mb-6 flex items-start gap-2.5 shadow-sm">
+                <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <span class="font-semibold">Verification Rejected:</span> {{ company.verification_remarks|default:"Please review your submission and try again." }}
+                </div>
+            </div>
+        {% elif company.verification_status == 'pending' %}
+            <div class="bg-amber-50/80 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-xs mb-6 flex items-start gap-2.5 shadow-sm">
+                <svg class="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <span class="font-semibold">Status Pending:</span> Your application is currently under review by our administrators.
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Minimalist Form Card -->
+        <form id="verification-form" method="post" enctype="multipart/form-data" class="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-2xl shadow-sm space-y-5">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {% for field in form %}
+                    <div class="{% if field.name in 'address description' %}sm:col-span-2{% endif %}">
+                        <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-slate-700 mb-1.5">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}
+                        </label>
+
+                        <!-- Custom Dropzone UI for File Inputs vs Standard Inputs -->
+                        {% if field.field.widget.input_type == 'file' %}
+                            <div class="file-dropzone border-2 border-dashed border-slate-200 hover:border-slate-400 bg-slate-50/60 rounded-xl p-4 text-center cursor-pointer relative transition-all group">
+                                <div class="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10">
+                                    {{ field }}
+                                </div>
+                                <div class="flex flex-col items-center justify-center">
+                                    <svg class="w-6 h-6 text-slate-400 group-hover:text-slate-600 mb-1 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                    </svg>
+                                    <p class="text-xs font-medium text-slate-600 file-label-text">
+                                        <span class="text-slate-900 underline">Upload a file</span> or drag and drop
+                                    </p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="minimal-input-wrapper">
+                                {{ field }}
+                            </div>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                            <p class="text-[11px] text-slate-400 mt-1.5 leading-normal">{{ field.help_text|safe }}</p>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="text-[11px] font-medium text-rose-600 mt-1 flex items-center gap-1">
+                                <svg class="w-3 h-3 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ error }}</span>
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
+                <a href="{% url 'accounts:logout' %}" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                    Logout
+                </a>
+                <button type="submit" id="submit-btn" class="px-5 py-2.5 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 active:scale-95 rounded-lg transition-all inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="btn-text">Submit Verification</span>
+                    <svg class="btn-spinner hidden animate-spin ml-2 h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- Embedded JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('verification-form');
         const submitBtn = document.getElementById('submit-btn');
 
+        // Form Submission Loading State
         if (form && submitBtn) {
             form.addEventListener('submit', () => {
                 const btnText = submitBtn.querySelector('.btn-text');
@@ -132,6 +177,40 @@
                 if (btnSpinner) btnSpinner.classList.remove('hidden');
             });
         }
+
+        // Dynamic Drag & Drop File Upload Interactions
+        const dropzones = document.querySelectorAll('.file-dropzone');
+
+        dropzones.forEach(zone => {
+            const input = zone.querySelector('input[type="file"]');
+            const labelText = zone.querySelector('.file-label-text');
+
+            if (!input) return;
+
+            // Live preview filename when file selected
+            input.addEventListener('change', () => {
+                if (input.files && input.files.length > 0) {
+                    const fileName = input.files[0].name;
+                    labelText.innerHTML = `<span class="text-slate-900 font-semibold">Selected:</span> ${fileName}`;
+                    zone.classList.add('border-slate-800', 'bg-slate-100/60');
+                }
+            });
+
+            // Drag and drop visual cues
+            ['dragenter', 'dragover'].forEach(eventName => {
+                zone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    zone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                zone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                }, false);
+            });
+        });
     });
 </script>
 {% endblock %}

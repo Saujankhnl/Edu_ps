@@ -541,7 +541,7 @@ def verification_submission(request):
                 instance.verification_remarks = "" # Clear old remarks on resubmission
             instance.save()
             messages.success(request, "Your verification documents have been submitted successfully and are pending review.")
-            return redirect('institution:verification')
+            return redirect('accounts:home')
         else:
             messages.error(request, "Please correct the errors below and resubmit.")
     else:

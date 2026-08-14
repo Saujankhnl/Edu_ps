@@ -258,7 +258,7 @@ def verification_submission(request):
                 instance.verification_remarks = "" # Clear old remarks
             instance.save()
             messages.success(request, "Your verification documents have been submitted and are pending review.")
-            return redirect('company:verification')
+            return redirect('accounts:home')
     else:
         form = CompanyVerificationForm(instance=company)
 

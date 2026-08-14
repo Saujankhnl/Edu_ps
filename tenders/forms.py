@@ -31,6 +31,12 @@ class TenderForm(forms.ModelForm):
         now_str = timezone.now().strftime('%Y-%m-%dT%H:%M')
         self.fields['opening_date'].widget.attrs['min'] = now_str
         self.fields['deadline'].widget.attrs['min'] = now_str
+        
+        # Set required fields
+        required_fields = ['title', 'category', 'description', 'deadline', 'opening_date', 'budget', 'tender_document', 'terms_and_conditions', 'eligibility_criteria', 'technical_requirements']
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].required = True
 
     def clean_budget(self):
         """

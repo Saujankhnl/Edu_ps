@@ -71,6 +71,19 @@ class CompanyVerificationForm(forms.ModelForm):
             raise forms.ValidationError("PAN number must be exactly 9 digits and contain only numbers.")
         return pan_number
 
+    def clean_registration_certificate(self):
+        file = self.cleaned_data.get('registration_certificate', False)
+        if file:
+            if file.size > 10 * 1024 * 1024:  # 10MB limit
+                raise forms.ValidationError("File size cannot exceed 10MB.")
+        return file
+
+    def clean_pan_number(self):
+        pan_number = self.cleaned_data.get('pan_number')
+        if pan_number and (not pan_number.isdigit() or len(pan_number) != 9):
+            raise forms.ValidationError("PAN number must be exactly 9 digits and contain only numbers.")
+        return pan_number
+
     def clean_registration_number(self):
         reg_number = self.cleaned_data.get('registration_number')
         if reg_number:

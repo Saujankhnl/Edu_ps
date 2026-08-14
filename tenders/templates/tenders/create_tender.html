@@ -209,59 +209,59 @@
 
                         <div class="space-y-6">
                             <div>
-                                <label for="{{ form.title.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Tender Title</label>
+                                <label for="{{ form.title.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Tender Title <span class="text-red-500">*</span></label>
                                 {{ form.title }}
                             </div>
 
                             <div>
-                                <label for="{{ form.category.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Category</label>
+                                <label for="{{ form.category.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Category <span class="text-red-500">*</span></label>
                                 {{ form.category }}
                                 {% if form.category.errors %}<p class="text-xs text-red-500 mt-1">{{ form.category.errors|first }}</p>{% endif %}
                             </div>
 
                             <div>
-                                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Description</label>
+                                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Description <span class="text-red-500">*</span></label>
                                 {{ form.description }}
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="{{ form.budget.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Budget (NP) </label>
+                                    <label for="{{ form.budget.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Budget (NP) <span class="text-red-500">*</span></label>
                                     <div class="relative">
                                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-500"></span>
                                         {{ form.budget }}
                                     </div>
                                 </div>
                                 <div>
-                                    <label for="{{ form.tender_document.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Tender Document (PDF)</label>
+                                    <label for="{{ form.tender_document.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Tender Document (PDF) <span class="text-red-500">*</span></label>
                                     {{ form.tender_document }}
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="{{ form.opening_date.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Bidding Opening Date </label>
+                                    <label for="{{ form.opening_date.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Bidding Opening Date <span class="text-red-500">*</span></label>
                                     {{ form.opening_date }}
                                 </div>
                                 <div>
-                                    <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Submission Deadline</label>
+                                    <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Submission Deadline <span class="text-red-500">*</span></label>
                                     {{ form.deadline }}
                                 </div>
                                 
                             </div>
 
                             <div>
-                                <label for="{{ form.terms_and_conditions.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Terms & Conditions</label>
+                                <label for="{{ form.terms_and_conditions.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Terms & Conditions <span class="text-red-500">*</span></label>
                                 {{ form.terms_and_conditions }}
                             </div>
 
                             <div>
-                                <label for="{{ form.eligibility_criteria.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Eligibility Criteria</label>
+                                <label for="{{ form.eligibility_criteria.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Eligibility Criteria <span class="text-red-500">*</span></label>
                                 {{ form.eligibility_criteria }}
                             </div>
 
                             <div>
-                                <label for="{{ form.technical_requirements.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Technical Requirements</label>
+                                <label for="{{ form.technical_requirements.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-1.5">Technical Requirements <span class="text-red-500">*</span></label>
                                 {{ form.technical_requirements }}
                             </div>
                         </div>

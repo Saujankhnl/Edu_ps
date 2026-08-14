@@ -19,7 +19,7 @@ class InstitutionRegistrationForm(forms.ModelForm):
         widgets = {
             'institution_name': forms.TextInput(attrs={'placeholder': 'e.g., EduPs Academy', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}),
             'email': forms.EmailInput(attrs={'placeholder': 'admin@institution.com', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'}),
-            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter 10-digit phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition', 'pattern': r'\d{10}', 'title': 'Phone number must be 10 digits.'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter 10-digit phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition', 'pattern': r'\d{10}', 'title': 'Phone number must be 10 digits.', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}),
             'address': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Full legal location address', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none'}),
         }
 
@@ -57,7 +57,7 @@ class CompanyRegistrationForm(forms.ModelForm):
         widgets = {
             'company_name': forms.TextInput(attrs={'placeholder': 'e.g., EduPs Logistics Ltd', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition'}),
             'email': forms.EmailInput(attrs={'placeholder': 'contact@company.com', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition'}),
-            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter 10-digit phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition', 'pattern': r'\d{10}', 'title': 'Phone number must be 10 digits.'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Enter 10-digit phone number', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition', 'pattern': r'\d{10}', 'title': 'Phone number must be 10 digits.', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}),
             'address': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Corporate office address', 'class': 'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition resize-none'}),
         }
 
