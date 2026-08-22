@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.db import transaction
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -10,7 +10,6 @@ from institution.decorators import role_required
 from .models import Tender, Bid, TenderActivity
 from .forms import TenderForm, BidSubmissionForm
 from company.decorators import company_role_required
-from .forms import BidSubmissionForm
 from institution.models import InstitutionUser
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -114,45 +113,111 @@ def tender_detail(request, tender_id):
     }
     return render(request, 'tenders/tender_detail.html', context)
 
-@login_required
-@role_required(allowed_roles=['creator', 'admin'])
-def edit_tender(request, tender_id):
-    institution_user = get_object_or_404(InstitutionUser, user=request.user)
-    tender = get_object_or_404(Tender, pk=tender_id, institution=institution_user.institution)
 
-    # Permission check: Only creator or admin can edit.
-    # Creator can only edit if it's a draft or was rejected.
+@login_required
+@role_required(allowed_roles=['creator', 'admin', 'reviewer'])
+def edit_tender(request, tender_id):
+
+    institution_user = get_object_or_404(
+        InstitutionUser,
+        user=request.user
+    )
+
+    tender = get_object_or_404(
+        Tender,
+        pk=tender_id,
+        institution=institution_user.institution
+    )
+
     is_admin = institution_user.role == 'admin'
     is_creator = tender.created_by == institution_user
 
-    if not (is_admin or (is_creator and tender.status in ['draft', 'rejected'])):
-        messages.error(request, "You do not have permission to edit this tender in its current state.")
-        return redirect('tenders:tender_detail', tender_id=tender.id)
+    if not (
+        is_admin
+        or (
+            is_creator
+            and tender.status in ['draft', 'rejected']
+        )
+    ):
+        messages.error(
+            request,
+            "You do not have permission to edit this tender."
+        )
+
+        return redirect(
+            'tenders:tender_detail',
+            tender_id=tender.id
+        )
 
     if request.method == 'POST':
-        form = TenderForm(request.POST, request.FILES, instance=tender)
+
+        print("========== EDIT TENDER ==========")
+        print("POST RECEIVED")
+        print(request.POST)
+
+        form = TenderForm(
+            request.POST,
+            request.FILES,
+            instance=tender
+        )
+
+        print("FORM VALID:", form.is_valid())
+        print("FORM ERRORS:", form.errors)
+
         if form.is_valid():
+
             updated_tender = form.save(commit=False)
-            
-            if request.POST.get('action') == 'send_for_review':
+
+            action = request.POST.get('action')
+
+            if action == 'send_for_review':
+
                 updated_tender.status = 'pending_review'
-                updated_tender.remarks = "" # Clear previous rejection remarks
-                updated_tender.log_activity(institution_user, "Resubmitted for Review")
-                messages.success(request, "Tender has been updated and resubmitted for review.")
+                updated_tender.remarks = ""
+
+                updated_tender.save()
+
+                updated_tender.log_activity(
+                    institution_user,
+                    "Resubmitted for Review"
+                )
+
+                messages.success(
+                    request,
+                    "Tender has been resubmitted for review."
+                )
+
             else:
-                updated_tender.log_activity(institution_user, "Tender Details Edited")
-                messages.success(request, "Tender draft has been updated.")
-            
-            updated_tender.save()
-            return redirect('tenders:tender_detail', tender_id=tender.id)
+
+                updated_tender.save()
+
+                updated_tender.log_activity(
+                    institution_user,
+                    "Tender Details Edited"
+                )
+
+                messages.success(
+                    request,
+                    "Tender has been updated."
+                )
+
+            return redirect(
+                'tenders:tender_detail',
+                tender_id=tender.id
+            )
+
     else:
+
         form = TenderForm(instance=tender)
 
-    context = {
-        'form': form,
-        'tender': tender,
-    }
-    return render(request, 'tenders/edit_tender.html', context)
+    return render(
+        request,
+        'tenders/edit_tender.html',
+        {
+            'form': form,
+            'tender': tender,
+        }
+    )
 
 @login_required
 @role_required(allowed_roles=['creator', 'admin'])
@@ -220,68 +285,154 @@ def list_tenders(request):
     }
     return render(request, 'tenders/list_tenders.html', context)
 
-
-
 @login_required
-@role_required(allowed_roles=['reviewer', 'admin'])
+@role_required(allowed_roles=['creator', 'admin', 'reviewer'])
 def update_tender_status(request, tender_id):
-    if request.method != 'POST':
-        return redirect('institution:dashboard')
 
-    institution_user = get_object_or_404(InstitutionUser, user=request.user)
-    tender = get_object_or_404(Tender, pk=tender_id, institution=institution_user.institution)
-    
+    institution_user = get_object_or_404(
+        InstitutionUser,
+        user=request.user
+    )
+
+    tender = get_object_or_404(
+        Tender,
+        id=tender_id,
+        institution=institution_user.institution
+    )
+
+    if request.method != 'POST':
+        return redirect(
+            'tenders:tender_detail',
+            tender_id=tender.id
+        )
+
     action = request.POST.get('action')
     remarks = request.POST.get('remarks', '').strip()
-    current_status = tender.status
-    action_performed = False
 
-    # --- Creator Actions ---
-    if institution_user.role == 'creator' and tender.created_by == institution_user:
-        if action == 'submit_for_review' and current_status in ['draft', 'rejected']:
-            tender.status = 'pending_review'
-            tender.remarks = "" # Clear previous rejection remarks
-            tender.log_activity(institution_user, "Resubmitted for Review")
-            messages.success(request, "Tender has been resubmitted for review.")
-            action_performed = True
+    print("========== UPDATE TENDER STATUS ==========")
+    print("USER:", request.user)
+    print("ROLE:", institution_user.role)
+    print("TENDER:", tender.title)
+    print("STATUS:", tender.status)
+    print("ACTION:", action)
+    print("REMARKS:", remarks)
 
-    # --- Reviewer Actions ---
-    if institution_user.role == 'reviewer':
-        if action == 'send_to_admin' and current_status == 'pending_review':
-            tender.status = 'pending_approval'
-            tender.log_activity(institution_user, "Forwarded for Approval")
-            messages.success(request, "Tender forwarded for final approval.")
-            action_performed = True
-        elif action == 'return_to_creator' and current_status == 'pending_review':
-            if not remarks:
-                messages.error(request, "Remarks are mandatory when returning a tender.")
-                return redirect('tenders:tender_detail', tender_id=tender.id)
-            tender.return_to_creator(institution_user, remarks)
-            messages.warning(request, "Tender returned to creator with remarks.")
-            action_performed = True
+    # ==========================================
+    # ADMIN PUBLISH
+    # ==========================================
 
-    # --- Admin Actions ---
-    if institution_user.role == 'admin':
-        if action == 'publish' and current_status == 'pending_approval':
-            tender.status = 'published'
-            tender.log_activity(institution_user, "Approved and Published")
-            messages.success(request, "Tender has been approved and published.")
-            action_performed = True
-        elif action == 'reject_by_admin' and current_status == 'pending_approval':
-            if not remarks:
-                messages.error(request, "Remarks are mandatory when rejecting a tender.")
-                return redirect('tenders:tender_detail', tender_id=tender.id)
-            tender.reject_by_admin(institution_user, remarks)
-            messages.warning(request, "Tender has been rejected and returned to the creator.")
-            action_performed = True
+    if action == 'publish':
 
-    if action_performed:
+        if institution_user.role != 'admin':
+            messages.error(
+                request,
+                "Only admin can publish a tender."
+            )
+            return redirect(
+                'tenders:tender_detail',
+                tender_id=tender.id
+            )
+
+        if tender.status != 'pending_approval':
+            messages.error(
+                request,
+                "Only tenders pending approval can be published."
+            )
+            return redirect(
+                'tenders:tender_detail',
+                tender_id=tender.id
+            )
+
+        tender.status = 'published'
+        tender.remarks = ''
+
+        tender.log_activity(
+            institution_user,
+            "Tender Published"
+        )
+
         tender.save()
+
+        messages.success(
+            request,
+            "Tender has been published successfully."
+        )
+
+        return redirect(
+            'tenders:tender_detail',
+            tender_id=tender.id
+        )
+
+    # ==========================================
+    # ADMIN REJECT
+    # ==========================================
+
+    elif action == 'reject':
+
+        if institution_user.role != 'admin':
+            messages.error(
+                request,
+                "Only admin can reject a tender."
+            )
+            return redirect(
+                'tenders:tender_detail',
+                tender_id=tender.id
+            )
+
+        if tender.status != 'pending_approval':
+            messages.error(
+                request,
+                "This tender cannot be rejected in its current status."
+            )
+            return redirect(
+                'tenders:tender_detail',
+                tender_id=tender.id
+            )
+
+        if not remarks:
+            messages.error(
+                request,
+                "Rejection remarks are required."
+            )
+            return redirect(
+                'tenders:tender_detail',
+                tender_id=tender.id
+            )
+
+        tender.reject_by_admin(
+            institution_user,
+            remarks
+        )
+
+        tender.save()
+
+        messages.success(
+            request,
+            "Tender has been rejected."
+        )
+
+        return redirect(
+            'tenders:tender_detail',
+            tender_id=tender.id
+        )
+
+    # ==========================================
+    # INVALID ACTION
+    # ==========================================
+
     else:
-        messages.error(request, "Invalid action or you do not have permission to perform this action.")
 
-    return redirect('tenders:tender_detail', tender_id=tender.id)
+        messages.error(
+            request,
+            "Invalid tender action."
+        )
 
+        return redirect(
+            'tenders:tender_detail',
+            tender_id=tender.id
+        )
+
+    
 @login_required
 @company_login_required
 @company_role_required(allowed_roles=['bid_submitter'])

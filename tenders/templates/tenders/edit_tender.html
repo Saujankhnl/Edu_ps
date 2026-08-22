@@ -3,64 +3,540 @@
 {% block title %}Edit Tender - {{ tender.title }}{% endblock %}
 
 {% block content %}
-<div class="p-4 md:p-8 max-w-2xl mx-auto w-full space-y-6">
 
-    <!-- Header -->
-    <div>
-        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Edit Tender</h1>
-        <p class="text-xs text-gray-500 mt-0.5">Update the details for your tender: "{{ tender.title }}"</p>
+<div class="p-4 md:p-8 max-w-3xl mx-auto w-full">
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="mb-6">
+
+        <h1 class="text-2xl font-black text-gray-900 tracking-tight">
+            Edit Tender
+        </h1>
+
+        <p class="text-sm text-gray-500 mt-1">
+            Update the details for your tender:
+            <span class="font-semibold text-gray-700">
+                "{{ tender.title }}"
+            </span>
+        </p>
+
     </div>
 
-    <!-- Form -->
+
+    <!-- ================= FORM CARD ================= -->
+
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        <form method="post" enctype="multipart/form-data">
+
+        <!-- ONLY ONE FORM -->
+
+        <form
+            action="{% url 'tenders:edit_tender' tender.id %}"
+            method="POST"
+            enctype="multipart/form-data"
+            id="edit-tender-form">
+
             {% csrf_token %}
+
+
+            <!-- ================= FORM ERRORS ================= -->
+
+            {% if form.non_field_errors %}
+
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+
+                    <p class="font-semibold text-red-700 text-sm mb-2">
+                        Please correct the following errors:
+                    </p>
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+            {% endif %}
+
+
             <div class="space-y-6">
-                <div class="form-group">
-                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.title.label }}</label>
+
+
+                <!-- ================= TITLE ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.title.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.title.label }}
+
+                    </label>
+
                     {{ form.title }}
-                    {% if form.title.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.title.errors.0 }}</span>{% endif %}
-                </div>
 
-                <div class="form-group">
-                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.description.label }}</label>
-                    {{ form.description }}
-                    {% if form.description.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.description.errors.0 }}</span>{% endif %}
-                </div>
+                    {% if form.title.errors %}
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="form-group">
-                        <label for="{{ form.budget.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.budget.label }}</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 text-sm">Np</span>
-                            {{ form.budget }}
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.title.errors.0 }}
+
                         </div>
-                        {% if form.budget.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.budget.errors.0 }}</span>{% endif %}
-                    </div>
 
-                    <div class="form-group">
-                        <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ form.deadline.label }}</label>
-                        {{ form.deadline }}
-                        {% if form.deadline.errors %}<span class="text-xs text-red-600 mt-1 block">{{ form.deadline.errors.0 }}</span>{% endif %}
-                    </div>
+                    {% endif %}
+
                 </div>
+
+
+                <!-- ================= DESCRIPTION ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.description.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.description.label }}
+
+                    </label>
+
+                    {{ form.description }}
+
+                    {% if form.description.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.description.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ================= CATEGORY ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.category.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.category.label }}
+
+                    </label>
+
+                    {{ form.category }}
+
+                    {% if form.category.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.category.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ================= BUDGET + DEADLINE ================= -->
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+                    <!-- BUDGET -->
+
+                    <div>
+
+                        <label
+                            for="{{ form.budget.id_for_label }}"
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+
+                            {{ form.budget.label }}
+
+                        </label>
+
+                        <div class="relative">
+
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2
+                                       text-gray-500 text-sm pointer-events-none">
+
+                                Np
+
+                            </span>
+
+                            {{ form.budget }}
+
+                        </div>
+
+                        {% if form.budget.errors %}
+
+                            <div class="text-xs text-red-600 mt-1">
+
+                                {{ form.budget.errors.0 }}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- DEADLINE -->
+
+                    <div>
+
+                        <label
+                            for="{{ form.deadline.id_for_label }}"
+                            class="block text-sm font-semibold text-gray-700 mb-2">
+
+                            {{ form.deadline.label }}
+
+                        </label>
+
+                        {{ form.deadline }}
+
+                        {% if form.deadline.errors %}
+
+                            <div class="text-xs text-red-600 mt-1">
+
+                                {{ form.deadline.errors.0 }}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= OPENING DATE ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.opening_date.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.opening_date.label }}
+
+                    </label>
+
+                    {{ form.opening_date }}
+
+                    {% if form.opening_date.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.opening_date.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ================= TERMS ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.terms_and_conditions.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.terms_and_conditions.label }}
+
+                    </label>
+
+                    {{ form.terms_and_conditions }}
+
+                    {% if form.terms_and_conditions.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.terms_and_conditions.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ================= ELIGIBILITY ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.eligibility_criteria.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.eligibility_criteria.label }}
+
+                    </label>
+
+                    {{ form.eligibility_criteria }}
+
+                    {% if form.eligibility_criteria.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.eligibility_criteria.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ================= TECHNICAL REQUIREMENTS ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.technical_requirements.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.technical_requirements.label }}
+
+                    </label>
+
+                    {{ form.technical_requirements }}
+
+                    {% if form.technical_requirements.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.technical_requirements.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ================= TENDER DOCUMENT ================= -->
+
+                <div>
+
+                    <label
+                        for="{{ form.tender_document.id_for_label }}"
+                        class="block text-sm font-semibold text-gray-700 mb-2">
+
+                        {{ form.tender_document.label }}
+
+                    </label>
+
+                    {{ form.tender_document }}
+
+                    {% if form.tender_document.errors %}
+
+                        <div class="text-xs text-red-600 mt-1">
+
+                            {{ form.tender_document.errors.0 }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
             </div>
 
-            <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <a href="{% url 'tenders:tender_detail' tender.id %}" class="btn-secondary">Cancel</a>
-                <button type="submit" name="action" value="save_draft" class="btn-primary">Save Changes</button>
-                <button type="submit" name="action" value="send_for_review"
-                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Save and Send for Review
-                </button>
+
+            <!-- ================= BUTTONS ================= -->
+
+            <div class="mt-8 pt-6 border-t border-gray-100">
+
+                <div class="flex flex-col sm:flex-row
+                            justify-end gap-3">
+
+
+                    <!-- CANCEL -->
+
+                    <a
+                        href="{% url 'tenders:tender_detail' tender.id %}"
+                        class="inline-flex justify-center items-center
+                               px-4 py-2.5
+                               rounded-xl
+                               border border-gray-300
+                               bg-white
+                               text-gray-700
+                               text-sm font-semibold
+                               hover:bg-gray-50
+                               transition">
+
+                        Cancel
+
+                    </a>
+
+
+                    <!-- SAVE CHANGES -->
+
+                    <button
+                        type="submit"
+                        name="action"
+                        value="save_draft"
+                        class="inline-flex justify-center items-center
+                               px-4 py-2.5
+                               rounded-xl
+                               bg-gray-600
+                               text-white
+                               text-sm font-semibold
+                               hover:bg-gray-700
+                               transition">
+
+                        Save Changes
+
+                    </button>
+
+
+                    <!-- SEND FOR REVIEW -->
+
+                    <button
+                        type="submit"
+                        name="action"
+                        value="send_for_review"
+                        class="inline-flex justify-center items-center
+                               px-4 py-2.5
+                               rounded-xl
+                               bg-blue-600
+                               text-white
+                               text-sm font-semibold
+                               hover:bg-blue-700
+                               transition">
+
+                        Save and Send for Review
+
+                    </button>
+
+
+                </div>
+
             </div>
+
+
         </form>
+
     </div>
+
 </div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
 <script>
-    // Add CSS classes to form fields rendered by Django
-    document.querySelectorAll('input, textarea, select').forEach(field => {
-        field.classList.add('form-input', 'w-full', 'text-sm', 'rounded-xl', 'px-4', 'py-2.5', 'border', 'border-gray-200', 'focus:outline-none', 'focus:ring-2', 'focus:ring-indigo-500/20', 'focus:border-indigo-600', 'transition-all', 'bg-gray-50/50', 'focus:bg-white');
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /*
+     * Add styling to Django form fields.
+     */
+
+    const fields = document.querySelectorAll(
+        "#edit-tender-form input:not([type='file']):not([type='hidden']), " +
+        "#edit-tender-form textarea, " +
+        "#edit-tender-form select"
+    );
+
+    fields.forEach(function (field) {
+
+        field.classList.add(
+            "w-full",
+            "text-sm",
+            "rounded-xl",
+            "px-4",
+            "py-2.5",
+            "border",
+            "border-gray-200",
+            "bg-gray-50",
+            "focus:outline-none",
+            "focus:ring-2",
+            "focus:ring-indigo-500/20",
+            "focus:border-indigo-600",
+            "transition-all"
+        );
+
     });
+
+
+    /*
+     * File input styling.
+     */
+
+    const fileInputs = document.querySelectorAll(
+        "#edit-tender-form input[type='file']"
+    );
+
+    fileInputs.forEach(function (field) {
+
+        field.classList.add(
+            "w-full",
+            "text-sm",
+            "rounded-xl",
+            "border",
+            "border-gray-200",
+            "bg-gray-50",
+            "p-2",
+            "cursor-pointer"
+        );
+
+    });
+
+
+    /*
+     * Prevent accidental double submission.
+     *
+     * IMPORTANT:
+     * We do NOT use form.submit().
+     * Therefore the normal browser form submission
+     * still includes the Django CSRF token.
+     */
+
+    const form = document.getElementById("edit-tender-form");
+
+    if (form) {
+
+        form.addEventListener("submit", function () {
+
+            const clickedButton = document.activeElement;
+
+            if (
+                clickedButton &&
+                clickedButton.tagName === "BUTTON" &&
+                clickedButton.type === "submit"
+            ) {
+
+                /*
+                 * Disable only the clicked button after submission.
+                 */
+
+                setTimeout(function () {
+
+                    clickedButton.disabled = true;
+
+                    clickedButton.classList.add(
+                        "opacity-60",
+                        "cursor-not-allowed"
+                    );
+
+                }, 10);
+
+            }
+
+        });
+
+    }
+
+});
+
 </script>
+
 {% endblock %}
