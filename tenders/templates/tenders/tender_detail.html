@@ -184,7 +184,7 @@
         <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto space-y-8">
         
-        <!-- Main Tender Info Card (overflow-hidden removed so reject popovers are not clipped) -->
+        <!-- Main Tender Info Card -->
         <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm transition-all duration-300 hover:shadow-md">
             <!-- Header Section -->
             <div class="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50">
@@ -356,268 +356,130 @@
                             {% endif %}
                         {% endif %}
 
-                        <!-- Reviewer Scopes -->
-                        {% if role == 'reviewer' and tender.status == 'pending_review' %}
-                            <form
-    action="{% url 'tenders:update_tender_status' tender.id %}"
-    method="POST"
-    class="inline">
-
-    {% csrf_token %}
-
-    <input
-        type="hidden"
-        name="action"
-        value="forward_for_approval">
-
-    <button
-        type="submit"
-        class="inline-flex items-center px-4 py-2
-               bg-blue-600 hover:bg-blue-700
-               text-white font-semibold
-               rounded-lg transition">
-
-        Forward for Approval
-
-    </button>
-
-</form>
-
-                            {% if tender.tender_document %}
-                            <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 shadow-sm hover:shadow transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Download Document
-                            </a>
-                            {% endif %}
-                            
-                            <!-- Toggle Reject Form -->
-<form action="{% url 'tenders:update_tender_status' tender.id %}" method="POST">
-    {% csrf_token %}
-
-    <input type="hidden" name="action" value="reject_by_admin">
-
-    <label class="block mb-2 font-bold text-sm">
-        Rejection Remarks
-    </label>
-
-    <textarea
-        name="remarks"
-        class="w-full border border-gray-300 rounded-lg p-2"
-        placeholder="Provide reason for rejection..."
-        rows="3"
-        required></textarea>
-
-    <button
-        type="submit"
-        class="px-4 py-2 bg-red-600 text-white rounded-lg">
-        Confirm Reject
-    </button>
-</form>
-
-    <div
-        id="reject-form"
-        class="hidden absolute left-0 top-14 z-[9999] w-80 p-4 bg-white border border-gray-300 rounded-xl shadow-xl">
-
-        <form
-            action="{% url 'tenders:update_tender_status' tender.id %}"
-            method="post">
-
-            {% csrf_token %}
-
-            <!-- IMPORTANT -->
-            <input
-                type="hidden"
-                name="action"
-                value="reject_tender">
-
-            <label class="block mb-2 font-bold text-sm">
-                Rejection Remarks
-            </label>
-
-            <textarea
-                name="remarks"
-                class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="Provide reasons for rejection..."
-                rows="3"
-                required></textarea>
-
-            <div class="flex justify-end gap-2 mt-3">
-
-                <button
-                    type="button"
-                    id="cancel-reject-btn"
-                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium transition-colors">
-
-                    Cancel
-
-                </button>
-
-                <button
-                    type="submit"
-                    class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
-
-                    Confirm Reject
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-                        {% endif %}
-
-                        <!-- Reviewer Scopes (Post-Action) -->
-                        {% if role == 'reviewer' and tender.status == 'pending_approval' %}
-                            {% if tender.tender_document %}
-                            <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 shadow-sm hover:shadow transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Download Document
-                            </a>
-                            {% endif %}
-                        {% endif %}
-
-                        <!-- Admin Scopes -->
-                   {% if role == 'admin' %}
-    {% if tender.status == 'pending_approval' %}
-
-        <!-- ================= PUBLISH TENDER ================= -->
-
-        <form
-            id="publish-tender-form"
-            action="{% url 'tenders:update_tender_status' tender.id %}"
-            method="POST"
-            class="inline"
-        >
-            {% csrf_token %}
-
-            <input
-                type="hidden"
-                name="action"
-                value="publish"
-            >
-        </form>
-
-        <button
-            type="submit"
-            form="publish-tender-form"
-            class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow transition-all duration-200"
-        >
-            <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.027 6.027 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-            </svg>
-
-            Publish Tender
-        </button>
-
-
-        <!-- ================= REJECT TENDER ================= -->
-
-        <div class="relative inline-block">
-
-            <button
-                type="button"
-                id="toggle-reject-btn-admin"
-                class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm hover:shadow transition-all duration-200"
-            >
-                Reject Tender
-            </button>
-
-            <div
-                id="reject-form-admin"
-                class="hidden absolute left-0 top-14 z-[9999] w-80 p-4 bg-white border border-gray-300 rounded-xl shadow-xl"
-            >
-
-                <form
-                    action="{% url 'tenders:update_tender_status' tender.id %}"
-                    method="POST"
-                >
-                    {% csrf_token %}
-
-                    <input
-                        type="hidden"
-                        name="action"
-                        value="reject"
-                    >
-
-                    <label class="block mb-2 font-bold text-sm">
-                        Rejection Remarks
-                    </label>
-
-                    <textarea
-                        name="remarks"
-                        class="w-full border border-gray-300 rounded-lg p-2 text-sm"
-                        placeholder="Provide reasons for rejection..."
-                        rows="3"
-                        required
-                    ></textarea>
-
-                    <div class="flex justify-end gap-2 mt-3">
-
-                        <button
-                            type="button"
-                            id="cancel-reject-btn-admin"
-                            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
-                        >
-                            Confirm Reject
-                        </button>
-
                     </div>
 
-                </form>
+                    <!-- ================================================
+                         TENDER ACTIONS (reviewer / admin)
+                    ================================================ -->
+                    <div class="flex flex-wrap items-center gap-3 mt-6">
 
-            </div>
+                        <!-- REVIEWER ACTIONS -->
+                        {% if role == 'reviewer' %}
 
-        </div>
+                            {% if tender.status == 'pending_review' %}
 
-{% endif %}
-                            
-                            <!-- General Admin Actions -->
-                            {% if tender.tender_document %}
-                            <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 shadow-sm hover:shadow transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Download Document
-                            </a>
+                                <!-- Forward for Approval -->
+                                <form action="{% url 'tenders:update_tender_status' tender.id %}" method="POST" class="inline-block">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="forward_for_approval">
+                                    <button type="submit" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all duration-200">
+                                        Forward for Approval
+                                    </button>
+                                </form>
+
+                                <!-- Download Tender Document -->
+                                {% if tender.tender_document %}
+                                    <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-200">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download Document
+                                    </a>
+                                {% endif %}
+
+                                <!-- Reject Tender -->
+                                <div class="relative">
+                                    <button type="button" id="reviewer-reject-toggle" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-all duration-200">
+                                        Reject Tender
+                                    </button>
+
+                                    <!-- Reject Form -->
+                                    <div id="reviewer-reject-form" class="hidden absolute left-0 top-12 z-50 w-80 p-4 bg-white border border-gray-200 rounded-xl shadow-xl">
+                                        <form action="{% url 'tenders:update_tender_status' tender.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="reject">
+                                            <label class="block mb-2 text-sm font-bold text-gray-700">Rejection Remarks</label>
+                                            <textarea name="remarks" rows="4" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Provide reason for rejection..."></textarea>
+                                            <div class="flex justify-end gap-2 mt-3">
+                                                <button type="button" id="reviewer-reject-cancel" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm">Cancel</button>
+                                                <button type="submit" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm">Confirm Reject</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
                             {% endif %}
 
-                            <a href="{% url 'tenders:generate_tender_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm hover:shadow transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
+                            <!-- Reviewer - Pending Approval -->
+                            {% if tender.status == 'pending_approval' %}
+                                {% if tender.tender_document %}
+                                    <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200">
+                                        Download Document
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+
+                        {% endif %}
+
+                        <!-- ADMIN ACTIONS -->
+                        {% if role == 'admin' %}
+
+                            {% if tender.status == 'pending_approval' %}
+
+                                <!-- Publish -->
+                                <form action="{% url 'tenders:update_tender_status' tender.id %}" method="POST" class="inline-block">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="publish">
+                                    <button type="submit" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all duration-200">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.027 6.027 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                        Publish Tender
+                                    </button>
+                                </form>
+
+                                <!-- Admin Reject -->
+                                <div class="relative">
+                                    <button type="button" id="admin-reject-toggle" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-all duration-200">
+                                        Reject Tender
+                                    </button>
+
+                                    <!-- Admin Reject Form -->
+                                    <div id="admin-reject-form" class="hidden absolute left-0 top-12 z-50 w-80 p-4 bg-white border border-gray-200 rounded-xl shadow-xl">
+                                        <form action="{% url 'tenders:update_tender_status' tender.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="reject">
+                                            <label class="block mb-2 text-sm font-bold text-gray-700">Rejection Remarks</label>
+                                            <textarea name="remarks" rows="4" required class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Provide reason for rejection..."></textarea>
+                                            <div class="flex justify-end gap-2 mt-3">
+                                                <button type="button" id="admin-reject-cancel" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm">Cancel</button>
+                                                <button type="submit" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm">Confirm Reject</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            {% endif %}
+
+                            <!-- Admin Document -->
+                            {% if tender.tender_document %}
+                                <a href="{{ tender.tender_document.url }}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200">
+                                    Download Document
+                                </a>
+                            {% endif %}
+
+                            <!-- Generate Tender PDF -->
+                            <a href="{% url 'tenders:generate_tender_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100">
                                 Generate PDF
                             </a>
-                            <a href="{% url 'tenders:generate_bids_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 shadow-sm hover:shadow transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" />
-                                </svg>
+
+                            <!-- Generate Bids PDF -->
+                            <a href="{% url 'tenders:generate_bids_pdf' tender.id %}" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100">
                                 Generate Bids PDF
                             </a>
+
                         {% endif %}
+
                     </div>
                 </div>
             {% endif %}
@@ -783,7 +645,7 @@
     }
     
     /* Input Animations for Remark Overlays */
-    #reject-form, #reject-form-admin {
+    #reviewer-reject-form, #admin-reject-form {
         animation: slideDownIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes slideDownIn {
@@ -795,8 +657,8 @@
     .hidden {
         display: none !important;
     }
-    
-    #reject-form, #reject-form-admin {
+
+    #reviewer-reject-form, #admin-reject-form {
         transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
@@ -825,74 +687,66 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // --- Reviewer Reject Toggle ---
-    const toggleBtn = document.getElementById("toggle-reject-btn");
-    const rejectForm = document.getElementById("reject-form");
-    const cancelBtn = document.getElementById("cancel-reject-btn");
 
-    if (toggleBtn && rejectForm && cancelBtn) {
-        toggleBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            rejectForm.classList.toggle("hidden");
-            // Close the other form if open
-            const adminForm = document.getElementById("reject-form-admin");
-            if (adminForm && !adminForm.classList.contains("hidden")) {
-                adminForm.classList.add("hidden");
-            }
-        });
+    /* REVIEWER REJECT */
+    const reviewerToggle = document.getElementById("reviewer-reject-toggle");
+    const reviewerForm = document.getElementById("reviewer-reject-form");
+    const reviewerCancel = document.getElementById("reviewer-reject-cancel");
 
-        cancelBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            rejectForm.classList.add("hidden");
+    if (reviewerToggle && reviewerForm) {
+        reviewerToggle.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            reviewerForm.classList.toggle("hidden");
         });
     }
 
-    // --- Admin Reject Toggle ---
-    const toggleBtnAdmin = document.getElementById("toggle-reject-btn-admin");
-    const rejectFormAdmin = document.getElementById("reject-form-admin");
-    const cancelBtnAdmin = document.getElementById("cancel-reject-btn-admin");
-
-    if (toggleBtnAdmin && rejectFormAdmin && cancelBtnAdmin) {
-        toggleBtnAdmin.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            rejectFormAdmin.classList.toggle("hidden");
-            // Close the other form if open
-            const reviewerForm = document.getElementById("reject-form");
-            if (reviewerForm && !reviewerForm.classList.contains("hidden")) {
-                reviewerForm.classList.add("hidden");
-            }
-        });
-
-        cancelBtnAdmin.addEventListener("click", function (e) {
-            e.preventDefault();
-            rejectFormAdmin.classList.add("hidden");
+    if (reviewerCancel && reviewerForm) {
+        reviewerCancel.addEventListener("click", function (event) {
+            event.preventDefault();
+            reviewerForm.classList.add("hidden");
         });
     }
 
-    // --- Click outside to close forms ---
+    /* ADMIN REJECT */
+    const adminToggle = document.getElementById("admin-reject-toggle");
+    const adminForm = document.getElementById("admin-reject-form");
+    const adminCancel = document.getElementById("admin-reject-cancel");
+
+    if (adminToggle && adminForm) {
+        adminToggle.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            adminForm.classList.toggle("hidden");
+        });
+    }
+
+    if (adminCancel && adminForm) {
+        adminCancel.addEventListener("click", function (event) {
+            event.preventDefault();
+            adminForm.classList.add("hidden");
+        });
+    }
+
+    /* CLOSE POPUP WHEN CLICKING OUTSIDE */
     document.addEventListener("click", function (event) {
-        // Close reviewer reject form
-        const rejectForm = document.getElementById("reject-form");
-        const toggleBtn = document.getElementById("toggle-reject-btn");
-        if (rejectForm && !rejectForm.classList.contains("hidden")) {
-            const isClickInside = rejectForm.contains(event.target) || (toggleBtn && toggleBtn.contains(event.target));
-            if (!isClickInside) {
-                rejectForm.classList.add("hidden");
-            }
+        if (
+            reviewerForm && reviewerToggle &&
+            !reviewerForm.contains(event.target) &&
+            !reviewerToggle.contains(event.target)
+        ) {
+            reviewerForm.classList.add("hidden");
         }
 
-        // Close admin reject form
-        const rejectFormAdmin = document.getElementById("reject-form-admin");
-        const toggleBtnAdmin = document.getElementById("toggle-reject-btn-admin");
-        if (rejectFormAdmin && !rejectFormAdmin.classList.contains("hidden")) {
-            const isClickInside = rejectFormAdmin.contains(event.target) || (toggleBtnAdmin && toggleBtnAdmin.contains(event.target));
-            if (!isClickInside) {
-                rejectFormAdmin.classList.add("hidden");
-            }
+        if (
+            adminForm && adminToggle &&
+            !adminForm.contains(event.target) &&
+            !adminToggle.contains(event.target)
+        ) {
+            adminForm.classList.add("hidden");
         }
     });
+
 });
 </script>
 {% endblock %}

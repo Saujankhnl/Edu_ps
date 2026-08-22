@@ -289,149 +289,222 @@ def list_tenders(request):
 @role_required(allowed_roles=['creator', 'admin', 'reviewer'])
 def update_tender_status(request, tender_id):
 
-    institution_user = get_object_or_404(
-        InstitutionUser,
-        user=request.user
-    )
+    tender = get_object_or_404(Tender, id=tender_id)
 
-    tender = get_object_or_404(
-        Tender,
-        id=tender_id,
-        institution=institution_user.institution
-    )
+    action = request.POST.get("action")
+    remarks = request.POST.get("remarks", "").strip()
 
-    if request.method != 'POST':
-        return redirect(
-            'tenders:tender_detail',
-            tender_id=tender.id
-        )
-
-    action = request.POST.get('action')
-    remarks = request.POST.get('remarks', '').strip()
-
-    print("========== UPDATE TENDER STATUS ==========")
-    print("USER:", request.user)
-    print("ROLE:", institution_user.role)
+    print("\n========== UPDATE TENDER STATUS ==========")
+    print("USER:", request.user.username)
+    print("ROLE:", request.user.institution_profile.role)
     print("TENDER:", tender.title)
     print("STATUS:", tender.status)
     print("ACTION:", action)
     print("REMARKS:", remarks)
 
-    # ==========================================
-    # ADMIN PUBLISH
-    # ==========================================
+    institution_user = request.user.institution_profile
 
-    if action == 'publish':
+    # ==============================
+    # REVIEWER
+    # ==============================
 
-        if institution_user.role != 'admin':
-            messages.error(
-                request,
-                "Only admin can publish a tender."
+    if institution_user.role == "reviewer":
+
+        if action == "forward_for_approval":
+
+            if tender.status != "pending_review":
+                messages.error(
+                    request,
+                    "This tender is not pending review."
+                )
+                return redirect(
+                    "tenders:tender_detail",
+                    tender_id=tender.id
+                )
+
+            tender.status = "pending_approval"
+            tender.remarks = ""
+            tender.save()
+
+            TenderActivity.objects.create(
+                tender=tender,
+                performed_by=institution_user,
+                action="Forwarded for approval",
+                remarks=""
             )
+
+            messages.success(
+                request,
+                "Tender forwarded for approval successfully."
+            )
+
             return redirect(
-                'tenders:tender_detail',
+                "tenders:tender_detail",
                 tender_id=tender.id
             )
 
-        if tender.status != 'pending_approval':
-            messages.error(
-                request,
-                "Only tenders pending approval can be published."
+        # ==============================
+        # REVIEWER REJECT
+        # ==============================
+
+        elif action == "reject":
+
+            if tender.status != "pending_review":
+                messages.error(
+                    request,
+                    "This tender cannot be rejected from its current status."
+                )
+
+                return redirect(
+                    "tenders:tender_detail",
+                    tender_id=tender.id
+                )
+
+            if not remarks:
+                messages.error(
+                    request,
+                    "Rejection remarks are required."
+                )
+
+                return redirect(
+                    "tenders:tender_detail",
+                    tender_id=tender.id
+                )
+
+            # CHANGE STATUS
+            tender.status = "rejected"
+
+            # SAVE REMARKS
+            tender.remarks = remarks
+
+            # SAVE DATABASE
+            tender.save(
+                update_fields=[
+                    "status",
+                    "remarks",
+                    "updated_at"
+                ]
             )
+
+            # CREATE ACTIVITY LOG
+            TenderActivity.objects.create(
+                tender=tender,
+                performed_by=institution_user,
+                action="Rejected tender",
+                remarks=remarks
+            )
+
+            messages.success(
+                request,
+                "Tender rejected successfully."
+            )
+
             return redirect(
-                'tenders:tender_detail',
+                "tenders:tender_detail",
                 tender_id=tender.id
             )
 
-        tender.status = 'published'
-        tender.remarks = ''
+    # ==============================
+    # ADMIN
+    # ==============================
 
-        tender.log_activity(
-            institution_user,
-            "Tender Published"
-        )
+    if institution_user.role == "admin":
 
-        tender.save()
+        if action == "publish":
 
-        messages.success(
-            request,
-            "Tender has been published successfully."
-        )
+            if tender.status != "pending_approval":
+                messages.error(
+                    request,
+                    "This tender is not pending approval."
+                )
 
-        return redirect(
-            'tenders:tender_detail',
-            tender_id=tender.id
-        )
+                return redirect(
+                    "tenders:tender_detail",
+                    tender_id=tender.id
+                )
 
-    # ==========================================
-    # ADMIN REJECT
-    # ==========================================
+            tender.status = "published"
+            tender.remarks = ""
+            tender.save()
 
-    elif action == 'reject':
-
-        if institution_user.role != 'admin':
-            messages.error(
-                request,
-                "Only admin can reject a tender."
+            TenderActivity.objects.create(
+                tender=tender,
+                performed_by=institution_user,
+                action="Published tender",
+                remarks=""
             )
+
+            messages.success(
+                request,
+                "Tender published successfully."
+            )
+
             return redirect(
-                'tenders:tender_detail',
+                "tenders:tender_detail",
                 tender_id=tender.id
             )
 
-        if tender.status != 'pending_approval':
-            messages.error(
-                request,
-                "This tender cannot be rejected in its current status."
+        elif action == "reject":
+
+            if tender.status != "pending_approval":
+                messages.error(
+                    request,
+                    "This tender is not pending approval."
+                )
+
+                return redirect(
+                    "tenders:tender_detail",
+                    tender_id=tender.id
+                )
+
+            if not remarks:
+                messages.error(
+                    request,
+                    "Rejection remarks are required."
+                )
+
+                return redirect(
+                    "tenders:tender_detail",
+                    tender_id=tender.id
+                )
+
+            tender.status = "rejected"
+            tender.remarks = remarks
+
+            tender.save(
+                update_fields=[
+                    "status",
+                    "remarks",
+                    "updated_at"
+                ]
             )
+
+            TenderActivity.objects.create(
+                tender=tender,
+                performed_by=institution_user,
+                action="Rejected tender",
+                remarks=remarks
+            )
+
+            messages.success(
+                request,
+                "Tender rejected successfully."
+            )
+
             return redirect(
-                'tenders:tender_detail',
+                "tenders:tender_detail",
                 tender_id=tender.id
             )
 
-        if not remarks:
-            messages.error(
-                request,
-                "Rejection remarks are required."
-            )
-            return redirect(
-                'tenders:tender_detail',
-                tender_id=tender.id
-            )
+    messages.error(
+        request,
+        "Invalid action or insufficient permission."
+    )
 
-        tender.reject_by_admin(
-            institution_user,
-            remarks
-        )
-
-        tender.save()
-
-        messages.success(
-            request,
-            "Tender has been rejected."
-        )
-
-        return redirect(
-            'tenders:tender_detail',
-            tender_id=tender.id
-        )
-
-    # ==========================================
-    # INVALID ACTION
-    # ==========================================
-
-    else:
-
-        messages.error(
-            request,
-            "Invalid tender action."
-        )
-
-        return redirect(
-            'tenders:tender_detail',
-            tender_id=tender.id
-        )
-
+    return redirect(
+        "tenders:tender_detail",
+        tender_id=tender.id
+    )
     
 @login_required
 @company_login_required
