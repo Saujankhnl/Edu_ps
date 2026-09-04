@@ -14,7 +14,7 @@ urlpatterns = [
     path("analytics/", views.analytics_reports, name="analytics_reports"),
     path("analytics/pdf/", views.generate_analytics_pdf, name="generate_analytics_pdf"),
     path('verification/', views.verification_submission, name='verification'),
-    # User Management URLs for Company Admin
+ 
     path("manage-users/", views.manage_users, name="manage_users"),
     path("manage-users/create/", views.create_company_user, name="create_user"),
     path("manage-users/edit/<int:user_id>/", views.edit_company_user, name="edit_user"),

@@ -326,8 +326,7 @@ def institution_profile(request, institution_id):
     # Check if the logged-in user is the admin of this specific institution
     if request.user.is_authenticated and hasattr(request.user, 'institution_profile'):
         try:
-            # Pass the full institution_user object to the template
-            # This makes the sidebar and other components work correctly
+           
             institution_user = InstitutionUser.objects.select_related('institution').get(user=request.user)
             context['institution_user'] = institution_user
             context['role'] = institution_user.role

@@ -20,7 +20,7 @@ class Company(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='admin', help_text="Role of the user within the company.")
     company_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=10)
     address = models.TextField()
     website = models.URLField(blank=True, verbose_name="Website URL")
     description = models.TextField(blank=True, verbose_name="About the Company")

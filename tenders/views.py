@@ -513,16 +513,12 @@ def submit_bid(request, tender_id):
     tender = get_object_or_404(Tender, pk=tender_id)
     company = get_object_or_404(Company, user=request.user)
 
-    # Check if a draft bid already exists for this tender and company
     existing_bid = Bid.objects.filter(tender=tender, company=company, status__in=['draft', 'pending_approval']).first()
 
-    # Ensure the company is verified before allowing them to bid.
-    # The company dashboard already handles routing to the verification page if needed.
     if company.verification_status != 'approved':
         messages.error(request, "Your company profile must be verified before you can submit bids. Please complete your verification process.")
         return redirect('company:dashboard')
 
-    # Check if bidding is open and tender is published
     now = timezone.now()
     if tender.status != 'published' or (tender.opening_date and now < tender.opening_date) or (tender.deadline and now > tender.deadline):
         messages.error(request, "This tender is not currently open for bidding.")

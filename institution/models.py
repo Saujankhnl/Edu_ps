@@ -19,7 +19,7 @@ class Institution(models.Model):
 
     institution_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=10)
     address = models.TextField()
     profile_picture = models.ImageField(upload_to='institution_profiles/', null=True, blank=True, verbose_name="Profile Picture")
     institution_head_name = models.CharField(max_length=100, blank=True, verbose_name="Institution Head Name")

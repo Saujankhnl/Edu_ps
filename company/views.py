@@ -34,11 +34,7 @@ def dashboard(request):
     
     # Stats
     total_published_tenders = Tender.objects.filter(status='published').count()
-    
-    # For all company roles (admin, viewer, etc.), we should get stats for the entire company.
-    # We can find the admin of the company to get the "main" company entity if needed,
-    # but a better approach is to filter Bids by the company_name.
-    # Assuming all users of a company share the same `company_name`.
+
     my_bids = Bid.objects.filter(company__company_name=company.company_name)
     
     stats = {
@@ -54,8 +50,6 @@ def dashboard(request):
     # Recent activities (e.g., recent bids)
     recent_activities = my_bids.select_related('tender').order_by('-submitted_at')[:5]
 
-    # Bids pending company admin approval.
-    # We filter for `remarks__isnull=True` because a bid with remarks has already been rejected by the admin.
     pending_admin_approval_bids = Bid.objects.filter(
         company__company_name=company.company_name, status='pending_approval', remarks__isnull=True
     )
@@ -75,18 +69,17 @@ def company_profile(request):
     # Get the current user's company profile to know their role and company name
     current_user_company_profile = get_object_or_404(Company, user=request.user)
     
-    # The "main" profile is the one associated with the 'admin' role for that company name.
-    # We fetch this to display consistent company-wide information for all users of the company.
+    
     main_company_profile = Company.objects.filter(
         company_name=current_user_company_profile.company_name, 
         role='admin'
     ).first()
 
     if not main_company_profile:
-        # Fallback to the user's own profile if an admin profile isn't found for some reason.
+        
         main_company_profile = current_user_company_profile
 
-    # Pass the main profile for display, but the current user's role for permissions.
+ 
     context = {'company': main_company_profile, 'role': current_user_company_profile.role}
     return render(request, 'company/company_profile.html', context)
 
@@ -271,21 +264,6 @@ def manage_users(request):
     """Allows a Company Admin to view and manage their users."""
     admin_company = get_object_or_404(Company, user=request.user, role='admin')
     
-    # Get all users belonging to the same company, excluding the admin themselves.
-    # This is a bit tricky because there isn't a direct link between company users.
-    # We assume users are linked by being part of the same conceptual "company",
-    # but the model has a User 1-to-1 with Company.
-    # For this implementation, we'll assume an admin manages users they create.
-    # A better model would be a ManyToMany from Company to User through a membership model.
-    # Given the current structure, an admin can only manage their own account details.
-    # To enable user management, the data model needs to change from OneToOne to ForeignKey
-    # from Company to User, and Company needs to be a single entity.
-    
-    # Let's adjust the logic based on the request. The request implies multiple users per company.
-    # This means the `user` field on `Company` should be a `ForeignKey` not `OneToOneField`.
-    # I will proceed assuming this change is made.
-    
-    # Let's find the parent company entity. Assuming the admin's `company_name` is the key.
     users_in_company = Company.objects.filter(company_name=admin_company.company_name).select_related('user').order_by('user__first_name')
 
     context = {
@@ -334,8 +312,7 @@ def create_company_user(request):
         'company': admin_company,
         'role': admin_company.role,
     }
-    # This view requires a 'create_user.html' template in the company/templates/company/ directory.
-    # Assuming one will be created, similar to the institution app.
+  
     return render(request, 'company/create_user.html', context)
 
 @company_login_required
@@ -402,7 +379,3 @@ def delete_company_user(request, user_id):
     }
     return render(request, 'company/delete_user_confirm.html', context)
 
-# NOTE: Full implementation of create/edit/delete users for a company requires a significant
-# data model change (from OneToOne to ForeignKey/ManyToMany). The provided code is a conceptual
-# placeholder. The user management feature as requested is not fully possible without altering the
-# core `Company` model relationship to `User`. The rest of the role implementation is valid.

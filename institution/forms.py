@@ -64,6 +64,11 @@ class InstitutionProfileForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}),
             'profile_picture': forms.ClearableFileInput(attrs={'class': 'form-input'}),
         }
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number and not (phone_number.isdigit() and len(phone_number) == 10):
+            raise forms.ValidationError("Phone number must be exactly 10 digits.")
+        return phone_number
 
 class UserProfileForm(forms.ModelForm):
     """Form for users to update their own profile information."""
@@ -78,6 +83,12 @@ class UserProfileForm(forms.ModelForm):
             'phone_number': forms.TextInput(attrs={'placeholder': 'Your contact number'}),
             'profile_picture': forms.ClearableFileInput(),
         }
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number and not (phone_number.isdigit() and len(phone_number) == 10):
+            raise forms.ValidationError("Phone number must be exactly 10 digits.")
+        return phone_number
 
 class PasswordChangeForm(AuthPasswordChangeForm):
     """Custom password change form to apply Tailwind CSS classes."""
